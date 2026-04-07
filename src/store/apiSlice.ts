@@ -2,8 +2,10 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 import type {
   AuthSuccessResponse,
+  CategoriesResponse,
   ForgotPasswordRequestBody,
   ForgotPasswordResponse,
+  ProductsResponse,
   SignInRequestBody,
   SignUpRequestBody,
 } from "@/types/api";
@@ -54,13 +56,26 @@ export const apiSlice = createApi({
         body,
       }),
     }),
+    getCategories: builder.query<CategoriesResponse, void>({
+      query: () => ({
+        url: "/categories",
+      }),
+    }),
+    getProducts: builder.query<ProductsResponse, void>({
+      query: () => ({
+        url: "/products",
+      }),
+    }),
   }),
 });
 
 export const {
   useForgotPasswordMutation,
+  useGetCategoriesQuery,
+  useGetProductsQuery,
   useSignInMutation,
   useSignUpMutation,
 } = apiSlice;
 
 export const useSignupMutation = apiSlice.useSignUpMutation;
+export const useSigninMutation = apiSlice.useSignInMutation;

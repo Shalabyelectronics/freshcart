@@ -62,3 +62,5 @@ export const {
   useSignInMutation,
   useSignUpMutation,
 } = apiSlice;
+
+export const useSignupMutation = apiSlice.useSignUpMutation;

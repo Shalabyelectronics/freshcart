@@ -1,7 +1,10 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 import type {
+  AddToCartRequestBody,
   AuthSuccessResponse,
+  CartMutationResponse,
+  CartResponse,
   CategoriesResponse,
   ForgotPasswordRequestBody,
   ForgotPasswordResponse,
@@ -10,10 +13,12 @@ import type {
   ProductsResponse,
   SignInRequestBody,
   SignUpRequestBody,
+  UpdateCartProductQuantityRequestBody,
 } from "@/types/api";
 
 export const apiSlice = createApi({
   reducerPath: "api",
+  tagTypes: ["Cart"],
   baseQuery: fetchBaseQuery({
     baseUrl: "https://ecommerce.routemisr.com/api/v1",
     prepareHeaders: (headers, { getState }) => {
@@ -74,16 +79,61 @@ export const apiSlice = createApi({
         url: `/products/${id}`,
       }),
     }),
+    addToCart: builder.mutation<CartMutationResponse, AddToCartRequestBody>({
+      query: (body) => ({
+        url: "/cart",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Cart"],
+    }),
+    getLoggedUserCart: builder.query<CartResponse, void>({
+      query: () => ({
+        url: "/cart",
+        method: "GET",
+      }),
+      providesTags: ["Cart"],
+    }),
+    updateCartProductQuantity: builder.mutation<
+      CartMutationResponse,
+      { id: string; body: UpdateCartProductQuantityRequestBody }
+    >({
+      query: ({ id, body }) => ({
+        url: `/cart/${id}`,
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: ["Cart"],
+    }),
+    removeCartItem: builder.mutation<CartMutationResponse, string>({
+      query: (id) => ({
+        url: `/cart/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Cart"],
+    }),
+    clearCart: builder.mutation<CartMutationResponse, void>({
+      query: () => ({
+        url: "/cart",
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Cart"],
+    }),
   }),
 });
 
 export const {
+  useAddToCartMutation,
+  useClearCartMutation,
   useForgotPasswordMutation,
   useGetCategoriesQuery,
+  useGetLoggedUserCartQuery,
   useGetProductsQuery,
   useGetProductByIdQuery,
+  useRemoveCartItemMutation,
   useSignInMutation,
   useSignUpMutation,
+  useUpdateCartProductQuantityMutation,
 } = apiSlice;
 
 export const useSignupMutation = apiSlice.useSignUpMutation;

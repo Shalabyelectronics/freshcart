@@ -148,6 +148,21 @@ export interface CartResponse {
   message?: string;
 }
 
+export interface AddToCartRequestBody {
+  productId: string;
+}
+
+export interface UpdateCartProductQuantityRequestBody {
+  count: number;
+}
+
+export interface CartMutationResponse {
+  status: string;
+  message?: string;
+  numOfCartItems?: number;
+  data?: CartData | null;
+}
+
 export interface WishlistResponse {
   status: string;
   count: number;

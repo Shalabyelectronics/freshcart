@@ -4,12 +4,11 @@ import { useEffect, useMemo, useState } from "react";
 import {
   ArrowRight,
   BadgeCheck,
-  Headset,
+Truck,
   Mail,
-  RotateCcw,
-  ShieldCheck,
+
   Tag,
-  Truck,
+ 
 } from "lucide-react";
 import Link from "next/link";
 
@@ -44,36 +43,7 @@ const sliderItems = [
   },
 ];
 
-const sectionServices = [
-  {
-    icon: Truck,
-    title: "Free Shipping",
-    description: "On orders over 500 EGP",
-    color: "#3B82F6",
-    bg: "#EFF6FF",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Secure Payment",
-    description: "100% secure transactions",
-    color: "#16A34A",
-    bg: "#ECFDF5",
-  },
-  {
-    icon: RotateCcw,
-    title: "Easy Returns",
-    description: "14-day return policy",
-    color: "#F97316",
-    bg: "#FFF7ED",
-  },
-  {
-    icon: Headset,
-    title: "24/7 Support",
-    description: "Dedicated support team",
-    color: "#A855F7",
-    bg: "#FAF5FF",
-  },
-];
+
 
 const categoryOrder = [
   "Music",
@@ -202,34 +172,7 @@ export default function Home() {
           </Carousel>
         </section>
 
-        <section className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
-          {sectionServices.map((item) => {
-            const Icon = item.icon;
-            return (
-              <article
-                key={item.title}
-                className="rounded-2xl border border-[#E5E7EB] bg-white p-4 shadow-[0_2px_8px_rgba(15,23,42,0.04)]"
-              >
-                <div className="flex items-center gap-3">
-                  <span
-                    className="inline-flex size-12 shrink-0 items-center justify-center rounded-full"
-                    style={{ color: item.color, backgroundColor: item.bg }}
-                  >
-                    <Icon className="size-5" />
-                  </span>
-                  <div>
-                    <h3 className="text-2xl font-bold text-slate-800">
-                      {item.title}
-                    </h3>
-                    <p className="text-base text-slate-500">
-                      {item.description}
-                    </p>
-                  </div>
-                </div>
-              </article>
-            );
-          })}
-        </section>
+ 
 
         <section className="space-y-5">
           <div className="flex items-center justify-between gap-3">
@@ -418,49 +361,7 @@ export default function Home() {
           </article>
         </section>
 
-        <section className="grid grid-cols-1 gap-3 rounded-2xl border border-[#BBF7D0] bg-[#ECFDF5] p-4 md:grid-cols-2 xl:grid-cols-4">
-          {[
-            {
-              icon: Truck,
-              title: "Free Shipping",
-              text: "On orders over 500 EGP",
-            },
-            {
-              icon: RotateCcw,
-              title: "Easy Returns",
-              text: "14-day return policy",
-            },
-            {
-              icon: ShieldCheck,
-              title: "Secure Payment",
-              text: "100% secure checkout",
-            },
-            {
-              icon: Headset,
-              title: "24/7 Support",
-              text: "Contact us anytime",
-            },
-          ].map((service) => {
-            const Icon = service.icon;
-
-            return (
-              <div
-                key={service.title}
-                className="flex items-center gap-3 rounded-xl bg-transparent p-2"
-              >
-                <span className="inline-flex size-14 items-center justify-center rounded-2xl bg-[#D1FAE5] text-[#16A34A]">
-                  <Icon className="size-6" />
-                </span>
-                <div>
-                  <p className="text-3xl font-bold text-slate-900">
-                    {service.title}
-                  </p>
-                  <p className="text-xl text-slate-500">{service.text}</p>
-                </div>
-              </div>
-            );
-          })}
-        </section>
+      
       </div>
     </main>
   );

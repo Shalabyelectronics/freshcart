@@ -5,6 +5,7 @@ import { Eye, RefreshCw, Star, Heart } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { useAddToCartMutation } from "@/store/apiSlice";
 import type { Product } from "@/types/api";
 
 interface ProductCardProps {
@@ -14,6 +15,7 @@ interface ProductCardProps {
 export default function ProductCard({ product }: ProductCardProps) {
   const rating = product.ratingsAverage ?? 0;
   const ratingCount = product.ratingsQuantity ?? 0;
+  const [addToCart, { isLoading }] = useAddToCartMutation();
 
   return (
     <Link href={`/products/${product._id}`}>
@@ -84,13 +86,20 @@ export default function ProductCard({ product }: ProductCardProps) {
             type="button"
             onClick={(e) => {
               e.preventDefault();
-              e.stopPropagation();
-              toast.success("Added to Cart!");
+              addToCart({ productId: product._id })
+                .unwrap()
+                .then(() => {
+                  toast.success("Added to Cart!");
+                })
+                .catch(() => {
+                  toast.error("Failed to add to cart. Please try again.");
+                });
             }}
-            className="h-8 w-8 rounded-full p-0 text-lg font-semibold text-white"
+            disabled={isLoading}
+            className="h-8 w-8 rounded-full p-0 text-lg font-semibold text-white disabled:opacity-50"
             style={{ backgroundColor: "#16A34A" }}
           >
-            +
+            {isLoading ? "..." : "+"}+
           </Button>
         </div>
       </article>

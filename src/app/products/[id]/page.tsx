@@ -6,7 +6,11 @@ import Link from "next/link";
 import { Heart, Share2 } from "lucide-react";
 import { toast } from "sonner";
 
-import { useGetProductByIdQuery, useGetProductsQuery } from "@/store/apiSlice";
+import {
+  useGetProductByIdQuery,
+  useGetProductsQuery,
+  useAddToCartMutation,
+} from "@/store/apiSlice";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import ImageGallery from "@/components/custom/ImageGallery";
@@ -60,6 +64,7 @@ export default function ProductDetailsPage() {
     );
 
   const [quantity, setQuantity] = useState(1);
+  const [addToCart, { isLoading: isAddingToCart }] = useAddToCartMutation();
 
   // Filter similar products by category
   const similarProducts = useMemo(() => {
@@ -243,8 +248,22 @@ export default function ProductDetailsPage() {
 
             {/* Action Buttons */}
             <div className="space-y-3 mb-6">
-              <Button className="w-full bg-green-600 hover:bg-green-700 text-white py-6 text-lg font-semibold">
-                🛒 Add to Cart
+              <Button
+                className="w-full bg-green-600 hover:bg-green-700 text-white py-6 text-lg font-semibold disabled:opacity-50"
+                onClick={() => {
+                  addToCart({ productId: currentProduct._id })
+                    .unwrap()
+                    .then(() => {
+                      toast.success("Added to Cart!");
+                      setQuantity(1);
+                    })
+                    .catch(() => {
+                      toast.error("Failed to add to cart. Please try again.");
+                    });
+                }}
+                disabled={isAddingToCart}
+              >
+                {isAddingToCart ? "Adding..." : "🛒 Add to Cart"}
               </Button>
               <Button className="w-full bg-gray-900 hover:bg-gray-800 text-white py-6 text-lg font-semibold">
                 ⚡ Buy Now

@@ -69,10 +69,15 @@ export const apiSlice = createApi({
       }),
     }),
     getProducts: builder.query<ProductsResponse, ProductsQueryParams | void>({
-      query: (params) => ({
-        url: "/products",
-        params: params ?? undefined,
-      }),
+      query: (params) => {
+        const queryObj: { url: string; params?: ProductsQueryParams } = {
+          url: "/products",
+        };
+        if (params) {
+          queryObj.params = params;
+        }
+        return queryObj;
+      },
     }),
     getProductById: builder.query<ProductResponse, string>({
       query: (id) => ({
@@ -96,18 +101,18 @@ export const apiSlice = createApi({
     }),
     updateCartProductQuantity: builder.mutation<
       CartMutationResponse,
-      { id: string; body: UpdateCartProductQuantityRequestBody }
+      { productId: string; body: UpdateCartProductQuantityRequestBody }
     >({
-      query: ({ id, body }) => ({
-        url: `/cart/${id}`,
+      query: ({ productId, body }) => ({
+        url: `/cart/${productId}`,
         method: "PUT",
         body,
       }),
       invalidatesTags: ["Cart"],
     }),
     removeCartItem: builder.mutation<CartMutationResponse, string>({
-      query: (id) => ({
-        url: `/cart/${id}`,
+      query: (productId) => ({
+        url: `/cart/${productId}`,
         method: "DELETE",
       }),
       invalidatesTags: ["Cart"],

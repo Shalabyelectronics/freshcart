@@ -19,6 +19,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useGetLoggedUserCartQuery } from "@/store/apiSlice";
 import {
   Sheet,
   SheetClose,
@@ -46,6 +47,9 @@ export default function Navbar() {
   const [search, setSearch] = useState("");
   const [isMounted, setIsMounted] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { data: cartData } = useGetLoggedUserCartQuery(undefined, {
+    skip: !isLoggedIn || !isMounted,
+  });
 
   // Only read localStorage after component mounts on client
   useEffect(() => {
@@ -287,8 +291,16 @@ export default function Navbar() {
             >
               <Heart className="size-7" />
             </Link>
-            <Link href="/cart" className="p-1 transition hover:text-[#16A34A]">
+            <Link
+              href="/cart"
+              className="relative p-1 transition hover:text-[#16A34A]"
+            >
               <ShoppingCart className="size-7" />
+              {cartData?.numOfCartItems ? (
+                <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                  {cartData.numOfCartItems}
+                </span>
+              ) : null}
             </Link>
             <Link href="/login" className="p-1 transition hover:text-[#16A34A]">
               <User className="size-7" />
@@ -300,8 +312,16 @@ export default function Navbar() {
           <Link href="/wishlist" className="rounded-full p-2 text-slate-600">
             <Heart className="size-5" />
           </Link>
-          <Link href="/cart" className="rounded-full p-2 text-slate-600">
+          <Link
+            href="/cart"
+            className="relative rounded-full p-2 text-slate-600"
+          >
             <ShoppingCart className="size-5" />
+            {cartData?.numOfCartItems ? (
+              <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center font-bold text-[10px]">
+                {cartData.numOfCartItems}
+              </span>
+            ) : null}
           </Link>
           <Link href="/login" className="rounded-full p-2 text-slate-600">
             <User className="size-5" />

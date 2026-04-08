@@ -5,6 +5,7 @@ import type {
   CategoriesResponse,
   ForgotPasswordRequestBody,
   ForgotPasswordResponse,
+  Product,
   ProductsResponse,
   SignInRequestBody,
   SignUpRequestBody,
@@ -66,6 +67,11 @@ export const apiSlice = createApi({
         url: "/products",
       }),
     }),
+    getProductById: builder.query<Product, string>({
+      query: (id) => ({
+        url: `/products/${id}`,
+      }),
+    }),
   }),
 });
 
@@ -73,6 +79,7 @@ export const {
   useForgotPasswordMutation,
   useGetCategoriesQuery,
   useGetProductsQuery,
+  useGetProductByIdQuery,
   useSignInMutation,
   useSignUpMutation,
 } = apiSlice;

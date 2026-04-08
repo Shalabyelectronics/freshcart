@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   CircleUserRound,
   Headset,
@@ -44,18 +44,22 @@ const DRAWER_ITEMS = [
 export default function Navbar() {
   const router = useRouter();
   const [search, setSearch] = useState("");
-  const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    if (typeof window === "undefined") {
-      return false;
+  const [isMounted, setIsMounted] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // Only read localStorage after component mounts on client
+  useEffect(() => {
+    let isLogged = false;
+    if (typeof window !== "undefined") {
+      const token =
+        window.localStorage.getItem("userToken") ||
+        window.localStorage.getItem("token");
+      isLogged = Boolean(token);
     }
-
-    const token =
-      window.localStorage.getItem("userToken") ||
-      window.localStorage.getItem("token");
-    return Boolean(token);
-  });
-
-  const userName = isLoggedIn ? "Mohamed Shalaby" : "Sign In";
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsLoggedIn(isLogged);
+    setIsMounted(true);
+  }, []);
 
   function handleSignOut() {
     if (typeof window !== "undefined") {
@@ -99,21 +103,30 @@ export default function Navbar() {
               support@freshcart.com
             </p>
 
-            {isLoggedIn ? (
-              <>
-                <span className="inline-flex items-center gap-2">
-                  <User className="size-4" />
-                  Mohamed Shalaby
-                </span>
-                <button
-                  type="button"
-                  onClick={handleSignOut}
-                  className="inline-flex items-center gap-2 font-medium text-slate-700 transition hover:text-red-600"
+            {isMounted ? (
+              isLoggedIn ? (
+                <>
+                  <span className="inline-flex items-center gap-2">
+                    <User className="size-4" />
+                    Mohamed Shalaby
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleSignOut}
+                    className="inline-flex items-center gap-2 font-medium text-slate-700 transition hover:text-red-600"
+                  >
+                    <LogOut className="size-4" />
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <Link
+                  href="/login"
+                  className="font-medium text-slate-700 transition hover:text-[#16A34A]"
                 >
-                  <LogOut className="size-4" />
-                  Sign Out
-                </button>
-              </>
+                  Sign In
+                </Link>
+              )
             ) : (
               <Link
                 href="/login"
@@ -178,10 +191,13 @@ export default function Navbar() {
                     <span className="inline-flex size-11 items-center justify-center rounded-full bg-[#F1F5F9]">
                       <CircleUserRound className="size-5 text-slate-500" />
                     </span>
-                    <span className="text-4xl font-medium">{userName}</span>
+                    <span className="text-4xl font-medium">
+                      {isMounted &&
+                        (isLoggedIn ? "Mohamed Shalaby" : "Sign In")}
+                    </span>
                   </div>
 
-                  {isLoggedIn && (
+                  {isMounted && isLoggedIn && (
                     <button
                       type="button"
                       onClick={handleSignOut}
@@ -274,10 +290,7 @@ export default function Navbar() {
             <Link href="/cart" className="p-1 transition hover:text-[#16A34A]">
               <ShoppingCart className="size-7" />
             </Link>
-            <Link
-              href={isLoggedIn ? "#" : "/login"}
-              className="p-1 transition hover:text-[#16A34A]"
-            >
+            <Link href="/login" className="p-1 transition hover:text-[#16A34A]">
               <User className="size-7" />
             </Link>
           </div>
@@ -290,10 +303,7 @@ export default function Navbar() {
           <Link href="/cart" className="rounded-full p-2 text-slate-600">
             <ShoppingCart className="size-5" />
           </Link>
-          <Link
-            href={isLoggedIn ? "#" : "/login"}
-            className="rounded-full p-2 text-slate-600"
-          >
+          <Link href="/login" className="rounded-full p-2 text-slate-600">
             <User className="size-5" />
           </Link>
         </div>

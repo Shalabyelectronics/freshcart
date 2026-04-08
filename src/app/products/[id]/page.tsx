@@ -46,7 +46,10 @@ export default function ProductDetailsPage() {
     if (!allProducts?.data || !product) return [];
     return allProducts.data
       .filter(
-        (p) => p.category._id === product.category._id && p._id !== product._id,
+        (p) =>
+          p &&
+          p?.category?._id === product?.category?._id &&
+          p?._id !== product?._id,
       )
       .slice(0, 5);
   }, [allProducts, product]);
@@ -484,9 +487,9 @@ export default function ProductDetailsPage() {
                       Buyer Protection Guarantee
                     </h4>
                     <p className="text-gray-700">
-                      Get a full refund if your order doesn&apos;t arrive or isn&apos;t as
-                      described. We ensure your shopping experience is safe and
-                      secure.
+                      Get a full refund if your order doesn&apos;t arrive or
+                      isn&apos;t as described. We ensure your shopping
+                      experience is safe and secure.
                     </p>
                   </div>
                 </div>
@@ -496,14 +499,14 @@ export default function ProductDetailsPage() {
         </div>
 
         {/* You May Also Like Section */}
-        {similarProducts.length > 0 && (
+        {allProducts?.data && product && similarProducts.length > 0 && (
           <div className="mb-12">
             <h2 className="text-2xl font-bold mb-6">You May Also Like</h2>
             <Carousel className="w-full">
               <CarouselContent className="-ml-2 md:-ml-4">
                 {similarProducts.map((prod) => (
                   <CarouselItem
-                    key={prod._id}
+                    key={prod?._id}
                     className="pl-2 md:pl-4 basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
                   >
                     <ProductCard product={prod} />

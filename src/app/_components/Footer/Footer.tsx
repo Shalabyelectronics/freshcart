@@ -37,22 +37,22 @@ const LEGAL_LINKS = ["Privacy Policy", "Terms of Service", "Cookie Policy"];
 
 export default function Footer() {
   return (
-    <footer className="mt-10 bg-gradient-to-r from-[#0B1227] to-[#0F172A] text-slate-300">
-      <div className="mx-auto w-full max-w-[1280px] px-4 py-10 md:px-6 md:py-12">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-5">
-          <section className="space-y-4 xl:col-span-1">
-            <div className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-3 text-5xl font-bold text-slate-800">
+    <footer className="mt-10 bg-linear-to-r from-[#0B1227] to-[#0F172A] text-slate-300">
+      <div className="mx-auto w-full max-w-7xl px-4 py-10 md:px-6 md:py-12">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-6">
+          <section className="space-y-4 xl:col-span-2">
+            <div className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-3 text-2xl font-bold text-slate-800">
               <span className="text-[#16A34A]">🛒</span>
               FreshCart
             </div>
 
-            <p className="max-w-md text-xl leading-9 text-slate-400">
+            <p className="max-w-md text-md leading-9 text-slate-400">
               FreshCart is your one-stop destination for quality products. From
               fashion to electronics, we bring you the best brands at
               competitive prices with a seamless shopping experience.
             </p>
 
-            <div className="space-y-3 text-xl">
+            <div className="space-y-3 text-md">
               <p className="inline-flex items-center gap-3">
                 <Phone className="size-5 text-[#22C55E]" />
                 +1 (800) 123-4567
@@ -81,8 +81,8 @@ export default function Footer() {
           </section>
 
           <section>
-            <h3 className="text-4xl font-semibold text-white">Shop</h3>
-            <ul className="mt-4 space-y-3 text-xl text-slate-400">
+            <h3 className="text-2xl font-semibold text-white">Shop</h3>
+            <ul className="mt-4 space-y-3 text-md text-slate-400">
               {SHOP_LINKS.map((item) => (
                 <li key={item}>
                   <Link href="#" className="transition hover:text-white">
@@ -94,8 +94,8 @@ export default function Footer() {
           </section>
 
           <section>
-            <h3 className="text-4xl font-semibold text-white">Account</h3>
-            <ul className="mt-4 space-y-3 text-xl text-slate-400">
+            <h3 className="text-2xl font-semibold text-white">Account</h3>
+            <ul className="mt-4 space-y-3 text-md text-slate-400">
               {ACCOUNT_LINKS.map((item) => (
                 <li key={item}>
                   <Link href="#" className="transition hover:text-white">
@@ -107,8 +107,8 @@ export default function Footer() {
           </section>
 
           <section>
-            <h3 className="text-4xl font-semibold text-white">Support</h3>
-            <ul className="mt-4 space-y-3 text-xl text-slate-400">
+            <h3 className="text-2xl font-semibold text-white">Support</h3>
+            <ul className="mt-4 space-y-3 text-md text-slate-400">
               {SUPPORT_LINKS.map((item) => (
                 <li key={item}>
                   <Link href="#" className="transition hover:text-white">
@@ -120,8 +120,8 @@ export default function Footer() {
           </section>
 
           <section>
-            <h3 className="text-4xl font-semibold text-white">Legal</h3>
-            <ul className="mt-4 space-y-3 text-xl text-slate-400">
+            <h3 className="text-2xl font-semibold text-white">Legal</h3>
+            <ul className="mt-4 space-y-3 text-md text-slate-400">
               {LEGAL_LINKS.map((item) => (
                 <li key={item}>
                   <Link href="#" className="transition hover:text-white">
@@ -135,7 +135,7 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-white/10">
-        <div className="mx-auto flex w-full max-w-[1280px] flex-col items-center justify-between gap-4 px-4 py-5 text-xl text-slate-400 md:flex-row md:px-6">
+        <div className="mx-auto flex w-full max-w-7xl flex-col items-center justify-between gap-4 px-4 py-5 text-sm text-slate-400 md:flex-row md:px-6">
           <p>© 2026 FreshCart. All rights reserved.</p>
           <div className="flex items-center gap-6">
             {["Visa", "Mastercard", "PayPal"].map((payment) => (

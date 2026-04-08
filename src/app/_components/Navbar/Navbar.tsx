@@ -126,7 +126,7 @@ export default function Navbar() {
         </div>
       </div>
 
-      <div className="mx-auto flex w-full max-w-[1280px] items-center gap-4 px-4 py-4 md:px-6">
+      <div className="mx-auto flex w-full max-w-7xl items-center gap-4 px-4 py-4 md:px-6">
         <div className="flex items-center gap-3">
           <Sheet>
             <SheetTrigger asChild>
@@ -219,7 +219,7 @@ export default function Navbar() {
 
           <Link
             href="/"
-            className="flex items-center gap-2 text-5xl font-bold text-slate-800"
+            className="flex items-center gap-2 text-2xl font-bold text-slate-800"
           >
             <span className="text-[#16A34A]">🛒</span>
             FreshCart
@@ -244,7 +244,7 @@ export default function Navbar() {
         </form>
 
         <div className="ml-auto hidden items-center gap-5 lg:flex">
-          <nav className="flex items-center gap-8 text-4xl font-medium text-slate-800">
+          <nav className="flex items-center gap-8 text-xl font-medium text-slate-800">
             {NAV_ITEMS.map((item) => (
               <Link
                 key={item.label}

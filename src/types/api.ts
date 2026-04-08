@@ -71,6 +71,13 @@ export interface BrandSummary {
   image?: string;
 }
 
+export interface SubcategorySummary {
+  _id?: string;
+  name: string;
+  slug?: string;
+  category?: string;
+}
+
 export interface Product {
   _id: string;
   id?: string;
@@ -86,12 +93,18 @@ export interface Product {
   ratingsQuantity?: number;
   category: CategorySummary;
   brand?: BrandSummary;
+  subcategory?: SubcategorySummary[];
 }
 
 export interface ProductsResponse {
   results: number;
   metadata: ApiPaginationMetadata;
   data: Product[];
+}
+
+export interface ProductsQueryParams {
+  "category[in]"?: string;
+  limit?: number;
 }
 
 export interface ProductResponse {

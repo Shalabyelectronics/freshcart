@@ -5,7 +5,8 @@ import type {
   CategoriesResponse,
   ForgotPasswordRequestBody,
   ForgotPasswordResponse,
-  Product,
+  ProductResponse,
+  ProductsQueryParams,
   ProductsResponse,
   SignInRequestBody,
   SignUpRequestBody,
@@ -62,12 +63,13 @@ export const apiSlice = createApi({
         url: "/categories",
       }),
     }),
-    getProducts: builder.query<ProductsResponse, void>({
-      query: () => ({
+    getProducts: builder.query<ProductsResponse, ProductsQueryParams | void>({
+      query: (params) => ({
         url: "/products",
+        params: params ?? undefined,
       }),
     }),
-    getProductById: builder.query<Product, string>({
+    getProductById: builder.query<ProductResponse, string>({
       query: (id) => ({
         url: `/products/${id}`,
       }),

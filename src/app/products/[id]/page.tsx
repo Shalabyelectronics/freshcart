@@ -21,6 +21,19 @@ import {
   CarouselNext,
 } from "@/components/ui/carousel";
 
+function LoadingSpinner() {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <div className="inline-block">
+          <div className="w-12 h-12 border-4 border-green-200 border-t-green-600 rounded-full animate-spin"></div>
+        </div>
+        <p className="mt-4 text-gray-600">Loading product details...</p>
+      </div>
+    </div>
+  );
+}
+
 export default function ProductDetailsPage() {
   const params = useParams();
   const id = params?.id as string;
@@ -32,55 +45,66 @@ export default function ProductDetailsPage() {
   } = useGetProductByIdQuery(id, {
     skip: !id,
   });
-  const { data: allProducts } = useGetProductsQuery();
+  const categoryId = product?.data?.category?._id;
+  const currentProductId = product?.data?._id;
+
+  const { data: relatedProductsResult, isSuccess: isRelatedProductsSuccess } =
+    useGetProductsQuery(
+      {
+        "category[in]": categoryId,
+        limit: 12,
+      },
+      {
+        skip: !categoryId,
+      },
+    );
 
   const [quantity, setQuantity] = useState(1);
 
-  // Calculate sale percentage
-  const savePercentage = product
-    ? Math.round(((product.price - product.price * 0.7) / product.price) * 100)
-    : 0;
-
   // Filter similar products by category
   const similarProducts = useMemo(() => {
-    if (!allProducts?.data || !product) return [];
-    return allProducts.data
-      .filter(
-        (p) =>
-          p &&
-          p?.category?._id === product?.category?._id &&
-          p?._id !== product?._id,
-      )
+    if (
+      !isRelatedProductsSuccess ||
+      !relatedProductsResult?.data ||
+      !currentProductId
+    )
+      return [];
+
+    return relatedProductsResult?.data
+      ?.filter((p) => p && p?._id !== currentProductId && Boolean(p?.title))
       .slice(0, 5);
-  }, [allProducts, product]);
+  }, [currentProductId, isRelatedProductsSuccess, relatedProductsResult]);
+
+  if (isLoading || !product?.data) return <LoadingSpinner />;
+
+  const currentProduct = product?.data;
+
+  // Calculate sale percentage
+  const savePercentage = currentProduct?.price
+    ? Math.round(
+        ((currentProduct?.price - currentProduct?.price * 0.7) /
+          currentProduct?.price) *
+          100,
+      )
+    : 0;
 
   // Calculate total price
-  const totalPrice = product ? product.price * quantity : 0;
+  const totalPrice = currentProduct?.price
+    ? currentProduct?.price * quantity
+    : 0;
 
   // Breadcrumbs
   const breadcrumbs = [
     { label: "Home", href: "/" },
-    { label: product?.category.name || "Category", href: "#" },
+    { label: product?.data?.category?.name || "Category", href: "#" },
     {
-      label: product?.title?.split(" ").slice(0, 3).join(" ") || "Product",
+      label:
+        product?.data?.title?.split(" ").slice(0, 3).join(" ") || "Product",
       href: "#",
     },
   ];
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block">
-            <div className="w-12 h-12 border-4 border-green-200 border-t-green-600 rounded-full animate-spin"></div>
-          </div>
-          <p className="mt-4 text-gray-600">Loading product details...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error || !product) {
+  if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -123,9 +147,9 @@ export default function ProductDetailsPage() {
           {/* Left Column: Gallery */}
           <div>
             <ImageGallery
-              imageCover={product.imageCover}
-              images={product.images || []}
-              productName={product.title}
+              imageCover={currentProduct?.imageCover || ""}
+              images={currentProduct?.images || []}
+              productName={currentProduct?.title || "Product"}
             />
           </div>
 
@@ -134,18 +158,23 @@ export default function ProductDetailsPage() {
             {/* Category & Brand */}
             <div className="flex gap-2 mb-3">
               <span className="text-xs font-semibold text-green-600 bg-green-50 px-3 py-1 rounded">
-                {product.category.name}
+                {product?.data?.category?.name || "Category"}
               </span>
-              {product.brand && (
+              {product?.data?.brand?.name && (
                 <span className="text-xs font-semibold text-gray-600 bg-gray-100 px-3 py-1 rounded">
-                  {product.brand.name}
+                  {product?.data?.brand?.name}
+                </span>
+              )}
+              {product?.data?.subcategory?.[0]?.name && (
+                <span className="text-xs font-semibold text-gray-600 bg-gray-100 px-3 py-1 rounded">
+                  {product?.data?.subcategory?.[0]?.name}
                 </span>
               )}
             </div>
 
             {/* Title */}
             <h1 className="text-3xl font-bold text-gray-900 mb-3">
-              {product.title}
+              {product?.data?.title}
             </h1>
 
             {/* Rating */}
@@ -155,7 +184,7 @@ export default function ProductDetailsPage() {
                   <span
                     key={i}
                     className={`text-lg ${
-                      i < Math.round(product.ratingsAverage || 0)
+                      i < Math.round(product?.data?.ratingsAverage || 0)
                         ? "text-yellow-400"
                         : "text-gray-300"
                     }`}
@@ -165,20 +194,20 @@ export default function ProductDetailsPage() {
                 ))}
               </div>
               <span className="text-sm font-semibold">
-                {(product.ratingsAverage || 0).toFixed(1)}
+                {(product?.data?.ratingsAverage || 0).toFixed(1)}
               </span>
               <span className="text-xs text-gray-500">
-                ({product.ratingsQuantity || 0} reviews)
+                ({product?.data?.ratingsQuantity || 0} reviews)
               </span>
             </div>
 
             {/* Price Section */}
             <div className="flex items-center gap-3 mb-2">
               <span className="text-3xl font-bold text-gray-900">
-                {product.price} EGP
+                {product?.data?.price} EGP
               </span>
               <span className="text-lg text-gray-500 line-through">
-                {Math.round(product.price / 0.7)} EGP
+                {Math.round((product?.data?.price || 0) / 0.7)} EGP
               </span>
               {savePercentage > 0 && (
                 <span className="text-sm font-bold text-white bg-red-500 px-2 py-1 rounded">
@@ -195,12 +224,12 @@ export default function ProductDetailsPage() {
 
             {/* Description Snippet */}
             <p className="text-gray-600 text-sm mb-6 line-clamp-3">
-              {product.description}
+              {product?.data?.description}
             </p>
 
             {/* Quantity Selector */}
             <QuantitySelector
-              maxQuantity={product.quantity || 50}
+              maxQuantity={product?.data?.quantity || 50}
               onQuantityChange={setQuantity}
             />
 
@@ -261,7 +290,7 @@ export default function ProductDetailsPage() {
                 value="reviews"
                 className="rounded-none border-b-2 border-transparent data-[state=active]:border-green-600 data-[state=active]:bg-transparent px-6 py-3"
               >
-                ⭐ Reviews ({product.ratingsQuantity || 0})
+                ⭐ Reviews ({product?.data?.ratingsQuantity || 0})
               </TabsTrigger>
               <TabsTrigger
                 value="shipping"
@@ -277,7 +306,7 @@ export default function ProductDetailsPage() {
                 <div>
                   <h3 className="text-lg font-bold mb-4">About this Product</h3>
                   <p className="text-gray-700 leading-relaxed">
-                    {product.description}
+                    {product?.data?.description}
                   </p>
                 </div>
                 <div>
@@ -310,20 +339,30 @@ export default function ProductDetailsPage() {
                   <div className="grid grid-cols-2 py-2 border-b">
                     <span className="text-gray-600">Category</span>
                     <span className="font-semibold">
-                      {product.category.name}
+                      {product?.data?.category?.name}
                     </span>
                   </div>
-                  {product.brand && (
+                  {product?.data?.brand?.name && (
                     <div className="grid grid-cols-2 py-2 border-b">
                       <span className="text-gray-600">Brand</span>
                       <span className="font-semibold">
-                        {product.brand.name}
+                        {product?.data?.brand?.name}
+                      </span>
+                    </div>
+                  )}
+                  {product?.data?.subcategory?.[0]?.name && (
+                    <div className="grid grid-cols-2 py-2 border-b">
+                      <span className="text-gray-600">Subcategory</span>
+                      <span className="font-semibold">
+                        {product?.data?.subcategory?.[0]?.name}
                       </span>
                     </div>
                   )}
                   <div className="grid grid-cols-2 py-2 border-b">
                     <span className="text-gray-600">Items Sold</span>
-                    <span className="font-semibold">{product.sold || 0}+</span>
+                    <span className="font-semibold">
+                      {product?.data?.sold || 0}+
+                    </span>
                   </div>
                 </div>
               </div>
@@ -335,14 +374,14 @@ export default function ProductDetailsPage() {
                 {/* Rating Breakdown */}
                 <div>
                   <h3 className="text-lg font-bold mb-4">
-                    {(product.ratingsAverage || 0).toFixed(1)}
+                    {(product?.data?.ratingsAverage || 0).toFixed(1)}
                   </h3>
                   <div className="flex items-center gap-1 mb-4">
                     {[...Array(5)].map((_, i) => (
                       <span
                         key={i}
                         className={`text-xl ${
-                          i < Math.round(product.ratingsAverage || 0)
+                          i < Math.round(product?.data?.ratingsAverage || 0)
                             ? "text-yellow-400"
                             : "text-gray-300"
                         }`}
@@ -352,7 +391,7 @@ export default function ProductDetailsPage() {
                     ))}
                   </div>
                   <p className="text-sm text-gray-500">
-                    Based on {product.ratingsQuantity || 0} reviews
+                    Based on {product?.data?.ratingsQuantity || 0} reviews
                   </p>
 
                   {/* Rating Bar Chart */}
@@ -499,25 +538,27 @@ export default function ProductDetailsPage() {
         </div>
 
         {/* You May Also Like Section */}
-        {allProducts?.data && product && similarProducts.length > 0 && (
-          <div className="mb-12">
-            <h2 className="text-2xl font-bold mb-6">You May Also Like</h2>
-            <Carousel className="w-full">
-              <CarouselContent className="-ml-2 md:-ml-4">
-                {similarProducts.map((prod) => (
-                  <CarouselItem
-                    key={prod?._id}
-                    className="pl-2 md:pl-4 basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
-                  >
-                    <ProductCard product={prod} />
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious className="hidden lg:flex" />
-              <CarouselNext className="hidden lg:flex" />
-            </Carousel>
-          </div>
-        )}
+        {isRelatedProductsSuccess &&
+          relatedProductsResult?.data &&
+          similarProducts.length > 0 && (
+            <div className="mb-12">
+              <h2 className="text-2xl font-bold mb-6">You May Also Like</h2>
+              <Carousel className="w-full">
+                <CarouselContent className="-ml-2 md:-ml-4">
+                  {similarProducts.map((prod) => (
+                    <CarouselItem
+                      key={prod?._id}
+                      className="pl-2 md:pl-4 basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
+                    >
+                      <ProductCard product={prod} />
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious className="hidden lg:flex" />
+                <CarouselNext className="hidden lg:flex" />
+              </Carousel>
+            </div>
+          )}
       </div>
     </div>
   );

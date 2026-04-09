@@ -18,11 +18,13 @@ import type {
   SignUpRequestBody,
   UpdateCartProductQuantityRequestBody,
   UserOrdersResponse,
+  WishlistMutationResponse,
+  WishlistResponse,
 } from "@/types/api";
 
 export const apiSlice = createApi({
   reducerPath: "api",
-  tagTypes: ["Cart"],
+  tagTypes: ["Cart", "Wishlist"],
   baseQuery: fetchBaseQuery({
     baseUrl: "https://ecommerce.routemisr.com/api/v1",
     prepareHeaders: (headers, { getState }) => {
@@ -160,6 +162,31 @@ export const apiSlice = createApi({
         method: "GET",
       }),
     }),
+    getWishlist: builder.query<WishlistResponse, void>({
+      query: () => ({
+        url: "/wishlist",
+        method: "GET",
+      }),
+      providesTags: ["Wishlist"],
+    }),
+    addToWishlist: builder.mutation<
+      WishlistMutationResponse,
+      AddToCartRequestBody
+    >({
+      query: (body) => ({
+        url: "/wishlist",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Wishlist"],
+    }),
+    removeFromWishlist: builder.mutation<WishlistMutationResponse, string>({
+      query: (productId) => ({
+        url: `/wishlist/${productId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Wishlist"],
+    }),
   }),
 });
 
@@ -174,7 +201,10 @@ export const {
   useGetProductsQuery,
   useGetProductByIdQuery,
   useGetUserOrdersQuery,
+  useGetWishlistQuery,
+  useAddToWishlistMutation,
   useRemoveCartItemMutation,
+  useRemoveFromWishlistMutation,
   useSignInMutation,
   useSignUpMutation,
   useUpdateCartProductQuantityMutation,

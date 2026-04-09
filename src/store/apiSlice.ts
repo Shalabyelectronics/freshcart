@@ -6,11 +6,14 @@ import type {
   CartMutationResponse,
   CartResponse,
   CategoriesResponse,
+  CreateCashOrderResponse,
+  CreateOnlineOrderSessionResponse,
   ForgotPasswordRequestBody,
   ForgotPasswordResponse,
   ProductResponse,
   ProductsQueryParams,
   ProductsResponse,
+  ShippingAddress,
   SignInRequestBody,
   SignUpRequestBody,
   UpdateCartProductQuantityRequestBody,
@@ -124,12 +127,40 @@ export const apiSlice = createApi({
       }),
       invalidatesTags: ["Cart"],
     }),
+    createCashOrder: builder.mutation<
+      CreateCashOrderResponse,
+      { cartId: string; shippingAddress: ShippingAddress }
+    >({
+      query: ({ cartId, shippingAddress }) => ({
+        url: `https://ecommerce.routemisr.com/api/v2/orders/${cartId}`,
+        method: "POST",
+        body: { shippingAddress },
+      }),
+      invalidatesTags: ["Cart"],
+    }),
+    createOnlineOrder: builder.mutation<
+      CreateOnlineOrderSessionResponse,
+      { cartId: string; shippingAddress: ShippingAddress }
+    >({
+      query: ({ cartId, shippingAddress }) => {
+        const origin =
+          typeof window !== "undefined" ? window.location.origin : "";
+        return {
+          url: `https://ecommerce.routemisr.com/api/v1/orders/checkout-session/${cartId}?url=${origin}`,
+          method: "POST",
+          body: { shippingAddress },
+        };
+      },
+      invalidatesTags: ["Cart"],
+    }),
   }),
 });
 
 export const {
   useAddToCartMutation,
   useClearCartMutation,
+  useCreateCashOrderMutation,
+  useCreateOnlineOrderMutation,
   useForgotPasswordMutation,
   useGetCategoriesQuery,
   useGetLoggedUserCartQuery,

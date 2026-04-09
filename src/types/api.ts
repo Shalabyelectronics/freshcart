@@ -202,3 +202,13 @@ export interface CreateOnlineOrderSessionResponse {
     id: string;
   };
 }
+
+export interface ShippingAddress {
+  details: string;
+  phone: string;
+  city: string;
+}
+
+export type OrderResponse =
+  | CreateCashOrderResponse
+  | CreateOnlineOrderSessionResponse;

@@ -17,6 +17,7 @@ import type {
   SignInRequestBody,
   SignUpRequestBody,
   UpdateCartProductQuantityRequestBody,
+  UserOrdersResponse,
 } from "@/types/api";
 
 export const apiSlice = createApi({
@@ -153,6 +154,12 @@ export const apiSlice = createApi({
       },
       invalidatesTags: ["Cart"],
     }),
+    getUserOrders: builder.query<UserOrdersResponse, void>({
+      query: () => ({
+        url: "/orders",
+        method: "GET",
+      }),
+    }),
   }),
 });
 
@@ -166,6 +173,7 @@ export const {
   useGetLoggedUserCartQuery,
   useGetProductsQuery,
   useGetProductByIdQuery,
+  useGetUserOrdersQuery,
   useRemoveCartItemMutation,
   useSignInMutation,
   useSignUpMutation,

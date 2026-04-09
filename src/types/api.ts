@@ -212,3 +212,30 @@ export interface ShippingAddress {
 export type OrderResponse =
   | CreateCashOrderResponse
   | CreateOnlineOrderSessionResponse;
+
+export interface OrderItem {
+  _id: string;
+  product: string;
+  count: number;
+  price: number;
+}
+
+export interface Order {
+  _id: string;
+  user: string;
+  cartItems: OrderItem[];
+  totalOrderPrice: number;
+  shippingAddress: ShippingAddress;
+  paymentMethodType: "cash" | "card";
+  isPaid: boolean;
+  isDelivered: boolean;
+  createdAt: string;
+  updatedAt?: string;
+  __v?: number;
+}
+
+export interface UserOrdersResponse {
+  status: string;
+  results: number;
+  data: Order[];
+}

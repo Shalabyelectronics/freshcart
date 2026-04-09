@@ -1,10 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { Suspense, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import { Package } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import ProductCard from "@/components/custom/ProductCard";
-import { useGetProductsQuery } from "@/store/apiSlice";
+import { useGetCategoriesQuery, useGetProductsQuery } from "@/store/apiSlice";
 
 function ProductCardSkeleton() {
   return (
@@ -22,23 +25,23 @@ function ProductCardSkeleton() {
 }
 
 export default function ProductsPage() {
-  const { data, isLoading, isError } = useGetProductsQuery();
+  return (
+    <Suspense fallback={<ProductsPageLoadingFallback />}>
+      <ProductsPageContent />
+    </Suspense>
+  );
+}
 
-  const products = data?.data ?? [];
-  const productsCount = data?.results ?? products.length;
-
+function ProductsPageLoadingFallback() {
   return (
     <main className="min-h-screen bg-[#F8F9FB]">
       <section className="bg-gradient-to-r from-[#16A34A] to-[#2CCB65] py-8 sm:py-10">
         <div className="mx-auto w-full max-w-7xl px-4 md:px-6">
           <div className="mb-6 flex items-center gap-2 text-base text-green-50/90">
-            <Link href="/" className="hover:text-white">
-              Home
-            </Link>
+            <span>Home</span>
             <span>/</span>
             <span className="font-semibold text-white">All Products</span>
           </div>
-
           <div className="flex items-center gap-4">
             <div className="flex size-16 items-center justify-center rounded-2xl bg-white/20 shadow-lg backdrop-blur-sm">
               <Package className="size-8 text-white" />
@@ -57,10 +60,92 @@ export default function ProductsPage() {
 
       <section className="mx-auto w-full max-w-7xl px-4 py-8 md:px-6">
         <p className="mb-6 text-3xl font-medium text-slate-500">
+          Showing products
+        </p>
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
+          {Array.from({ length: 10 }).map((_, index) => (
+            <ProductCardSkeleton key={index} />
+          ))}
+        </div>
+      </section>
+    </main>
+  );
+}
+
+function ProductsPageContent() {
+  const searchParams = useSearchParams();
+  const selectedCategoryId = searchParams.get("category") ?? undefined;
+
+  const { data: categoriesData } = useGetCategoriesQuery();
+
+  const queryParams = useMemo(() => {
+    if (!selectedCategoryId) {
+      return undefined;
+    }
+
+    return { "category[in]": selectedCategoryId };
+  }, [selectedCategoryId]);
+
+  const { data, isLoading, isFetching, isError } =
+    useGetProductsQuery(queryParams);
+
+  const products = data?.data ?? [];
+  const productsCount = data?.results ?? products.length;
+
+  const selectedCategoryName = useMemo(() => {
+    if (!selectedCategoryId) {
+      return "All Products";
+    }
+
+    const matchedCategory = categoriesData?.data?.find(
+      (category) => category._id === selectedCategoryId,
+    );
+
+    return matchedCategory?.name ?? "All Products";
+  }, [categoriesData?.data, selectedCategoryId]);
+
+  const isFiltered = Boolean(
+    selectedCategoryId && selectedCategoryName !== "All Products",
+  );
+
+  return (
+    <main className="min-h-screen bg-[#F8F9FB]">
+      <section className="bg-gradient-to-r from-[#16A34A] to-[#2CCB65] py-8 sm:py-10">
+        <div className="mx-auto w-full max-w-7xl px-4 md:px-6">
+          <div className="mb-6 flex items-center gap-2 text-base text-green-50/90">
+            <Link href="/" className="hover:text-white">
+              Home
+            </Link>
+            <span>/</span>
+            <span className="font-semibold text-white">
+              {selectedCategoryName}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <div className="flex size-16 items-center justify-center rounded-2xl bg-white/20 shadow-lg backdrop-blur-sm">
+              <Package className="size-8 text-white" />
+            </div>
+            <div>
+              <h1 className="text-5xl font-bold tracking-tight text-white">
+                {selectedCategoryName}
+              </h1>
+              <p className="mt-1 text-3xl text-green-100">
+                {isFiltered
+                  ? `Browse products in ${selectedCategoryName}`
+                  : "Explore our complete product collection"}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto w-full max-w-7xl px-4 py-8 md:px-6">
+        <p className="mb-6 text-3xl font-medium text-slate-500">
           Showing {productsCount} products
         </p>
 
-        {isLoading ? (
+        {isLoading || isFetching ? (
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
             {Array.from({ length: 10 }).map((_, index) => (
               <ProductCardSkeleton key={index} />
@@ -74,6 +159,26 @@ export default function ProductsPage() {
             <p className="mt-2 text-base text-slate-600">
               Please refresh the page and try again.
             </p>
+          </div>
+        ) : products.length === 0 ? (
+          <div className="flex min-h-[52vh] items-center justify-center rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+            <div className="text-center">
+              <div className="mx-auto mb-5 flex size-16 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+                <Package className="size-8" />
+              </div>
+              <h2 className="text-3xl font-bold text-slate-900">
+                No Products Found
+              </h2>
+              <p className="mt-2 text-lg text-slate-500">
+                No products match your current filters.
+              </p>
+              <Button
+                asChild
+                className="mt-6 h-11 rounded-xl bg-[#16A34A] px-6 text-white hover:bg-[#15803D]"
+              >
+                <Link href="/products">View All Products</Link>
+              </Button>
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">

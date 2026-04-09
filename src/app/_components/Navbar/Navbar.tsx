@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
+  ChevronDown,
   CircleUserRound,
   Headset,
   Heart,
@@ -20,6 +21,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
+  useGetCategoriesQuery,
   useGetLoggedUserCartQuery,
   useGetWishlistQuery,
 } from "@/store/apiSlice";
@@ -32,22 +34,26 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
-const NAV_ITEMS = [
+const DRAWER_ITEMS = [
   { label: "Home", href: "/" },
   { label: "Shop", href: "/products" },
-  { label: "Categories", href: "/categories" },
+  { label: "Categories", href: "/products" },
   { label: "Brands", href: "/brands" },
-];
-
-const DRAWER_ITEMS = [
-  ...NAV_ITEMS,
   { label: "Wishlist", href: "/wishlist" },
   { label: "Cart", href: "/cart" },
+];
+
+const CATEGORY_MENU_LABELS = [
+  "Electronics",
+  "Women's Fashion",
+  "Men's Fashion",
+  "Beauty & Health",
 ];
 
 export default function Navbar() {
   const router = useRouter();
   const [search, setSearch] = useState("");
+  const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { data: cartData } = useGetLoggedUserCartQuery(undefined, {
@@ -56,6 +62,23 @@ export default function Navbar() {
   const { data: wishlistData } = useGetWishlistQuery(undefined, {
     skip: !isLoggedIn || !isMounted,
   });
+  const { data: categoriesData } = useGetCategoriesQuery();
+
+  const categoriesForMenu = useMemo(() => {
+    const all = categoriesData?.data ?? [];
+    return CATEGORY_MENU_LABELS.map((label) => {
+      const match = all.find(
+        (item) => item.name.trim().toLowerCase() === label.trim().toLowerCase(),
+      );
+
+      return {
+        label,
+        href: match
+          ? `/products?category=${encodeURIComponent(match._id)}`
+          : "/products",
+      };
+    });
+  }, [categoriesData?.data]);
 
   // Only read localStorage after component mounts on client
   useEffect(() => {
@@ -194,6 +217,27 @@ export default function Navbar() {
                       </Link>
                     </SheetClose>
                   ))}
+
+                  <div className="mt-2 rounded-lg bg-slate-50 p-2">
+                    <SheetClose asChild>
+                      <Link
+                        href="/products"
+                        className="block rounded-md px-3 py-2 text-3xl font-medium text-slate-700 hover:bg-white"
+                      >
+                        All Categories
+                      </Link>
+                    </SheetClose>
+                    {categoriesForMenu.map((category) => (
+                      <SheetClose asChild key={`drawer-${category.label}`}>
+                        <Link
+                          href={category.href}
+                          className="block rounded-md px-3 py-2 text-2xl font-medium text-slate-600 hover:bg-white"
+                        >
+                          {category.label}
+                        </Link>
+                      </SheetClose>
+                    ))}
+                  </div>
                 </nav>
 
                 <div className="mt-4 space-y-3 border-b border-[#E5E7EB] pb-4">
@@ -271,15 +315,58 @@ export default function Navbar() {
 
         <div className="ml-auto hidden items-center gap-5 lg:flex">
           <nav className="flex items-center gap-8 text-xl font-medium text-slate-800">
-            {NAV_ITEMS.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className="transition hover:text-[#16A34A]"
+            <Link href="/" className="transition hover:text-[#16A34A]">
+              Home
+            </Link>
+            <Link href="/products" className="transition hover:text-[#16A34A]">
+              Shop
+            </Link>
+
+            <div
+              className="relative"
+              onMouseEnter={() => setIsCategoriesOpen(true)}
+              onMouseLeave={() => setIsCategoriesOpen(false)}
+            >
+              <button
+                type="button"
+                onClick={() => setIsCategoriesOpen((prev) => !prev)}
+                className="inline-flex items-center gap-1.5 transition hover:text-[#16A34A]"
               >
-                {item.label}
-              </Link>
-            ))}
+                Categories
+                <ChevronDown className="size-4" />
+              </button>
+
+              <div className="absolute left-0 top-full h-3 w-full bg-transparent" />
+
+              {isCategoriesOpen ? (
+                <div className="absolute left-0 top-full z-50 w-[250px] pt-3">
+                  <div className="rounded-2xl border border-slate-200 bg-white p-3 text-slate-700 shadow-[0_20px_50px_rgba(2,6,23,0.15)]">
+                    <Link
+                      href="/products"
+                      onClick={() => setIsCategoriesOpen(false)}
+                      className="block rounded-xl px-3 py-2.5 text-[28px] font-medium transition hover:bg-slate-50"
+                    >
+                      All Categories
+                    </Link>
+
+                    {categoriesForMenu.map((category) => (
+                      <Link
+                        key={category.label}
+                        href={category.href}
+                        onClick={() => setIsCategoriesOpen(false)}
+                        className="block rounded-xl px-3 py-2.5 text-[28px] font-medium transition hover:bg-slate-50"
+                      >
+                        {category.label}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+            </div>
+
+            <Link href="/brands" className="transition hover:text-[#16A34A]">
+              Brands
+            </Link>
           </nav>
 
           <div className="flex items-center gap-4 border-l border-[#D7DCE2] pl-4 text-slate-500">

@@ -1,11 +1,17 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Eye, RefreshCw, Star, Heart } from "lucide-react";
+import { Eye, RefreshCw, Star, Heart, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { useAddToCartMutation } from "@/store/apiSlice";
+import {
+  useAddToCartMutation,
+  useAddToWishlistMutation,
+  useGetWishlistQuery,
+  useRemoveFromWishlistMutation,
+} from "@/store/apiSlice";
 import type { Product } from "@/types/api";
 
 interface ProductCardProps {
@@ -16,6 +22,39 @@ export default function ProductCard({ product }: ProductCardProps) {
   const rating = product.ratingsAverage ?? 0;
   const ratingCount = product.ratingsQuantity ?? 0;
   const [addToCart, { isLoading }] = useAddToCartMutation();
+  const [isWishlistPending, setIsWishlistPending] = useState(false);
+  const { data: wishlistData } = useGetWishlistQuery();
+  const [addToWishlist] = useAddToWishlistMutation();
+  const [removeFromWishlist] = useRemoveFromWishlistMutation();
+
+  const isInWishlist = useMemo(() => {
+    return Boolean(
+      wishlistData?.data?.some((item) => item._id === product._id),
+    );
+  }, [product._id, wishlistData?.data]);
+
+  const handleWishlistToggle = async () => {
+    if (isWishlistPending) {
+      return;
+    }
+
+    try {
+      setIsWishlistPending(true);
+
+      if (isInWishlist) {
+        await removeFromWishlist(product._id).unwrap();
+        toast.success("Removed from wishlist");
+        return;
+      }
+
+      await addToWishlist({ productId: product._id }).unwrap();
+      toast.success("Added to wishlist");
+    } catch {
+      toast.error("Wishlist action failed. Please try again.");
+    } finally {
+      setIsWishlistPending(false);
+    }
+  };
 
   return (
     <Link href={`/products/${product._id}`}>
@@ -33,11 +72,22 @@ export default function ProductCard({ product }: ProductCardProps) {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                toast.success("Added to Wishlist!");
+                handleWishlistToggle();
               }}
-              className="rounded-full bg-white/90 p-1.5 text-slate-500 hover:text-[#16A34A]"
+              disabled={isWishlistPending}
+              className="rounded-full bg-white/90 p-1.5 text-slate-500 hover:text-[#16A34A] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              <Heart className="size-3.5" />
+              {isWishlistPending ? (
+                <Loader2 className="size-3.5 animate-spin" />
+              ) : (
+                <Heart
+                  className={`size-3.5 ${
+                    isInWishlist
+                      ? "fill-red-500 text-red-500"
+                      : "text-slate-500"
+                  }`}
+                />
+              )}
             </button>
             <button
               type="button"

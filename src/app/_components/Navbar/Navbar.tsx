@@ -19,7 +19,10 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useGetLoggedUserCartQuery } from "@/store/apiSlice";
+import {
+  useGetLoggedUserCartQuery,
+  useGetWishlistQuery,
+} from "@/store/apiSlice";
 import {
   Sheet,
   SheetClose,
@@ -48,6 +51,9 @@ export default function Navbar() {
   const [isMounted, setIsMounted] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { data: cartData } = useGetLoggedUserCartQuery(undefined, {
+    skip: !isLoggedIn || !isMounted,
+  });
+  const { data: wishlistData } = useGetWishlistQuery(undefined, {
     skip: !isLoggedIn || !isMounted,
   });
 
@@ -287,9 +293,14 @@ export default function Navbar() {
             </p>
             <Link
               href="/wishlist"
-              className="p-1 transition hover:text-[#16A34A]"
+              className="relative p-1 transition hover:text-[#16A34A]"
             >
               <Heart className="size-7" />
+              {wishlistData?.count ? (
+                <span className="absolute top-0 right-0 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
+                  {wishlistData.count}
+                </span>
+              ) : null}
             </Link>
             <Link
               href="/cart"
@@ -309,8 +320,16 @@ export default function Navbar() {
         </div>
 
         <div className="ml-auto flex items-center gap-2 lg:hidden">
-          <Link href="/wishlist" className="rounded-full p-2 text-slate-600">
+          <Link
+            href="/wishlist"
+            className="relative rounded-full p-2 text-slate-600"
+          >
             <Heart className="size-5" />
+            {wishlistData?.count ? (
+              <span className="absolute top-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
+                {wishlistData.count}
+              </span>
+            ) : null}
           </Link>
           <Link
             href="/cart"

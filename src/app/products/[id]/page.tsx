@@ -3,13 +3,16 @@
 import { useState, useMemo } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { Heart, Share2 } from "lucide-react";
+import { Heart, Share2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import {
   useGetProductByIdQuery,
   useGetProductsQuery,
   useAddToCartMutation,
+  useGetWishlistQuery,
+  useAddToWishlistMutation,
+  useRemoveFromWishlistMutation,
 } from "@/store/apiSlice";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -65,6 +68,10 @@ export default function ProductDetailsPage() {
 
   const [quantity, setQuantity] = useState(1);
   const [addToCart, { isLoading: isAddingToCart }] = useAddToCartMutation();
+  const [isWishlistPending, setIsWishlistPending] = useState(false);
+  const { data: wishlistData } = useGetWishlistQuery();
+  const [addToWishlist] = useAddToWishlistMutation();
+  const [removeFromWishlist] = useRemoveFromWishlistMutation();
 
   // Filter similar products by category
   const similarProducts = useMemo(() => {
@@ -79,6 +86,39 @@ export default function ProductDetailsPage() {
       ?.filter((p) => p && p?._id !== currentProductId && Boolean(p?.title))
       .slice(0, 5);
   }, [currentProductId, isRelatedProductsSuccess, relatedProductsResult]);
+
+  const isInWishlist = useMemo(() => {
+    if (!currentProductId) {
+      return false;
+    }
+
+    return Boolean(
+      wishlistData?.data?.some((item) => item._id === currentProductId),
+    );
+  }, [currentProductId, wishlistData?.data]);
+
+  const handleWishlistToggle = async () => {
+    if (!currentProductId || isWishlistPending) {
+      return;
+    }
+
+    try {
+      setIsWishlistPending(true);
+
+      if (isInWishlist) {
+        await removeFromWishlist(currentProductId).unwrap();
+        toast.success("Removed from wishlist");
+        return;
+      }
+
+      await addToWishlist({ productId: currentProductId }).unwrap();
+      toast.success("Added to wishlist");
+    } catch {
+      toast.error("Wishlist action failed. Please try again.");
+    } finally {
+      setIsWishlistPending(false);
+    }
+  };
 
   if (isLoading || !product?.data) return <LoadingSpinner />;
 
@@ -275,10 +315,20 @@ export default function ProductDetailsPage() {
               <Button
                 variant="outline"
                 className="flex-1 py-6"
-                onClick={() => toast.success("Added to Wishlist!")}
+                onClick={handleWishlistToggle}
+                disabled={isWishlistPending}
               >
-                <Heart size={18} className="mr-2" />
-                Add to Wishlist
+                {isWishlistPending ? (
+                  <Loader2 size={18} className="mr-2 animate-spin" />
+                ) : (
+                  <Heart
+                    size={18}
+                    className={`mr-2 ${
+                      isInWishlist ? "fill-red-500 text-red-500" : ""
+                    }`}
+                  />
+                )}
+                {isInWishlist ? "Remove from Wishlist" : "Add to Wishlist"}
               </Button>
               <Button
                 variant="outline"

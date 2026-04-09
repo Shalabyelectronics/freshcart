@@ -34,7 +34,7 @@ import {
 
 const NAV_ITEMS = [
   { label: "Home", href: "/" },
-  { label: "Shop", href: "/" },
+  { label: "Shop", href: "/products" },
   { label: "Categories", href: "/categories" },
   { label: "Brands", href: "/brands" },
 ];

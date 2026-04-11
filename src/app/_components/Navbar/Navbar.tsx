@@ -139,10 +139,13 @@ export default function Navbar() {
             {isMounted ? (
               isLoggedIn ? (
                 <>
-                  <span className="inline-flex items-center gap-2">
+                  <Link
+                    href="/account"
+                    className="inline-flex items-center gap-2 transition hover:text-[#16A34A]"
+                  >
                     <User className="size-4" />
                     Mohamed Shalaby
-                  </span>
+                  </Link>
                   <button
                     type="button"
                     onClick={handleSignOut}
@@ -241,15 +244,20 @@ export default function Navbar() {
                 </nav>
 
                 <div className="mt-4 space-y-3 border-b border-[#E5E7EB] pb-4">
-                  <div className="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-800">
-                    <span className="inline-flex size-11 items-center justify-center rounded-full bg-[#F1F5F9]">
-                      <CircleUserRound className="size-5 text-slate-500" />
-                    </span>
-                    <span className="text-4xl font-medium">
-                      {isMounted &&
-                        (isLoggedIn ? "Mohamed Shalaby" : "Sign In")}
-                    </span>
-                  </div>
+                  <SheetClose asChild>
+                    <Link
+                      href={isMounted && isLoggedIn ? "/account" : "/login"}
+                      className="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-800"
+                    >
+                      <span className="inline-flex size-11 items-center justify-center rounded-full bg-[#F1F5F9]">
+                        <CircleUserRound className="size-5 text-slate-500" />
+                      </span>
+                      <span className="text-4xl font-medium">
+                        {isMounted &&
+                          (isLoggedIn ? "Mohamed Shalaby" : "Sign In")}
+                      </span>
+                    </Link>
+                  </SheetClose>
 
                   {isMounted && isLoggedIn && (
                     <button

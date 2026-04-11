@@ -256,3 +256,67 @@ export interface UserOrdersResponse {
   results: number;
   data: Order[];
 }
+
+export interface Address {
+  _id: string;
+  name: string;
+  details: string;
+  phone: string;
+  city: string;
+}
+
+export interface UserData {
+  name: string;
+  email: string;
+  phone: string;
+}
+
+export interface VerifyTokenResponse {
+  message: string;
+  decoded: {
+    id: string;
+    name: string;
+    role: string;
+  };
+}
+
+export interface AddressesResponse {
+  message?: string;
+  data: Address[];
+}
+
+export interface AddAddressRequestBody {
+  name: string;
+  details: string;
+  phone: string;
+  city: string;
+}
+
+export interface UpdateAddressRequestBody {
+  name?: string;
+  details?: string;
+  phone?: string;
+  city?: string;
+}
+
+export interface UpdateMeRequestBody {
+  name?: string;
+  email?: string;
+  phone?: string;
+}
+
+export interface UpdateMeResponse {
+  message: string;
+  user: UserData;
+}
+
+export interface ChangePasswordRequestBody {
+  currentPassword: string;
+  password: string;
+  rePassword: string;
+}
+
+export interface ChangePasswordResponse {
+  message: string;
+  token?: string;
+}

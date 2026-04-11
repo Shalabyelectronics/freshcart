@@ -1,12 +1,16 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 import type {
+  AddAddressRequestBody,
   AddToCartRequestBody,
+  AddressesResponse,
   AuthSuccessResponse,
   CartMutationResponse,
   CartResponse,
   BrandsResponse,
   CategoriesResponse,
+  ChangePasswordRequestBody,
+  ChangePasswordResponse,
   CreateCashOrderResponse,
   CreateOnlineOrderSessionResponse,
   ForgotPasswordRequestBody,
@@ -18,15 +22,19 @@ import type {
   SignInRequestBody,
   SignUpRequestBody,
   SingleBrandResponse,
+  UpdateAddressRequestBody,
+  UpdateMeRequestBody,
+  UpdateMeResponse,
   UpdateCartProductQuantityRequestBody,
   UserOrdersResponse,
+  VerifyTokenResponse,
   WishlistMutationResponse,
   WishlistResponse,
 } from "@/types/api";
 
 export const apiSlice = createApi({
   reducerPath: "api",
-  tagTypes: ["Cart", "Wishlist", "Brands"],
+  tagTypes: ["Cart", "Wishlist", "Brands", "Addresses"],
   baseQuery: fetchBaseQuery({
     baseUrl: "https://ecommerce.routemisr.com/api/v1",
     prepareHeaders: (headers, { getState }) => {
@@ -182,6 +190,62 @@ export const apiSlice = createApi({
       }),
       providesTags: ["Wishlist"],
     }),
+    getAddresses: builder.query<AddressesResponse, void>({
+      query: () => ({
+        url: "/addresses",
+        method: "GET",
+      }),
+      providesTags: ["Addresses"],
+    }),
+    addAddress: builder.mutation<AddressesResponse, AddAddressRequestBody>({
+      query: (body) => ({
+        url: "/addresses",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Addresses"],
+    }),
+    updateAddress: builder.mutation<
+      AddressesResponse,
+      { id: string; body: UpdateAddressRequestBody }
+    >({
+      query: ({ id, body }) => ({
+        url: `/addresses/${id}`,
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: ["Addresses"],
+    }),
+    removeAddress: builder.mutation<AddressesResponse, string>({
+      query: (id) => ({
+        url: `/addresses/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Addresses"],
+    }),
+    updateMe: builder.mutation<UpdateMeResponse, UpdateMeRequestBody>({
+      query: (body) => ({
+        url: "/users/updateMe",
+        method: "PUT",
+        body,
+      }),
+    }),
+    changePassword: builder.mutation<
+      ChangePasswordResponse,
+      ChangePasswordRequestBody
+    >({
+      query: (body) => ({
+        url: "/users/changeMyPassword",
+        method: "PUT",
+        body,
+      }),
+    }),
+    verifyToken: builder.query<VerifyTokenResponse, void>({
+      query: () => ({
+        url: "/auth/verifyToken",
+        method: "GET",
+      }),
+    }),
     addToWishlist: builder.mutation<
       WishlistMutationResponse,
       AddToCartRequestBody
@@ -205,10 +269,13 @@ export const apiSlice = createApi({
 
 export const {
   useAddToCartMutation,
+  useAddAddressMutation,
   useClearCartMutation,
+  useChangePasswordMutation,
   useCreateCashOrderMutation,
   useCreateOnlineOrderMutation,
   useForgotPasswordMutation,
+  useGetAddressesQuery,
   useGetCategoriesQuery,
   useGetBrandsQuery,
   useGetLoggedUserCartQuery,
@@ -217,12 +284,16 @@ export const {
   useGetSpecificBrandQuery,
   useGetUserOrdersQuery,
   useGetWishlistQuery,
+  useRemoveAddressMutation,
   useAddToWishlistMutation,
   useRemoveCartItemMutation,
   useRemoveFromWishlistMutation,
   useSignInMutation,
   useSignUpMutation,
+  useUpdateAddressMutation,
   useUpdateCartProductQuantityMutation,
+  useUpdateMeMutation,
+  useVerifyTokenQuery,
 } = apiSlice;
 
 export const useSignupMutation = apiSlice.useSignUpMutation;

@@ -5,6 +5,7 @@ import type {
   AuthSuccessResponse,
   CartMutationResponse,
   CartResponse,
+  BrandsResponse,
   CategoriesResponse,
   CreateCashOrderResponse,
   CreateOnlineOrderSessionResponse,
@@ -16,6 +17,7 @@ import type {
   ShippingAddress,
   SignInRequestBody,
   SignUpRequestBody,
+  SingleBrandResponse,
   UpdateCartProductQuantityRequestBody,
   UserOrdersResponse,
   WishlistMutationResponse,
@@ -24,7 +26,7 @@ import type {
 
 export const apiSlice = createApi({
   reducerPath: "api",
-  tagTypes: ["Cart", "Wishlist"],
+  tagTypes: ["Cart", "Wishlist", "Brands"],
   baseQuery: fetchBaseQuery({
     baseUrl: "https://ecommerce.routemisr.com/api/v1",
     prepareHeaders: (headers, { getState }) => {
@@ -72,6 +74,17 @@ export const apiSlice = createApi({
     getCategories: builder.query<CategoriesResponse, void>({
       query: () => ({
         url: "/categories",
+      }),
+    }),
+    getBrands: builder.query<BrandsResponse, void>({
+      query: () => ({
+        url: "/brands",
+      }),
+      providesTags: ["Brands"],
+    }),
+    getSpecificBrand: builder.query<SingleBrandResponse, string>({
+      query: (brandId) => ({
+        url: `/brands/${brandId}`,
       }),
     }),
     getProducts: builder.query<ProductsResponse, ProductsQueryParams | void>({
@@ -197,9 +210,11 @@ export const {
   useCreateOnlineOrderMutation,
   useForgotPasswordMutation,
   useGetCategoriesQuery,
+  useGetBrandsQuery,
   useGetLoggedUserCartQuery,
   useGetProductsQuery,
   useGetProductByIdQuery,
+  useGetSpecificBrandQuery,
   useGetUserOrdersQuery,
   useGetWishlistQuery,
   useAddToWishlistMutation,

@@ -7,11 +7,15 @@ import { Package } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import ProductCard from "@/components/custom/ProductCard";
-import { useGetCategoriesQuery, useGetProductsQuery } from "@/store/apiSlice";
+import {
+  useGetCategoriesQuery,
+  useGetProductsQuery,
+  useGetSpecificBrandQuery,
+} from "@/store/apiSlice";
 
 function ProductCardSkeleton() {
   return (
-    <div className="h-[340px] animate-pulse rounded-xl border border-slate-200 bg-white p-3">
+    <div className="h-85 animate-pulse rounded-xl border border-slate-200 bg-white p-3">
       <div className="h-44 rounded-lg bg-slate-100" />
       <div className="mt-3 h-3 w-20 rounded bg-slate-100" />
       <div className="mt-2 h-5 w-3/4 rounded bg-slate-100" />
@@ -35,7 +39,7 @@ export default function ProductsPage() {
 function ProductsPageLoadingFallback() {
   return (
     <main className="min-h-screen bg-[#F8F9FB]">
-      <section className="bg-gradient-to-r from-[#16A34A] to-[#2CCB65] py-8 sm:py-10">
+      <section className="bg-linear-to-r from-[#16A34A] to-[#2CCB65] py-8 sm:py-10">
         <div className="mx-auto w-full max-w-7xl px-4 md:px-6">
           <div className="mb-6 flex items-center gap-2 text-base text-green-50/90">
             <span>Home</span>
@@ -74,17 +78,28 @@ function ProductsPageLoadingFallback() {
 
 function ProductsPageContent() {
   const searchParams = useSearchParams();
+  const selectedBrandId = searchParams.get("brand") ?? undefined;
   const selectedCategoryId = searchParams.get("category") ?? undefined;
 
   const { data: categoriesData } = useGetCategoriesQuery();
+  const { data: selectedBrandData } = useGetSpecificBrandQuery(
+    selectedBrandId ?? "",
+    {
+      skip: !selectedBrandId,
+    },
+  );
 
   const queryParams = useMemo(() => {
+    if (selectedBrandId) {
+      return { "brand[in]": selectedBrandId };
+    }
+
     if (!selectedCategoryId) {
       return undefined;
     }
 
     return { "category[in]": selectedCategoryId };
-  }, [selectedCategoryId]);
+  }, [selectedBrandId, selectedCategoryId]);
 
   const { data, isLoading, isFetching, isError } =
     useGetProductsQuery(queryParams);
@@ -92,7 +107,11 @@ function ProductsPageContent() {
   const products = data?.data ?? [];
   const productsCount = data?.results ?? products.length;
 
-  const selectedCategoryName = useMemo(() => {
+  const selectedFilterName = useMemo(() => {
+    if (selectedBrandId) {
+      return selectedBrandData?.data?.name ?? "Brand";
+    }
+
     if (!selectedCategoryId) {
       return "All Products";
     }
@@ -102,15 +121,21 @@ function ProductsPageContent() {
     );
 
     return matchedCategory?.name ?? "All Products";
-  }, [categoriesData?.data, selectedCategoryId]);
-
-  const isFiltered = Boolean(
-    selectedCategoryId && selectedCategoryName !== "All Products",
-  );
+  }, [
+    categoriesData?.data,
+    selectedBrandData?.data?.name,
+    selectedBrandId,
+    selectedCategoryId,
+  ]);
+  const bannerDescription = selectedBrandId
+    ? `Browse products from ${selectedFilterName}`
+    : selectedCategoryId
+      ? `Browse products in ${selectedFilterName}`
+      : "Explore our complete product collection";
 
   return (
     <main className="min-h-screen bg-[#F8F9FB]">
-      <section className="bg-gradient-to-r from-[#16A34A] to-[#2CCB65] py-8 sm:py-10">
+      <section className="bg-linear-to-r from-[#16A34A] to-[#2CCB65] py-8 sm:py-10">
         <div className="mx-auto w-full max-w-7xl px-4 md:px-6">
           <div className="mb-6 flex items-center gap-2 text-base text-green-50/90">
             <Link href="/" className="hover:text-white">
@@ -118,7 +143,7 @@ function ProductsPageContent() {
             </Link>
             <span>/</span>
             <span className="font-semibold text-white">
-              {selectedCategoryName}
+              {selectedFilterName}
             </span>
           </div>
 
@@ -128,12 +153,10 @@ function ProductsPageContent() {
             </div>
             <div>
               <h1 className="text-5xl font-bold tracking-tight text-white">
-                {selectedCategoryName}
+                {selectedFilterName}
               </h1>
               <p className="mt-1 text-3xl text-green-100">
-                {isFiltered
-                  ? `Browse products in ${selectedCategoryName}`
-                  : "Explore our complete product collection"}
+                {bannerDescription}
               </p>
             </div>
           </div>

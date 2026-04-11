@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useSignInMutation } from "@/store/apiSlice";
+import { notifyAuthStateChanged } from "@/hooks/useAuthState";
 import { LoginSchema, type LoginFormValues } from "@/types/schemas";
 
 const BRAND_GREEN = "#16A34A";
@@ -81,6 +82,8 @@ export default function LoginPage() {
         window.localStorage.setItem("userEmail", response.user.email);
         window.localStorage.setItem("userData", JSON.stringify(response.user));
       }
+
+      notifyAuthStateChanged();
 
       toast.success("Signed in successfully.");
       router.push("/");

@@ -35,6 +35,7 @@ import {
   useGetLoggedUserCartQuery,
   useGetWishlistQuery,
 } from "@/store/apiSlice";
+import { clearAuthStorage, useAuthState } from "@/hooks/useAuthState";
 import {
   Sheet,
   SheetClose,
@@ -64,17 +65,12 @@ export default function Navbar() {
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userProfile, setUserProfile] = useState<{
-    name: string;
-    email: string;
-  } | null>(null);
+  const { isLoggedIn, profile } = useAuthState();
   const { data: cartData } = useGetLoggedUserCartQuery(undefined, {
-    skip: !isLoggedIn || !isMounted,
+    skip: !isLoggedIn,
   });
   const { data: wishlistData } = useGetWishlistQuery(undefined, {
-    skip: !isLoggedIn || !isMounted,
+    skip: !isLoggedIn,
   });
   const { data: categoriesData } = useGetCategoriesQuery();
 
@@ -94,62 +90,8 @@ export default function Navbar() {
     });
   }, [categoriesData?.data]);
 
-  // Only read localStorage after component mounts on client
-  useEffect(() => {
-    let isLogged = false;
-    let profile: { name: string; email: string } | null = null;
-
-    if (typeof window !== "undefined") {
-      const token =
-        window.localStorage.getItem("userToken") ||
-        window.localStorage.getItem("token");
-      isLogged = Boolean(token);
-
-      const storedUserData = window.localStorage.getItem("userData");
-      if (storedUserData) {
-        try {
-          const parsed = JSON.parse(storedUserData) as {
-            name?: string;
-            email?: string;
-          };
-          if (parsed.name || parsed.email) {
-            profile = {
-              name:
-                parsed.name ?? window.localStorage.getItem("userName") ?? "",
-              email:
-                parsed.email ?? window.localStorage.getItem("userEmail") ?? "",
-            };
-          }
-        } catch {
-          profile = null;
-        }
-      }
-
-      if (!profile) {
-        const name = window.localStorage.getItem("userName") ?? "";
-        const email = window.localStorage.getItem("userEmail") ?? "";
-        if (name || email) {
-          profile = { name, email };
-        }
-      }
-    }
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setIsLoggedIn(isLogged);
-    setUserProfile(profile);
-    setIsMounted(true);
-  }, []);
-
   function handleSignOut() {
-    if (typeof window !== "undefined") {
-      window.localStorage.removeItem("userToken");
-      window.localStorage.removeItem("token");
-      window.localStorage.removeItem("userName");
-      window.localStorage.removeItem("userEmail");
-      window.localStorage.removeItem("userData");
-    }
-
-    setIsLoggedIn(false);
-    setUserProfile(null);
+    clearAuthStorage();
     toast.success("Signed out successfully.");
     router.push("/login");
   }
@@ -159,8 +101,8 @@ export default function Navbar() {
     toast.info(`Search for \"${search || "products"}\" coming soon.`);
   }
 
-  const displayName = userProfile?.name?.trim() || "Mohamed Shalaby";
-  const displayEmail = userProfile?.email?.trim() || "shalabyegypto@gmail.com";
+  const displayName = profile?.name?.trim() || "Mohamed Shalaby";
+  const displayEmail = profile?.email?.trim() || "shalabyegypto@gmail.com";
   const guestAuthLinks = (
     <>
       <Link
@@ -206,25 +148,21 @@ export default function Navbar() {
               support@freshcart.com
             </p>
 
-            {isMounted ? (
-              isLoggedIn ? (
-                <>
-                  <span className="inline-flex items-center gap-2">
-                    <User className="size-4" />
-                    {displayName}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={handleSignOut}
-                    className="inline-flex items-center gap-2 font-medium text-slate-700 transition hover:text-red-600"
-                  >
-                    <LogOut className="size-4" />
-                    Sign Out
-                  </button>
-                </>
-              ) : (
-                guestAuthLinks
-              )
+            {isLoggedIn ? (
+              <>
+                <span className="inline-flex items-center gap-2">
+                  <User className="size-4" />
+                  {displayName}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  className="inline-flex items-center gap-2 font-medium text-slate-700 transition hover:text-red-600"
+                >
+                  <LogOut className="size-4" />
+                  Sign Out
+                </button>
+              </>
             ) : (
               guestAuthLinks
             )}
@@ -301,7 +239,7 @@ export default function Navbar() {
                 </nav>
 
                 <div className="mt-4 space-y-3 border-b border-[#E5E7EB] pb-4">
-                  {isMounted && isLoggedIn ? (
+                  {isLoggedIn ? (
                     <>
                       <SheetClose asChild>
                         <Link
@@ -490,7 +428,7 @@ export default function Navbar() {
                 </span>
               ) : null}
             </Link>
-            {isMounted && isLoggedIn ? (
+            {isLoggedIn ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button
@@ -603,7 +541,7 @@ export default function Navbar() {
               </span>
             ) : null}
           </Link>
-          {isMounted && isLoggedIn ? (
+          {isLoggedIn ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button

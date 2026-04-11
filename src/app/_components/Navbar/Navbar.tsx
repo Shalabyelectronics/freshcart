@@ -8,10 +8,12 @@ import {
   Heart,
   LogOut,
   Mail,
+  MapPin,
   Menu,
   Phone,
   Search,
   ShoppingCart,
+  Settings,
   User,
 } from "lucide-react";
 import Link from "next/link";
@@ -20,6 +22,13 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   useGetCategoriesQuery,
   useGetLoggedUserCartQuery,
@@ -56,6 +65,10 @@ export default function Navbar() {
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userProfile, setUserProfile] = useState<{
+    name: string;
+    email: string;
+  } | null>(null);
   const { data: cartData } = useGetLoggedUserCartQuery(undefined, {
     skip: !isLoggedIn || !isMounted,
   });
@@ -83,14 +96,45 @@ export default function Navbar() {
   // Only read localStorage after component mounts on client
   useEffect(() => {
     let isLogged = false;
+    let profile: { name: string; email: string } | null = null;
+
     if (typeof window !== "undefined") {
       const token =
         window.localStorage.getItem("userToken") ||
         window.localStorage.getItem("token");
       isLogged = Boolean(token);
+
+      const storedUserData = window.localStorage.getItem("userData");
+      if (storedUserData) {
+        try {
+          const parsed = JSON.parse(storedUserData) as {
+            name?: string;
+            email?: string;
+          };
+          if (parsed.name || parsed.email) {
+            profile = {
+              name:
+                parsed.name ?? window.localStorage.getItem("userName") ?? "",
+              email:
+                parsed.email ?? window.localStorage.getItem("userEmail") ?? "",
+            };
+          }
+        } catch {
+          profile = null;
+        }
+      }
+
+      if (!profile) {
+        const name = window.localStorage.getItem("userName") ?? "";
+        const email = window.localStorage.getItem("userEmail") ?? "";
+        if (name || email) {
+          profile = { name, email };
+        }
+      }
     }
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsLoggedIn(isLogged);
+    setUserProfile(profile);
     setIsMounted(true);
   }, []);
 
@@ -98,9 +142,13 @@ export default function Navbar() {
     if (typeof window !== "undefined") {
       window.localStorage.removeItem("userToken");
       window.localStorage.removeItem("token");
+      window.localStorage.removeItem("userName");
+      window.localStorage.removeItem("userEmail");
+      window.localStorage.removeItem("userData");
     }
 
     setIsLoggedIn(false);
+    setUserProfile(null);
     toast.success("Signed out successfully.");
     router.push("/login");
   }
@@ -109,6 +157,9 @@ export default function Navbar() {
     event.preventDefault();
     toast.info(`Search for \"${search || "products"}\" coming soon.`);
   }
+
+  const displayName = userProfile?.name?.trim() || "Mohamed Shalaby";
+  const displayEmail = userProfile?.email?.trim() || "shalabyegypto@gmail.com";
 
   return (
     <header className="sticky top-0 z-40 border-b border-[#E5E7EB] bg-white">
@@ -139,13 +190,10 @@ export default function Navbar() {
             {isMounted ? (
               isLoggedIn ? (
                 <>
-                  <Link
-                    href="/account"
-                    className="inline-flex items-center gap-2 transition hover:text-[#16A34A]"
-                  >
+                  <span className="inline-flex items-center gap-2">
                     <User className="size-4" />
-                    Mohamed Shalaby
-                  </Link>
+                    {displayName}
+                  </span>
                   <button
                     type="button"
                     onClick={handleSignOut}
@@ -408,9 +456,93 @@ export default function Navbar() {
                 </span>
               ) : null}
             </Link>
-            <Link href="/login" className="p-1 transition hover:text-[#16A34A]">
-              <User className="size-7" />
-            </Link>
+            {isMounted && isLoggedIn ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-2 rounded-full px-2 py-1 text-slate-700 transition hover:bg-slate-100 hover:text-[#16A34A] cursor-pointer"
+                    aria-label="Open account menu"
+                  >
+     
+                    <span className="inline-flex size-8 items-center justify-center rounded-full bg-[#DCFCE7] text-[#16A34A]">
+                      <CircleUserRound className="size-4" />
+                    </span>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="end"
+                  sideOffset={8}
+                  className="w-72.5 bg-white p-2"
+                >
+                  <div className="rounded-2xl bg-white px-4 py-3">
+                    <div className="flex items-center gap-3">
+                      <span className="inline-flex size-11 items-center justify-center rounded-full bg-[#DCFCE7] text-[#16A34A]">
+                        <CircleUserRound className="size-5" />
+                      </span>
+                      <div className="min-w-0">
+                        <p className="truncate text-2xl font-semibold text-slate-900">
+                          {displayName}
+                        </p>
+                        <p className="truncate text-xl text-slate-500">
+                          {displayEmail}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/account" className="w-full">
+                      <User className="size-4 text-slate-400" />
+                      My Profile
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/allorders" className="w-full">
+                      <ShoppingCart className="size-4 text-slate-400" />
+                      My Orders
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/wishlist" className="w-full">
+                      <Heart className="size-4 text-slate-400" />
+                      My Wishlist
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/account/addresses" className="w-full">
+                      <MapPin className="size-4 text-slate-400" />
+                      Addresses
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/account/settings" className="w-full">
+                      <Settings className="size-4 text-slate-400" />
+                      Settings
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onSelect={(event) => {
+                      event.preventDefault();
+                      handleSignOut();
+                    }}
+                    className="text-red-500 focus:bg-red-50 focus:text-red-600"
+                  >
+                    <LogOut className="size-4 text-red-500" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Link
+                href="/login"
+                className="p-1 transition hover:text-[#16A34A]"
+              >
+                <User className="size-7" />
+              </Link>
+            )}
           </div>
         </div>
 
@@ -437,9 +569,87 @@ export default function Navbar() {
               </span>
             ) : null}
           </Link>
-          <Link href="/login" className="rounded-full p-2 text-slate-600">
-            <User className="size-5" />
-          </Link>
+          {isMounted && isLoggedIn ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className="inline-flex size-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:border-[#16A34A] hover:text-[#16A34A]"
+                  aria-label="Open account menu"
+                >
+                  <CircleUserRound className="size-5" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                sideOffset={12}
+                className="w-[280px] p-2"
+              >
+                <div className="rounded-2xl bg-[#F8FAFC] px-4 py-3">
+                  <div className="flex items-center gap-3">
+                    <span className="inline-flex size-10 items-center justify-center rounded-full bg-[#DCFCE7] text-[#16A34A]">
+                      <CircleUserRound className="size-5" />
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate text-xl font-semibold text-slate-900">
+                        {displayName}
+                      </p>
+                      <p className="truncate text-lg text-slate-500">
+                        {displayEmail}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/account" className="w-full">
+                    <User className="size-4 text-slate-400" />
+                    My Profile
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/allorders" className="w-full">
+                    <ShoppingCart className="size-4 text-slate-400" />
+                    My Orders
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/wishlist" className="w-full">
+                    <Heart className="size-4 text-slate-400" />
+                    My Wishlist
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/account/addresses" className="w-full">
+                    <MapPin className="size-4 text-slate-400" />
+                    Addresses
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/account/settings" className="w-full">
+                    <Settings className="size-4 text-slate-400" />
+                    Settings
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onSelect={(event) => {
+                    event.preventDefault();
+                    handleSignOut();
+                  }}
+                  className="text-red-500 focus:bg-red-50 focus:text-red-600"
+                >
+                  <LogOut className="size-4 text-red-500" />
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Link href="/login" className="rounded-full p-2 text-slate-600">
+              <CircleUserRound className="size-5" />
+            </Link>
+          )}
         </div>
       </div>
     </header>

@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Building2,
   ChevronRight,
@@ -66,18 +66,17 @@ function getErrorMessage(error: unknown): string {
 function SidebarTabButton({
   icon,
   label,
+  href,
   isActive,
-  onClick,
 }: {
   icon: React.ReactNode;
   label: string;
+  href: string;
   isActive: boolean;
-  onClick: () => void;
 }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
+    <Link
+      href={href}
       className={`flex w-full items-center justify-between rounded-2xl px-4 py-3 text-left transition ${
         isActive
           ? "bg-[#E5F5EC] text-[#16A34A]"
@@ -99,7 +98,7 @@ function SidebarTabButton({
       <ChevronRight
         className={`size-5 ${isActive ? "text-[#16A34A]" : "text-slate-400"}`}
       />
-    </button>
+    </Link>
   );
 }
 
@@ -126,7 +125,7 @@ function AddressCardSkeleton() {
 
 export default function AccountPage() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<AccountTab>("addresses");
+  const pathname = usePathname();
   const [authReady, setAuthReady] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -155,6 +154,9 @@ export default function AccountPage() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const activeTab: AccountTab = pathname.endsWith("/settings")
+    ? "settings"
+    : "addresses";
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -402,14 +404,14 @@ export default function AccountPage() {
                 <SidebarTabButton
                   icon={<MapPin className="size-5" />}
                   label="My Addresses"
+                  href="/account/addresses"
                   isActive={activeTab === "addresses"}
-                  onClick={() => setActiveTab("addresses")}
                 />
                 <SidebarTabButton
                   icon={<Settings className="size-5" />}
                   label="Settings"
+                  href="/account/settings"
                   isActive={activeTab === "settings"}
-                  onClick={() => setActiveTab("settings")}
                 />
               </div>
             </aside>

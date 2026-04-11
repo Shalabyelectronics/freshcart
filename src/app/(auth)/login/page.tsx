@@ -77,6 +77,9 @@ export default function LoginPage() {
       if (typeof window !== "undefined") {
         window.localStorage.setItem("userToken", response.token);
         window.localStorage.setItem("token", response.token);
+        window.localStorage.setItem("userName", response.user.name);
+        window.localStorage.setItem("userEmail", response.user.email);
+        window.localStorage.setItem("userData", JSON.stringify(response.user));
       }
 
       toast.success("Signed in successfully.");
@@ -90,14 +93,14 @@ export default function LoginPage() {
     <main className="mx-auto flex min-h-[calc(100vh-5rem)] w-full max-w-7xl items-center px-4 py-6 md:px-6 md:py-8">
       <section className="grid w-full grid-cols-1 gap-6 lg:grid-cols-[1.05fr_0.95fr]">
         <aside className="rounded-2xl border border-[#E2E8F0] bg-white p-4 shadow-sm md:p-5">
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#F8FAFC] via-white to-[#ECFDF5] p-5 md:p-7">
+          <div className="relative overflow-hidden rounded-2xl bg-linear-to-br from-[#F8FAFC] via-white to-[#ECFDF5] p-5 md:p-7">
             <div className="absolute right-6 top-6 h-28 w-28 rounded-full bg-[#DCFCE7] blur-2xl" />
             <div className="absolute bottom-6 left-8 h-20 w-20 rounded-full bg-[#BBF7D0] blur-2xl" />
 
-            <div className="relative flex min-h-[23rem] items-center justify-center">
-              <div className="relative h-72 w-full max-w-[26rem] rounded-[2rem] border border-white/70 bg-white/90 shadow-[0_18px_60px_rgba(15,23,42,0.08)]">
-                <div className="absolute inset-x-6 top-6 h-40 rounded-[1.75rem] bg-gradient-to-br from-[#F0FDF4] to-[#DCFCE7]" />
-                <div className="absolute left-1/2 top-[4.5rem] h-44 w-44 -translate-x-1/2 rounded-full bg-[#BBF7D0] opacity-40 blur-2xl" />
+            <div className="relative flex min-h-92 items-center justify-center">
+              <div className="relative h-72 w-full max-w-104 rounded-[2rem] border border-white/70 bg-white/90 shadow-[0_18px_60px_rgba(15,23,42,0.08)]">
+                <div className="absolute inset-x-6 top-6 h-40 rounded-[1.75rem] bg-linear-to-br from-[#F0FDF4] to-[#DCFCE7]" />
+                <div className="absolute left-1/2 top-18 h-44 w-44 -translate-x-1/2 rounded-full bg-[#BBF7D0] opacity-40 blur-2xl" />
                 <div className="absolute left-1/2 top-[5.2rem] -translate-x-1/2 text-[#16A34A]">
                   <ShoppingBag className="size-24 drop-shadow-sm" />
                 </div>

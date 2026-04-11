@@ -15,6 +15,7 @@ import {
   ShoppingCart,
   Settings,
   User,
+  UserPlus,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -160,6 +161,24 @@ export default function Navbar() {
 
   const displayName = userProfile?.name?.trim() || "Mohamed Shalaby";
   const displayEmail = userProfile?.email?.trim() || "shalabyegypto@gmail.com";
+  const guestAuthLinks = (
+    <>
+      <Link
+        href="/login"
+        className="inline-flex items-center gap-1.5 font-medium text-slate-700 transition hover:text-[#16A34A]"
+      >
+        <User className="size-4" />
+        Sign In
+      </Link>
+      <Link
+        href="/register"
+        className="inline-flex items-center gap-1.5 font-medium text-slate-700 transition hover:text-[#16A34A]"
+      >
+        <UserPlus className="size-4" />
+        Sign Up
+      </Link>
+    </>
+  );
 
   return (
     <header className="sticky top-0 z-40 border-b border-[#E5E7EB] bg-white">
@@ -204,20 +223,10 @@ export default function Navbar() {
                   </button>
                 </>
               ) : (
-                <Link
-                  href="/login"
-                  className="font-medium text-slate-700 transition hover:text-[#16A34A]"
-                >
-                  Sign In
-                </Link>
+                guestAuthLinks
               )
             ) : (
-              <Link
-                href="/login"
-                className="font-medium text-slate-700 transition hover:text-[#16A34A]"
-              >
-                Sign In
-              </Link>
+              guestAuthLinks
             )}
           </div>
         </div>
@@ -292,32 +301,57 @@ export default function Navbar() {
                 </nav>
 
                 <div className="mt-4 space-y-3 border-b border-[#E5E7EB] pb-4">
-                  <SheetClose asChild>
-                    <Link
-                      href={isMounted && isLoggedIn ? "/account" : "/login"}
-                      className="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-800"
-                    >
-                      <span className="inline-flex size-11 items-center justify-center rounded-full bg-[#F1F5F9]">
-                        <CircleUserRound className="size-5 text-slate-500" />
-                      </span>
-                      <span className="text-4xl font-medium">
-                        {isMounted &&
-                          (isLoggedIn ? "Mohamed Shalaby" : "Sign In")}
-                      </span>
-                    </Link>
-                  </SheetClose>
-
-                  {isMounted && isLoggedIn && (
-                    <button
-                      type="button"
-                      onClick={handleSignOut}
-                      className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-4xl font-medium text-red-500 hover:bg-red-50"
-                    >
-                      <span className="inline-flex size-11 items-center justify-center rounded-full bg-red-50">
-                        <LogOut className="size-5" />
-                      </span>
-                      Sign Out
-                    </button>
+                  {isMounted && isLoggedIn ? (
+                    <>
+                      <SheetClose asChild>
+                        <Link
+                          href="/account"
+                          className="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-800"
+                        >
+                          <span className="inline-flex size-11 items-center justify-center rounded-full bg-[#F1F5F9]">
+                            <CircleUserRound className="size-5 text-slate-500" />
+                          </span>
+                          <span className="text-4xl font-medium">
+                            {displayName}
+                          </span>
+                        </Link>
+                      </SheetClose>
+                      <button
+                        type="button"
+                        onClick={handleSignOut}
+                        className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-4xl font-medium text-red-500 hover:bg-red-50"
+                      >
+                        <span className="inline-flex size-11 items-center justify-center rounded-full bg-red-50">
+                          <LogOut className="size-5" />
+                        </span>
+                        Sign Out
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <SheetClose asChild>
+                        <Link
+                          href="/login"
+                          className="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-800 hover:bg-slate-50"
+                        >
+                          <span className="inline-flex size-11 items-center justify-center rounded-full bg-[#F1F5F9]">
+                            <User className="size-5 text-slate-500" />
+                          </span>
+                          <span className="text-4xl font-medium">Sign In</span>
+                        </Link>
+                      </SheetClose>
+                      <SheetClose asChild>
+                        <Link
+                          href="/register"
+                          className="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-800 hover:bg-slate-50"
+                        >
+                          <span className="inline-flex size-11 items-center justify-center rounded-full bg-[#F1F5F9]">
+                            <UserPlus className="size-5 text-slate-500" />
+                          </span>
+                          <span className="text-4xl font-medium">Sign Up</span>
+                        </Link>
+                      </SheetClose>
+                    </>
                   )}
                 </div>
 
@@ -464,7 +498,6 @@ export default function Navbar() {
                     className="inline-flex items-center gap-2 rounded-full px-2 py-1 text-slate-700 transition hover:bg-slate-100 hover:text-[#16A34A] cursor-pointer"
                     aria-label="Open account menu"
                   >
-     
                     <span className="inline-flex size-8 items-center justify-center rounded-full bg-[#DCFCE7] text-[#16A34A]">
                       <CircleUserRound className="size-4" />
                     </span>
@@ -538,9 +571,10 @@ export default function Navbar() {
             ) : (
               <Link
                 href="/login"
-                className="p-1 transition hover:text-[#16A34A]"
+                className="inline-flex items-center gap-2 rounded-full bg-[#16A34A] px-5 py-2 text-sm font-semibold text-white transition hover:bg-[#15803D]"
               >
-                <User className="size-7" />
+                <User className="size-4" />
+                Sign In
               </Link>
             )}
           </div>

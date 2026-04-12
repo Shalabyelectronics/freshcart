@@ -64,6 +64,13 @@ export interface CategorySummary {
   image?: string;
 }
 
+export interface SubCategory {
+  _id: string;
+  name: string;
+  slug: string;
+  category: string;
+}
+
 export interface BrandSummary {
   _id: string;
   name: string;
@@ -113,6 +120,7 @@ export interface ProductsQueryParams {
   keyword?: string;
   category?: string;
   brand?: string;
+  subcategory?: string;
   minPrice?: number;
   maxPrice?: number;
   sort?: string;
@@ -127,6 +135,19 @@ export interface CategoriesResponse {
   results: number;
   metadata?: ApiPaginationMetadata;
   data: CategorySummary[];
+}
+
+export interface CategoryResponse {
+  data: CategorySummary;
+}
+
+export interface SubCategoriesResponse {
+  results: number;
+  data: SubCategory[];
+}
+
+export interface SingleSubCategoryResponse {
+  data: SubCategory;
 }
 
 export interface BrandsResponse {

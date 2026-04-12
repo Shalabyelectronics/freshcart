@@ -8,6 +8,7 @@ import type {
   CartMutationResponse,
   CartResponse,
   BrandsResponse,
+  CategoryResponse,
   CategoriesResponse,
   ChangePasswordRequestBody,
   ChangePasswordResponse,
@@ -22,6 +23,8 @@ import type {
   SignInRequestBody,
   SignUpRequestBody,
   SingleBrandResponse,
+  SingleSubCategoryResponse,
+  SubCategoriesResponse,
   UpdateAddressRequestBody,
   UpdateMeRequestBody,
   UpdateMeResponse,
@@ -34,7 +37,7 @@ import type {
 
 export const apiSlice = createApi({
   reducerPath: "api",
-  tagTypes: ["Cart", "Wishlist", "Brands", "Addresses"],
+  tagTypes: ["Cart", "Wishlist", "Brands", "Addresses", "SubCategories"],
   baseQuery: fetchBaseQuery({
     baseUrl: "https://ecommerce.routemisr.com/api/v1",
     prepareHeaders: (headers, { getState }) => {
@@ -84,6 +87,27 @@ export const apiSlice = createApi({
         url: "/categories",
       }),
     }),
+    getSpecificCategory: builder.query<CategoryResponse, string>({
+      query: (categoryId) => ({
+        url: `/categories/${categoryId}`,
+      }),
+    }),
+    getSubCategories: builder.query<SubCategoriesResponse, void>({
+      query: () => ({
+        url: "/subcategories",
+      }),
+    }),
+    getSpecificSubCategory: builder.query<SingleSubCategoryResponse, string>({
+      query: (subId) => ({
+        url: `/subcategories/${subId}`,
+      }),
+    }),
+    getSubCategoriesOnCategory: builder.query<SubCategoriesResponse, string>({
+      query: (categoryId) => ({
+        url: `/categories/${categoryId}/subcategories`,
+      }),
+      providesTags: ["SubCategories"],
+    }),
     getBrands: builder.query<BrandsResponse, void>({
       query: () => ({
         url: "/brands",
@@ -117,6 +141,12 @@ export const apiSlice = createApi({
 
         if (params.brand) {
           queryParts.push(`brand[in]=${encodeURIComponent(params.brand)}`);
+        }
+
+        if (params.subcategory) {
+          queryParts.push(
+            `subcategory[in]=${encodeURIComponent(params.subcategory)}`,
+          );
         }
 
         if (
@@ -320,11 +350,15 @@ export const {
   useForgotPasswordMutation,
   useGetAddressesQuery,
   useGetCategoriesQuery,
+  useGetSpecificCategoryQuery,
   useGetBrandsQuery,
   useGetLoggedUserCartQuery,
   useGetProductsQuery,
   useGetProductByIdQuery,
   useGetSpecificBrandQuery,
+  useGetSubCategoriesQuery,
+  useGetSpecificSubCategoryQuery,
+  useGetSubCategoriesOnCategoryQuery,
   useGetUserOrdersQuery,
   useGetWishlistQuery,
   useRemoveAddressMutation,

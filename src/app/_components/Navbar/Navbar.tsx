@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import {
   ChevronDown,
   CircleUserRound,
@@ -98,7 +98,14 @@ export default function Navbar() {
 
   function handleSearchSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    toast.info(`Search for \"${search || "products"}\" coming soon.`);
+
+    const keyword = search.trim();
+    const targetUrl = keyword
+      ? `/products?keyword=${encodeURIComponent(keyword)}`
+      : "/products";
+
+    router.push(targetUrl);
+    setSearch("");
   }
 
   const displayName = profile?.name?.trim() || "Mohamed Shalaby";

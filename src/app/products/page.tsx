@@ -78,8 +78,24 @@ function ProductsPageLoadingFallback() {
 
 function ProductsPageContent() {
   const searchParams = useSearchParams();
+  const keyword = searchParams.get("keyword")?.trim() || undefined;
   const selectedBrandId = searchParams.get("brand") ?? undefined;
   const selectedCategoryId = searchParams.get("category") ?? undefined;
+  const sort = searchParams.get("sort") ?? undefined;
+  const minPriceParam = searchParams.get("minPrice");
+  const maxPriceParam = searchParams.get("maxPrice");
+
+  const parsedMinPrice = minPriceParam ? Number(minPriceParam) : undefined;
+  const parsedMaxPrice = maxPriceParam ? Number(maxPriceParam) : undefined;
+
+  const minPrice =
+    typeof parsedMinPrice === "number" && !Number.isNaN(parsedMinPrice)
+      ? parsedMinPrice
+      : undefined;
+  const maxPrice =
+    typeof parsedMaxPrice === "number" && !Number.isNaN(parsedMaxPrice)
+      ? parsedMaxPrice
+      : undefined;
 
   const { data: categoriesData } = useGetCategoriesQuery();
   const { data: selectedBrandData } = useGetSpecificBrandQuery(
@@ -90,16 +106,28 @@ function ProductsPageContent() {
   );
 
   const queryParams = useMemo(() => {
-    if (selectedBrandId) {
-      return { "brand[in]": selectedBrandId };
-    }
+    const hasAnyFilter = Boolean(
+      keyword ||
+      selectedCategoryId ||
+      selectedBrandId ||
+      sort ||
+      minPrice !== undefined ||
+      maxPrice !== undefined,
+    );
 
-    if (!selectedCategoryId) {
+    if (!hasAnyFilter) {
       return undefined;
     }
 
-    return { "category[in]": selectedCategoryId };
-  }, [selectedBrandId, selectedCategoryId]);
+    return {
+      keyword,
+      category: selectedCategoryId,
+      brand: selectedBrandId,
+      minPrice,
+      maxPrice,
+      sort,
+    };
+  }, [keyword, maxPrice, minPrice, selectedBrandId, selectedCategoryId, sort]);
 
   const { data, isLoading, isFetching, isError } =
     useGetProductsQuery(queryParams);
@@ -108,6 +136,10 @@ function ProductsPageContent() {
   const productsCount = data?.results ?? products.length;
 
   const selectedFilterName = useMemo(() => {
+    if (keyword) {
+      return `Search Results for "${keyword}"`;
+    }
+
     if (selectedBrandId) {
       return selectedBrandData?.data?.name ?? "Brand";
     }
@@ -123,15 +155,19 @@ function ProductsPageContent() {
     return matchedCategory?.name ?? "All Products";
   }, [
     categoriesData?.data,
+    keyword,
     selectedBrandData?.data?.name,
     selectedBrandId,
     selectedCategoryId,
   ]);
-  const bannerDescription = selectedBrandId
-    ? `Browse products from ${selectedFilterName}`
-    : selectedCategoryId
-      ? `Browse products in ${selectedFilterName}`
-      : "Explore our complete product collection";
+
+  const bannerDescription = keyword
+    ? `Showing ${productsCount} result${productsCount === 1 ? "" : "s"}`
+    : selectedBrandId
+      ? `Browse products from ${selectedFilterName}`
+      : selectedCategoryId
+        ? `Browse products in ${selectedFilterName}`
+        : "Explore our complete product collection";
 
   return (
     <main className="min-h-screen bg-[#F8F9FB]">

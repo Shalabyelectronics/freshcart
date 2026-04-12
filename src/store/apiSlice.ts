@@ -97,13 +97,56 @@ export const apiSlice = createApi({
     }),
     getProducts: builder.query<ProductsResponse, ProductsQueryParams | void>({
       query: (params) => {
-        const queryObj: { url: string; params?: ProductsQueryParams } = {
-          url: "/products",
-        };
-        if (params) {
-          queryObj.params = params;
+        if (!params) {
+          return {
+            url: "/products",
+          };
         }
-        return queryObj;
+
+        const queryParts: string[] = [];
+
+        if (params.keyword) {
+          queryParts.push(`keyword=${encodeURIComponent(params.keyword)}`);
+        }
+
+        if (params.category) {
+          queryParts.push(
+            `category[in]=${encodeURIComponent(params.category)}`,
+          );
+        }
+
+        if (params.brand) {
+          queryParts.push(`brand[in]=${encodeURIComponent(params.brand)}`);
+        }
+
+        if (
+          typeof params.minPrice === "number" &&
+          !Number.isNaN(params.minPrice)
+        ) {
+          queryParts.push(`price[gte]=${params.minPrice}`);
+        }
+
+        if (
+          typeof params.maxPrice === "number" &&
+          !Number.isNaN(params.maxPrice)
+        ) {
+          queryParts.push(`price[lte]=${params.maxPrice}`);
+        }
+
+        if (params.sort) {
+          queryParts.push(`sort=${encodeURIComponent(params.sort)}`);
+        }
+
+        if (typeof params.limit === "number" && !Number.isNaN(params.limit)) {
+          queryParts.push(`limit=${params.limit}`);
+        }
+
+        const queryString =
+          queryParts.length > 0 ? `?${queryParts.join("&")}` : "";
+
+        return {
+          url: `/products${queryString}`,
+        };
       },
     }),
     getProductById: builder.query<ProductResponse, string>({

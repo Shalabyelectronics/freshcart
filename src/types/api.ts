@@ -110,8 +110,12 @@ export interface ProductsResponse {
 }
 
 export interface ProductsQueryParams {
-  "category[in]"?: string;
-  "brand[in]"?: string;
+  keyword?: string;
+  category?: string;
+  brand?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  sort?: string;
   limit?: number;
 }
 

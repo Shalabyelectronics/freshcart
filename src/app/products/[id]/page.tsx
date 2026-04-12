@@ -58,7 +58,7 @@ export default function ProductDetailsPage() {
   const { data: relatedProductsResult, isSuccess: isRelatedProductsSuccess } =
     useGetProductsQuery(
       {
-        "category[in]": categoryId,
+        category: categoryId,
         limit: 12,
       },
       {
@@ -587,7 +587,7 @@ export default function ProductDetailsPage() {
               {/* Buyer Protection */}
               <div className="bg-gray-50 rounded-lg p-6">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="h-12 w-12 shrink-0 rounded-full bg-gray-300 flex items-center justify-center">
                     🛡️
                   </div>
                   <div>

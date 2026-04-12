@@ -3,7 +3,15 @@
 import Link from "next/link";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Filter, Grid3X3, List, Search, SlidersHorizontal } from "lucide-react";
+import {
+  Filter,
+  FolderOpen,
+  Grid3X3,
+  List,
+  Search,
+  SlidersHorizontal,
+  X,
+} from "lucide-react";
 
 import ProductCard from "@/components/custom/ProductCard";
 import { Button } from "@/components/ui/button";
@@ -19,6 +27,7 @@ import {
   useGetCategoriesQuery,
   useGetProductsQuery,
   useGetSpecificBrandQuery,
+  useGetSpecificSubCategoryQuery,
 } from "@/store/apiSlice";
 
 type ViewMode = "grid" | "list";
@@ -260,6 +269,7 @@ function ProductsPageContent() {
   const keyword = searchParams.get("keyword")?.trim() || undefined;
   const selectedBrandId = searchParams.get("brand") ?? undefined;
   const selectedCategoryId = searchParams.get("category") ?? undefined;
+  const selectedSubCategoryId = searchParams.get("subcategory") ?? undefined;
   const sort = searchParams.get("sort") ?? undefined;
   const minPriceParam = searchParams.get("minPrice") ?? undefined;
   const maxPriceParam = searchParams.get("maxPrice") ?? undefined;
@@ -284,6 +294,12 @@ function ProductsPageContent() {
       skip: !selectedBrandId,
     },
   );
+  const { data: selectedSubCategoryData } = useGetSpecificSubCategoryQuery(
+    selectedSubCategoryId ?? "",
+    {
+      skip: !selectedSubCategoryId,
+    },
+  );
 
   const categoryName = useMemo(() => {
     if (!selectedCategoryId) {
@@ -295,6 +311,7 @@ function ProductsPageContent() {
   }, [categoriesData?.data, selectedCategoryId]);
 
   const brandName = selectedBrandData?.data?.name;
+  const subCategoryName = selectedSubCategoryData?.data?.name;
 
   const [keywordInput, setKeywordInput] = useState(keyword ?? "");
 
@@ -332,6 +349,7 @@ function ProductsPageContent() {
       keyword ||
       selectedCategoryId ||
       selectedBrandId ||
+      selectedSubCategoryId ||
       sort ||
       minPrice !== undefined ||
       maxPrice !== undefined,
@@ -345,11 +363,20 @@ function ProductsPageContent() {
       keyword,
       category: selectedCategoryId,
       brand: selectedBrandId,
+      subcategory: selectedSubCategoryId,
       minPrice,
       maxPrice,
       sort,
     };
-  }, [keyword, selectedCategoryId, selectedBrandId, minPrice, maxPrice, sort]);
+  }, [
+    keyword,
+    selectedCategoryId,
+    selectedBrandId,
+    selectedSubCategoryId,
+    minPrice,
+    maxPrice,
+    sort,
+  ]);
 
   const { data, isLoading, isFetching, isError } =
     useGetProductsQuery(queryParams);
@@ -357,30 +384,37 @@ function ProductsPageContent() {
   const products = data?.data ?? [];
   const productsCount = data?.results ?? products.length;
 
-  const headingTitle = keyword
-    ? `Search Results for "${keyword}"`
-    : selectedBrandId
-      ? brandName
-        ? `${brandName} Products`
-        : "Brand Results"
-      : selectedCategoryId
-        ? categoryName
-          ? `${categoryName} Products`
-          : "Category Results"
-        : "Search Results";
+  const headingTitle = selectedSubCategoryId
+    ? (subCategoryName ?? "SubCategory Results")
+    : keyword
+      ? `Search Results for "${keyword}"`
+      : selectedBrandId
+        ? brandName
+          ? `${brandName} Products`
+          : "Brand Results"
+        : selectedCategoryId
+          ? categoryName
+            ? `${categoryName} Products`
+            : "Category Results"
+          : "Search Results";
 
-  const headingSubtitle = keyword
-    ? `We found ${productsCount} product${productsCount === 1 ? "" : "s"} for you`
-    : selectedBrandId
-      ? `We found ${productsCount} product${productsCount === 1 ? "" : "s"} for ${brandName ?? "this brand"}`
-      : selectedCategoryId
-        ? `We found ${productsCount} product${productsCount === 1 ? "" : "s"} in ${categoryName ?? "this category"}`
-        : `We found ${productsCount} product${productsCount === 1 ? "" : "s"} for you`;
+  const headingSubtitle = selectedSubCategoryId
+    ? `Browse ${subCategoryName ?? "this subcategory"} products`
+    : keyword
+      ? `We found ${productsCount} product${productsCount === 1 ? "" : "s"} for you`
+      : selectedBrandId
+        ? `We found ${productsCount} product${productsCount === 1 ? "" : "s"} for ${brandName ?? "this brand"}`
+        : selectedCategoryId
+          ? `We found ${productsCount} product${productsCount === 1 ? "" : "s"} in ${categoryName ?? "this category"}`
+          : `We found ${productsCount} product${productsCount === 1 ? "" : "s"} for you`;
 
   const activeFilters: Array<{ key: string; label: string }> = [
     ...(keyword ? [{ key: "keyword", label: `"${keyword}"` }] : []),
     ...(selectedCategoryId
       ? [{ key: "category", label: categoryName ?? "Category" }]
+      : []),
+    ...(selectedSubCategoryId
+      ? [{ key: "subcategory", label: subCategoryName ?? "SubCategory" }]
       : []),
     ...(selectedBrandId ? [{ key: "brand", label: brandName ?? "Brand" }] : []),
     ...(minPrice !== undefined
@@ -393,31 +427,74 @@ function ProductsPageContent() {
 
   return (
     <main className="min-h-screen bg-[#F8F9FB]">
-      <section className="border-b border-slate-200 bg-white py-6">
+      <section
+        className={`border-b py-6 ${
+          selectedSubCategoryId
+            ? "border-[#16A34A]/20 bg-linear-to-r from-[#16A34A] to-[#2CCB65] text-white"
+            : "border-slate-200 bg-white"
+        }`}
+      >
         <div className="mx-auto w-full max-w-7xl px-4 md:px-6">
-          <div className="mb-4 flex items-center gap-2 text-base text-slate-500">
-            <Link href="/" className="hover:text-slate-700">
+          <div
+            className={`mb-4 flex items-center gap-2 text-base ${
+              selectedSubCategoryId ? "text-green-100" : "text-slate-500"
+            }`}
+          >
+            <Link
+              href="/"
+              className={
+                selectedSubCategoryId
+                  ? "hover:text-white"
+                  : "hover:text-slate-700"
+              }
+            >
               Home
             </Link>
             <span>/</span>
-            <span className="font-semibold text-slate-700">Search Results</span>
+            <span
+              className={`font-semibold ${
+                selectedSubCategoryId ? "text-white" : "text-slate-700"
+              }`}
+            >
+              {selectedSubCategoryId
+                ? (subCategoryName ?? "SubCategory")
+                : "Search Results"}
+            </span>
           </div>
 
           <div className="max-w-3xl">
-            <form onSubmit={handleSearchSubmit} className="relative">
-              <Search className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-slate-400" />
-              <input
-                value={keywordInput}
-                onChange={(event) => setKeywordInput(event.target.value)}
-                placeholder="Search products..."
-                className="h-13 w-full rounded-2xl border border-slate-200 bg-white pl-12 pr-4 text-lg outline-none focus:border-[#16A34A]"
-              />
-            </form>
+            {selectedSubCategoryId ? (
+              <div className="flex items-start gap-4 sm:items-center">
+                <div className="flex size-16 shrink-0 items-center justify-center rounded-2xl border border-white/20 bg-white/15 shadow-[0_10px_30px_rgba(0,0,0,0.14)] backdrop-blur-sm">
+                  <FolderOpen className="size-7 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-5xl font-bold tracking-tight text-white">
+                    {headingTitle}
+                  </h1>
+                  <p className="mt-1 text-2xl text-green-100">
+                    {headingSubtitle}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <>
+                <form onSubmit={handleSearchSubmit} className="relative">
+                  <Search className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-slate-400" />
+                  <input
+                    value={keywordInput}
+                    onChange={(event) => setKeywordInput(event.target.value)}
+                    placeholder="Search products..."
+                    className="h-13 w-full rounded-2xl border border-slate-200 bg-white pl-12 pr-4 text-lg text-slate-900 outline-none focus:border-[#16A34A]"
+                  />
+                </form>
 
-            <h1 className="mt-4 text-5xl font-bold tracking-tight text-slate-900">
-              {headingTitle}
-            </h1>
-            <p className="mt-2 text-xl text-slate-500">{headingSubtitle}</p>
+                <h1 className="mt-4 text-5xl font-bold tracking-tight text-slate-900">
+                  {headingTitle}
+                </h1>
+                <p className="mt-2 text-xl text-slate-500">{headingSubtitle}</p>
+              </>
+            )}
           </div>
         </div>
       </section>
@@ -580,15 +657,20 @@ function ProductsPageContent() {
               <div className="mb-5 flex flex-wrap items-center gap-3 text-sm text-slate-500">
                 <span className="inline-flex items-center gap-1.5 font-medium text-slate-600">
                   <Filter className="size-4" />
-                  Active:
+                  Active Filters:
                 </span>
                 {activeFilters.map((filterItem) => (
-                  <span
+                  <button
                     key={filterItem.key}
-                    className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 font-medium text-slate-600"
+                    type="button"
+                    onClick={() =>
+                      updateSearchParams({ [filterItem.key]: undefined })
+                    }
+                    className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 font-medium text-slate-600 transition hover:bg-slate-200"
                   >
                     {filterItem.label}
-                  </span>
+                    <X className="size-3.5" />
+                  </button>
                 ))}
                 <button
                   type="button"
@@ -618,22 +700,23 @@ function ProductsPageContent() {
             ) : products.length === 0 ? (
               <div className="flex min-h-[52vh] items-center justify-center rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
                 <div className="text-center">
-                  <div className="mx-auto mb-5 flex size-20 items-center justify-center rounded-full bg-slate-100 text-slate-400">
-                    <Search className="size-10" />
+                  <div className="mx-auto mb-5 flex size-24 items-center justify-center rounded-full bg-[#ECFDF5] text-[#16A34A]">
+                    <FolderOpen className="size-11" />
                   </div>
                   <h2 className="text-4xl font-bold text-slate-900">
                     No Products Found
                   </h2>
                   <p className="mt-3 text-xl text-slate-500">
-                    Try adjusting your search or filters to find what you're
-                    looking for.
+                    {selectedSubCategoryId
+                      ? `No products are available in ${subCategoryName ?? "this subcategory"} right now.`
+                      : "Try adjusting your search or filters to find what you're looking for."}
                   </p>
                   <Button
                     type="button"
-                    onClick={clearAllFilters}
+                    onClick={() => router.push("/products")}
                     className="mt-6 h-12 rounded-xl bg-[#16A34A] px-8 text-base font-semibold text-white hover:bg-[#15803D]"
                   >
-                    Clear Filters
+                    View All Products
                   </Button>
                 </div>
               </div>

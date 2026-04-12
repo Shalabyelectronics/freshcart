@@ -1,15 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import {
-  ArrowRight,
-  BadgeCheck,
-Truck,
-  Mail,
-
-  Tag,
- 
-} from "lucide-react";
+import { ArrowRight, BadgeCheck, Truck, Mail, Tag } from "lucide-react";
 import Link from "next/link";
 
 import ProductCard from "@/components/custom/ProductCard";
@@ -42,8 +34,6 @@ const sliderItems = [
     subtitle: "Save more with fresh quality groceries",
   },
 ];
-
-
 
 const categoryOrder = [
   "Music",
@@ -172,8 +162,6 @@ export default function Home() {
           </Carousel>
         </section>
 
- 
-
         <section className="space-y-5">
           <div className="flex items-center justify-between gap-3">
             <h2 className="flex items-center gap-3 text-4xl font-bold text-slate-900 md:text-[42px]">
@@ -194,9 +182,10 @@ export default function Home() {
 
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-6">
             {filteredCategories.map((category) => (
-              <article
+              <Link
                 key={category._id}
-                className="rounded-xl border border-[#E5E7EB] bg-white p-3 text-center shadow-[0_2px_8px_rgba(15,23,42,0.03)]"
+                href={`/categories/${category._id}`}
+                className="block rounded-xl border border-[#E5E7EB] bg-white p-3 text-center shadow-[0_2px_8px_rgba(15,23,42,0.03)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#BBF7D0] hover:shadow-[0_6px_16px_rgba(22,163,74,0.10)]"
               >
                 <div className="mx-auto h-20 w-20 overflow-hidden rounded-full bg-[#ECFDF5]">
                   <img
@@ -209,7 +198,7 @@ export default function Home() {
                 <h3 className="mt-3 text-lg font-medium text-slate-800">
                   {category.name}
                 </h3>
-              </article>
+              </Link>
             ))}
           </div>
         </section>
@@ -360,8 +349,6 @@ export default function Home() {
             </p>
           </article>
         </section>
-
-      
       </div>
     </main>
   );

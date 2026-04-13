@@ -50,8 +50,6 @@ const DRAWER_ITEMS = [
   { label: "Shop", href: "/products" },
   { label: "Categories", href: "/products" },
   { label: "Brands", href: "/brands" },
-  { label: "Wishlist", href: "/wishlist" },
-  { label: "Cart", href: "/cart" },
 ];
 
 const CATEGORY_MENU_LABELS = [
@@ -65,6 +63,7 @@ export default function Navbar() {
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
+  const [isMobileCategoriesOpen, setIsMobileCategoriesOpen] = useState(false);
   const { isLoggedIn, profile } = useAuthState();
   const { data: cartData } = useGetLoggedUserCartQuery(undefined, {
     skip: !isLoggedIn,
@@ -179,149 +178,6 @@ export default function Navbar() {
 
       <div className="mx-auto flex w-full max-w-7xl items-center gap-4 px-4 py-4 md:px-6">
         <div className="flex items-center gap-3">
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="outline" className="h-10 w-10 p-0 lg:hidden">
-                <Menu className="size-5" />
-                <span className="sr-only">Open menu</span>
-              </Button>
-            </SheetTrigger>
-
-            <SheetContent className="p-0">
-              <SheetHeader className="border-b border-[#E5E7EB] p-4 pr-12">
-                <SheetTitle className="flex items-center gap-2 text-4xl font-bold text-slate-800">
-                  <span className="text-[#16A34A]">🛒</span>
-                  FreshCart
-                </SheetTitle>
-              </SheetHeader>
-
-              <div className="flex h-[calc(100vh-70px)] flex-col overflow-y-auto p-4">
-                <form onSubmit={handleSearchSubmit} className="relative">
-                  <Input
-                    value={search}
-                    onChange={(event) => setSearch(event.target.value)}
-                    className="h-11 rounded-2xl border-[#D5DBE3] pr-12 text-base"
-                    placeholder="Search products..."
-                  />
-                  <button
-                    type="submit"
-                    className="absolute right-2 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-xl bg-[#16A34A] text-white"
-                  >
-                    <Search className="size-4" />
-                  </button>
-                </form>
-
-                <nav className="mt-5 space-y-1 border-y border-[#E5E7EB] py-4">
-                  {DRAWER_ITEMS.map((item) => (
-                    <SheetClose asChild key={item.label}>
-                      <Link
-                        href={item.href}
-                        className="block rounded-lg px-3 py-3 text-4xl font-medium text-slate-800 hover:bg-slate-50"
-                      >
-                        {item.label}
-                      </Link>
-                    </SheetClose>
-                  ))}
-
-                  <div className="mt-2 rounded-lg bg-slate-50 p-2">
-                    <SheetClose asChild>
-                      <Link
-                        href="/products"
-                        className="block rounded-md px-3 py-2 text-3xl font-medium text-slate-700 hover:bg-white"
-                      >
-                        All Categories
-                      </Link>
-                    </SheetClose>
-                    {categoriesForMenu.map((category) => (
-                      <SheetClose asChild key={`drawer-${category.label}`}>
-                        <Link
-                          href={category.href}
-                          className="block rounded-md px-3 py-2 text-2xl font-medium text-slate-600 hover:bg-white"
-                        >
-                          {category.label}
-                        </Link>
-                      </SheetClose>
-                    ))}
-                  </div>
-                </nav>
-
-                <div className="mt-4 space-y-3 border-b border-[#E5E7EB] pb-4">
-                  {isLoggedIn ? (
-                    <>
-                      <SheetClose asChild>
-                        <Link
-                          href="/account"
-                          className="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-800"
-                        >
-                          <span className="inline-flex size-11 items-center justify-center rounded-full bg-[#F1F5F9]">
-                            <CircleUserRound className="size-5 text-slate-500" />
-                          </span>
-                          <span className="text-4xl font-medium">
-                            {displayName}
-                          </span>
-                        </Link>
-                      </SheetClose>
-                      <button
-                        type="button"
-                        onClick={handleSignOut}
-                        className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-4xl font-medium text-red-500 hover:bg-red-50"
-                      >
-                        <span className="inline-flex size-11 items-center justify-center rounded-full bg-red-50">
-                          <LogOut className="size-5" />
-                        </span>
-                        Sign Out
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <SheetClose asChild>
-                        <Link
-                          href="/login"
-                          className="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-800 hover:bg-slate-50"
-                        >
-                          <span className="inline-flex size-11 items-center justify-center rounded-full bg-[#F1F5F9]">
-                            <User className="size-5 text-slate-500" />
-                          </span>
-                          <span className="text-4xl font-medium">Sign In</span>
-                        </Link>
-                      </SheetClose>
-                      <SheetClose asChild>
-                        <Link
-                          href="/register"
-                          className="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-800 hover:bg-slate-50"
-                        >
-                          <span className="inline-flex size-11 items-center justify-center rounded-full bg-[#F1F5F9]">
-                            <UserPlus className="size-5 text-slate-500" />
-                          </span>
-                          <span className="text-4xl font-medium">Sign Up</span>
-                        </Link>
-                      </SheetClose>
-                    </>
-                  )}
-                </div>
-
-                <div className="mt-auto rounded-2xl border border-[#D1FAE5] bg-[#F0FDF4] p-4">
-                  <div className="flex items-center gap-3">
-                    <span className="inline-flex size-12 items-center justify-center rounded-full bg-[#D1FAE5] text-[#16A34A]">
-                      <Headset className="size-6" />
-                    </span>
-                    <div>
-                      <p className="text-2xl font-semibold text-slate-800">
-                        Need Help?
-                      </p>
-                      <a
-                        href="#"
-                        className="text-xl font-medium text-[#16A34A]"
-                      >
-                        Contact Support
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </SheetContent>
-          </Sheet>
-
           <Link
             href="/"
             className="flex items-center gap-2 text-2xl font-bold text-slate-800"
@@ -548,87 +404,204 @@ export default function Navbar() {
               </span>
             ) : null}
           </Link>
-          {isLoggedIn ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  type="button"
-                  className="inline-flex size-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:border-[#16A34A] hover:text-[#16A34A]"
-                  aria-label="Open account menu"
-                >
-                  <CircleUserRound className="size-5" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                sideOffset={12}
-                className="w-[280px] p-2"
+
+          <Sheet modal={true}>
+            <SheetTrigger asChild>
+              <button
+                type="button"
+                className="inline-flex size-11 items-center justify-center rounded-full bg-[#16A34A] text-white"
+                aria-label="Open menu"
               >
-                <div className="rounded-2xl bg-[#F8FAFC] px-4 py-3">
-                  <div className="flex items-center gap-3">
-                    <span className="inline-flex size-10 items-center justify-center rounded-full bg-[#DCFCE7] text-[#16A34A]">
-                      <CircleUserRound className="size-5" />
-                    </span>
-                    <div className="min-w-0">
-                      <p className="truncate text-xl font-semibold text-slate-900">
-                        {displayName}
-                      </p>
-                      <p className="truncate text-lg text-slate-500">
-                        {displayEmail}
-                      </p>
+                <Menu className="size-5" />
+                <span className="sr-only">Open menu</span>
+              </button>
+            </SheetTrigger>
+
+            <SheetContent
+              side="right"
+              className="w-[88vw] max-w-[360px] overflow-hidden p-0 [&>button]:right-4 [&>button]:top-4 [&>button]:inline-flex [&>button]:size-10 [&>button]:items-center [&>button]:justify-center [&>button]:rounded-full [&>button]:bg-slate-100 [&>button]:text-slate-500 [&>button]:hover:bg-slate-200"
+            >
+              <SheetHeader className="border-b border-[#E5E7EB] px-4 py-4 pr-16">
+                <SheetTitle className="flex items-center gap-2 text-5xl font-bold text-slate-800">
+                  <span className="text-[#16A34A]">🛒</span>
+                  FreshCart
+                </SheetTitle>
+              </SheetHeader>
+
+              <div className="flex h-full max-h-screen flex-col overflow-y-auto px-4 pb-4">
+                <form onSubmit={handleSearchSubmit} className="relative">
+                  <Input
+                    value={search}
+                    onChange={(event) => setSearch(event.target.value)}
+                    className="mt-4 h-11 rounded-2xl border-[#D5DBE3] bg-white pr-12 text-base"
+                    placeholder="Search products..."
+                  />
+                  <button
+                    type="submit"
+                    className="absolute right-2 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-xl bg-[#16A34A] text-white shadow-sm"
+                  >
+                    <Search className="size-4" />
+                  </button>
+                </form>
+
+                <nav className="mt-5 space-y-0.5 py-1">
+                  {DRAWER_ITEMS.filter(
+                    (item) => item.label !== "Categories",
+                  ).map((item) => (
+                    <SheetClose asChild key={item.label}>
+                      <Link
+                        href={item.href}
+                        className="flex min-h-11 items-center rounded-lg px-3 py-2 text-base leading-6 font-medium text-[#364153] transition hover:bg-slate-50"
+                      >
+                        {item.label}
+                      </Link>
+                    </SheetClose>
+                  ))}
+
+                  <div className="rounded-lg">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setIsMobileCategoriesOpen((previous) => !previous)
+                      }
+                      className="flex min-h-11 w-full items-center justify-between rounded-lg px-3 py-2 text-base leading-6 font-medium text-[#364153] transition hover:bg-slate-50"
+                    >
+                      <span>Categories</span>
+                      <ChevronDown
+                        className={`size-4 text-slate-500 transition-transform ${
+                          isMobileCategoriesOpen ? "rotate-180" : "rotate-0"
+                        }`}
+                      />
+                    </button>
+
+                    {isMobileCategoriesOpen ? (
+                      <div className="mt-1 ml-4 space-y-0.5 border-l border-slate-200 pl-3">
+                        {categoriesForMenu.map((category) => (
+                          <SheetClose asChild key={`drawer-${category.label}`}>
+                            <Link
+                              href={category.href}
+                              className="flex min-h-9 items-center rounded-md px-2 py-1.5 text-sm leading-5 font-medium text-slate-500 transition hover:bg-slate-50 hover:text-[#364153]"
+                            >
+                              {category.label}
+                            </Link>
+                          </SheetClose>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+                </nav>
+
+                <div className="mt-4 space-y-3 border-y border-[#E5E7EB] py-4">
+                  <SheetClose asChild>
+                    <Link
+                      href="/wishlist"
+                      className="flex items-center gap-3 rounded-xl px-3 py-2 text-slate-700 transition hover:bg-slate-50"
+                    >
+                      <span className="inline-flex size-12 items-center justify-center rounded-full bg-red-50 text-red-500">
+                        <Heart className="size-6" />
+                      </span>
+                      <span className="text-base font-medium text-[#364153]">
+                        Wishlist
+                      </span>
+                      {wishlistData?.count ? (
+                        <span className="ml-auto inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-red-500 px-2 text-xs font-bold text-white">
+                          {wishlistData.count}
+                        </span>
+                      ) : null}
+                    </Link>
+                  </SheetClose>
+
+                  <SheetClose asChild>
+                    <Link
+                      href="/cart"
+                      className="flex items-center gap-3 rounded-xl px-3 py-2 text-slate-700 transition hover:bg-slate-50"
+                    >
+                      <span className="inline-flex size-12 items-center justify-center rounded-full bg-[#DCFCE7] text-[#16A34A]">
+                        <ShoppingCart className="size-6" />
+                      </span>
+                      <span className="text-base font-medium text-[#364153]">
+                        Cart
+                      </span>
+                      {cartData?.numOfCartItems ? (
+                        <span className="ml-auto inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-red-500 px-2 text-xs font-bold text-white">
+                          {cartData.numOfCartItems}
+                        </span>
+                      ) : null}
+                    </Link>
+                  </SheetClose>
+                </div>
+
+                <div className="mt-auto pt-4">
+                  {isLoggedIn ? (
+                    <div className="space-y-2">
+                      <SheetClose asChild>
+                        <Link
+                          href="/account"
+                          className="flex h-12 items-center gap-3 rounded-xl px-3 text-[#364153] transition hover:bg-slate-50"
+                        >
+                          <span className="inline-flex size-9 items-center justify-center rounded-full bg-[#F1F5F9]">
+                            <CircleUserRound className="size-4 text-slate-500" />
+                          </span>
+                          <span className="text-base font-medium">
+                            {displayName}
+                          </span>
+                        </Link>
+                      </SheetClose>
+
+                      <button
+                        type="button"
+                        onClick={handleSignOut}
+                        className="flex h-12 w-full items-center gap-3 rounded-xl px-3 text-left text-base font-medium text-red-500 transition hover:bg-red-50"
+                      >
+                        <span className="inline-flex size-9 items-center justify-center rounded-full bg-red-50">
+                          <LogOut className="size-4" />
+                        </span>
+                        Sign Out
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-3">
+                      <SheetClose asChild>
+                        <Link
+                          href="/login"
+                          className="inline-flex h-12 items-center justify-center rounded-2xl bg-[#16A34A] px-4 text-base font-semibold text-white"
+                        >
+                          Sign In
+                        </Link>
+                      </SheetClose>
+                      <SheetClose asChild>
+                        <Link
+                          href="/register"
+                          className="inline-flex h-12 items-center justify-center rounded-2xl border-2 border-[#16A34A] px-4 text-base font-semibold text-[#16A34A]"
+                        >
+                          Sign Up
+                        </Link>
+                      </SheetClose>
+                    </div>
+                  )}
+
+                  <div className="mt-4 rounded-2xl border border-[#E5E7EB] bg-[#F8FAFC] p-4">
+                    <div className="flex items-center gap-3">
+                      <span className="inline-flex size-12 items-center justify-center rounded-full bg-[#DCFCE7] text-[#16A34A]">
+                        <Headset className="size-6" />
+                      </span>
+                      <div>
+                        <p className="text-lg font-semibold text-slate-800">
+                          Need Help?
+                        </p>
+                        <a
+                          href="#"
+                          className="text-lg font-medium text-[#16A34A]"
+                        >
+                          Contact Support
+                        </a>
+                      </div>
                     </div>
                   </div>
                 </div>
-
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/account" className="w-full">
-                    <User className="size-4 text-slate-400" />
-                    My Profile
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/allorders" className="w-full">
-                    <ShoppingCart className="size-4 text-slate-400" />
-                    My Orders
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/wishlist" className="w-full">
-                    <Heart className="size-4 text-slate-400" />
-                    My Wishlist
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/account/addresses" className="w-full">
-                    <MapPin className="size-4 text-slate-400" />
-                    Addresses
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/account/settings" className="w-full">
-                    <Settings className="size-4 text-slate-400" />
-                    Settings
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onSelect={(event) => {
-                    event.preventDefault();
-                    handleSignOut();
-                  }}
-                  className="text-red-500 focus:bg-red-50 focus:text-red-600"
-                >
-                  <LogOut className="size-4 text-red-500" />
-                  Sign Out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <Link href="/login" className="rounded-full p-2 text-slate-600">
-              <CircleUserRound className="size-5" />
-            </Link>
-          )}
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </header>

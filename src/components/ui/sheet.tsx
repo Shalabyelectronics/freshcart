@@ -32,7 +32,7 @@ function SheetOverlay({
     <Dialog.Overlay
       data-slot="sheet-overlay"
       className={cn(
-        "fixed inset-0 z-40 bg-black/40 backdrop-blur-[1px]",
+        "fixed inset-0 z-40 bg-black/40 backdrop-blur-[1px] transition-all duration-300 data-[state=closed]:opacity-0 data-[state=open]:opacity-100",
         className,
       )}
       {...props}
@@ -41,17 +41,26 @@ function SheetOverlay({
 }
 
 function SheetContent({
+  side = "right",
   className,
   children,
   ...props
-}: React.ComponentProps<typeof Dialog.Content>) {
+}: React.ComponentProps<typeof Dialog.Content> & {
+  side?: "left" | "right";
+}) {
+  const sideClasses =
+    side === "left"
+      ? "left-0 border-r data-[state=closed]:-translate-x-full"
+      : "right-0 border-l data-[state=closed]:translate-x-full";
+
   return (
     <SheetPortal>
       <SheetOverlay />
       <Dialog.Content
         data-slot="sheet-content"
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-[90vw] max-w-sm border-r border-[#E5E7EB] bg-white p-4 shadow-xl",
+          "fixed inset-y-0 z-50 w-[90vw] max-w-sm border-[#E5E7EB] bg-white p-4 shadow-xl transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] data-[state=open]:translate-x-0",
+          sideClasses,
           className,
         )}
         {...props}

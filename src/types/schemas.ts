@@ -28,5 +28,28 @@ export const LoginSchema = z.object({
   password: passwordSchema,
 });
 
+export const ForgotPasswordSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+});
+
+export const VerifyResetCodeSchema = z.object({
+  resetCode: z
+    .string()
+    .regex(/^\d{6}$/, "Verification code must be exactly 6 digits"),
+});
+
+export const ResetPasswordSchema = z
+  .object({
+    newPassword: passwordSchema,
+    confirmPassword: z.string().min(1, "Please confirm your password"),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "Passwords do not match",
+  });
+
 export type RegisterFormValues = z.infer<typeof RegisterSchema>;
 export type LoginFormValues = z.infer<typeof LoginSchema>;
+export type ForgotPasswordFormValues = z.infer<typeof ForgotPasswordSchema>;
+export type VerifyResetCodeFormValues = z.infer<typeof VerifyResetCodeSchema>;
+export type ResetPasswordFormValues = z.infer<typeof ResetPasswordSchema>;

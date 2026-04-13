@@ -46,6 +46,23 @@ export interface ForgotPasswordRequestBody {
   email: string;
 }
 
+export interface VerifyResetCodeRequestBody {
+  resetCode: string;
+}
+
+export interface VerifyResetCodeResponse {
+  status: string;
+}
+
+export interface ResetPasswordRequestBody {
+  email: string;
+  newPassword: string;
+}
+
+export interface ResetPasswordResponse {
+  token: string;
+}
+
 export interface AuthSuccessResponse {
   message: string;
   user: AuthUserPayload;

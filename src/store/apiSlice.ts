@@ -19,6 +19,8 @@ import type {
   ProductResponse,
   ProductsQueryParams,
   ProductsResponse,
+  ResetPasswordRequestBody,
+  ResetPasswordResponse,
   ShippingAddress,
   SignInRequestBody,
   SignUpRequestBody,
@@ -30,6 +32,8 @@ import type {
   UpdateMeResponse,
   UpdateCartProductQuantityRequestBody,
   UserOrdersResponse,
+  VerifyResetCodeRequestBody,
+  VerifyResetCodeResponse,
   VerifyTokenResponse,
   WishlistMutationResponse,
   WishlistResponse,
@@ -79,6 +83,26 @@ export const apiSlice = createApi({
       query: (body) => ({
         url: "/auth/forgotPasswords",
         method: "POST",
+        body,
+      }),
+    }),
+    verifyResetCode: builder.mutation<
+      VerifyResetCodeResponse,
+      VerifyResetCodeRequestBody
+    >({
+      query: (body) => ({
+        url: "/auth/verifyResetCode",
+        method: "POST",
+        body,
+      }),
+    }),
+    resetPassword: builder.mutation<
+      ResetPasswordResponse,
+      ResetPasswordRequestBody
+    >({
+      query: (body) => ({
+        url: "/auth/resetPassword",
+        method: "PUT",
         body,
       }),
     }),
@@ -363,6 +387,7 @@ export const {
   useGetWishlistQuery,
   useRemoveAddressMutation,
   useAddToWishlistMutation,
+  useResetPasswordMutation,
   useRemoveCartItemMutation,
   useRemoveFromWishlistMutation,
   useSignInMutation,
@@ -370,6 +395,7 @@ export const {
   useUpdateAddressMutation,
   useUpdateCartProductQuantityMutation,
   useUpdateMeMutation,
+  useVerifyResetCodeMutation,
   useVerifyTokenQuery,
 } = apiSlice;
 

@@ -90,14 +90,14 @@ export default function PasswordResetShell({
           </div>
 
           <div className="mt-7 text-center">
-            <h2 className="text-5xl font-bold text-[#0F2A4D]">
+            <h2 className="text-type-max font-bold text-[#0F2A4D]">
               Reset Your Password
             </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-[38px] leading-snug text-[#334155]">
+            <p className="text-type-lg mx-auto mt-4 max-w-2xl leading-snug text-[#334155]">
               Don&apos;t worry, it happens to the best of us. We&apos;ll help
               you get back into your account in no time.
             </p>
-            <div className="mt-6 flex items-center justify-center gap-8 text-[28px] text-[#475569]">
+            <div className="text-type-md-lg mt-6 flex items-center justify-center gap-8 text-[#475569]">
               <span className="inline-flex items-center gap-2">
                 <Mail className="size-4 text-[#16A34A]" /> Email Verification
               </span>
@@ -113,14 +113,14 @@ export default function PasswordResetShell({
 
         <section className="w-full rounded-[18px] border border-[#E5E7EB] bg-white px-6 py-8 shadow-[0_6px_20px_rgba(15,23,42,0.10)] sm:px-8 lg:px-10">
           <div className="text-center">
-            <h1 className="text-5xl leading-none font-bold tracking-tight">
+            <h1 className="text-type-max leading-none font-bold tracking-tight">
               <span className="text-[#16A34A]">Fresh</span>
               <span className="text-[#0F2A4D]">Cart</span>
             </h1>
-            <h2 className="mt-4 text-5xl font-bold leading-tight text-[#0F2A4D]">
+            <h2 className="text-type-max mt-4 font-bold leading-tight text-[#0F2A4D]">
               {title}
             </h2>
-            <p className="mx-auto mt-3 max-w-3xl text-[31px] leading-normal text-[#475569]">
+            <p className="text-type-lg mx-auto mt-3 max-w-3xl leading-normal text-[#475569]">
               {subtitle}
             </p>
           </div>

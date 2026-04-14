@@ -131,7 +131,7 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-40 border-b border-[#E5E7EB] bg-white">
       <div className="hidden border-b border-[#E5E7EB] bg-[#F8F9FA] lg:block">
-        <div className="mx-auto flex h-11 w-full max-w-[1280px] items-center justify-between px-4 text-sm text-slate-600 md:px-6">
+        <div className="text-type-sm mx-auto flex h-11 w-full max-w-[1280px] items-center justify-between px-4 text-slate-600 md:px-6">
           <div className="flex items-center gap-8">
             <p className="inline-flex items-center gap-2">
               <ShoppingCart className="size-4 text-[#16A34A]" />
@@ -180,7 +180,7 @@ export default function Navbar() {
         <div className="flex items-center gap-3">
           <Link
             href="/"
-            className="flex items-center gap-2 text-2xl font-bold text-slate-800"
+            className="text-type-lg flex items-center gap-2 font-bold text-slate-800"
           >
             <span className="text-[#16A34A]">🛒</span>
             FreshCart
@@ -192,7 +192,7 @@ export default function Navbar() {
             <Input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              className="h-13 rounded-full border-[#D5DBE3] pr-16 text-2xl"
+              className="text-type-base h-13 rounded-full border-[#D5DBE3] pr-16"
               placeholder="Search for products, brands and more..."
             />
             <button
@@ -205,7 +205,7 @@ export default function Navbar() {
         </form>
 
         <div className="ml-auto hidden items-center gap-5 lg:flex">
-          <nav className="flex items-center gap-8 text-xl font-medium text-slate-800">
+          <nav className="text-type-base flex items-center gap-8 font-medium text-slate-800">
             <Link href="/" className="transition hover:text-[#16A34A]">
               Home
             </Link>
@@ -235,7 +235,7 @@ export default function Navbar() {
                     <Link
                       href="/products"
                       onClick={() => setIsCategoriesOpen(false)}
-                      className="block rounded-xl px-3 py-2.5 text-[28px] font-medium transition hover:bg-slate-50"
+                      className="text-type-md-lg block rounded-xl px-3 py-2.5 font-medium transition hover:bg-slate-50"
                     >
                       All Categories
                     </Link>
@@ -245,7 +245,7 @@ export default function Navbar() {
                         key={category.label}
                         href={category.href}
                         onClick={() => setIsCategoriesOpen(false)}
-                        className="block rounded-xl px-3 py-2.5 text-[28px] font-medium transition hover:bg-slate-50"
+                        className="text-type-md-lg block rounded-xl px-3 py-2.5 font-medium transition hover:bg-slate-50"
                       >
                         {category.label}
                       </Link>
@@ -265,9 +265,11 @@ export default function Navbar() {
               <Headset className="size-5" />
             </span>
             <p className="leading-tight">
-              <span className="text-sm text-slate-400">Support</span>
+              <span className="text-type-sm text-slate-400">Support</span>
               <br />
-              <span className="font-semibold text-slate-700">24/7 Help</span>
+              <span className="text-type-base font-semibold text-slate-700">
+                24/7 Help
+              </span>
             </p>
             <Link
               href="/wishlist"
@@ -315,10 +317,10 @@ export default function Navbar() {
                         <CircleUserRound className="size-5" />
                       </span>
                       <div className="min-w-0">
-                        <p className="truncate text-2xl font-semibold text-slate-900">
+                        <p className="text-type-md-lg truncate font-semibold text-slate-900">
                           {displayName}
                         </p>
-                        <p className="truncate text-xl text-slate-500">
+                        <p className="text-type-base truncate text-slate-500">
                           {displayEmail}
                         </p>
                       </div>
@@ -372,7 +374,7 @@ export default function Navbar() {
             ) : (
               <Link
                 href="/login"
-                className="inline-flex items-center gap-2 rounded-full bg-[#16A34A] px-5 py-2 text-sm font-semibold text-white transition hover:bg-[#15803D]"
+                className="text-type-sm inline-flex items-center gap-2 rounded-full bg-[#16A34A] px-5 py-2 font-semibold text-white transition hover:bg-[#15803D]"
               >
                 <User className="size-4" />
                 Sign In
@@ -388,7 +390,7 @@ export default function Navbar() {
           >
             <Heart className="size-5" />
             {wishlistData?.count ? (
-              <span className="absolute top-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
+              <span className="text-type-min absolute top-0 right-0 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 font-bold text-white">
                 {wishlistData.count}
               </span>
             ) : null}
@@ -399,7 +401,7 @@ export default function Navbar() {
           >
             <ShoppingCart className="size-5" />
             {cartData?.numOfCartItems ? (
-              <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center font-bold text-[10px]">
+              <span className="text-type-min absolute top-0 right-0 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 font-bold text-white">
                 {cartData.numOfCartItems}
               </span>
             ) : null}
@@ -422,7 +424,7 @@ export default function Navbar() {
               className="w-[88vw] max-w-[360px] overflow-hidden p-0 [&>button]:right-4 [&>button]:top-4 [&>button]:inline-flex [&>button]:size-10 [&>button]:items-center [&>button]:justify-center [&>button]:rounded-full [&>button]:bg-slate-100 [&>button]:text-slate-500 [&>button]:hover:bg-slate-200"
             >
               <SheetHeader className="border-b border-[#E5E7EB] px-4 py-4 pr-16">
-                <SheetTitle className="flex items-center gap-2 text-5xl font-bold text-slate-800">
+                <SheetTitle className="text-type-max flex items-center gap-2 font-bold text-slate-800">
                   <span className="text-[#16A34A]">🛒</span>
                   FreshCart
                 </SheetTitle>
@@ -586,12 +588,12 @@ export default function Navbar() {
                         <Headset className="size-6" />
                       </span>
                       <div>
-                        <p className="text-lg font-semibold text-slate-800">
+                        <p className="text-type-md font-semibold text-slate-800">
                           Need Help?
                         </p>
                         <a
                           href="#"
-                          className="text-lg font-medium text-[#16A34A]"
+                          className="text-type-md font-medium text-[#16A34A]"
                         >
                           Contact Support
                         </a>

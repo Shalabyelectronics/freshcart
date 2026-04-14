@@ -133,10 +133,10 @@ export default function RegisterPage() {
     <main className="mx-auto w-full max-w-7xl px-4 py-6 md:px-6 md:py-8">
       <section className="grid min-h-[calc(100vh-11rem)] grid-cols-1 gap-6 md:grid-cols-2">
         <aside className="rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-6 md:p-7">
-          <h1 className="text-4xl leading-tight font-bold text-slate-700">
+          <h1 className="text-type-max leading-tight font-bold text-slate-700">
             Welcome to <span style={{ color: BRAND_GREEN }}>FreshCart</span>
           </h1>
-          <p className="mt-3 max-w-md text-2xl leading-9 font-semibold text-slate-600">
+          <p className="text-type-md-lg mt-3 max-w-md leading-9 font-semibold text-slate-600">
             Join thousands of happy customers who enjoy fresh groceries
             delivered right to their doorstep.
           </p>
@@ -150,10 +150,10 @@ export default function RegisterPage() {
                 <Star className="size-4" />
               </span>
               <div>
-                <h2 className="text-xl font-bold text-slate-700">
+                <h2 className="text-type-md-lg font-bold text-slate-700">
                   Premium Quality
                 </h2>
-                <p className="text-lg text-slate-500">
+                <p className="text-type-base text-slate-500">
                   Premium quality products sourced from trusted suppliers.
                 </p>
               </div>
@@ -166,10 +166,10 @@ export default function RegisterPage() {
                 <Truck className="size-4" />
               </span>
               <div>
-                <h2 className="text-xl font-bold text-slate-700">
+                <h2 className="text-type-md-lg font-bold text-slate-700">
                   Fast Delivery
                 </h2>
-                <p className="text-lg text-slate-500">
+                <p className="text-type-base text-slate-500">
                   Same-day delivery available in most areas
                 </p>
               </div>
@@ -182,10 +182,10 @@ export default function RegisterPage() {
                 <ShieldCheck className="size-4" />
               </span>
               <div>
-                <h2 className="text-xl font-bold text-slate-700">
+                <h2 className="text-type-md-lg font-bold text-slate-700">
                   Secure Shopping
                 </h2>
-                <p className="text-lg text-slate-500">
+                <p className="text-type-base text-slate-500">
                   Your data and payments are completely secure
                 </p>
               </div>
@@ -198,7 +198,7 @@ export default function RegisterPage() {
                 <CircleUserRound className="size-5" />
               </span>
               <div>
-                <p className="text-lg font-semibold text-slate-700">
+                <p className="text-type-md font-semibold text-slate-700">
                   Sarah Johnson
                 </p>
                 <div className="flex items-center gap-1 text-[#EAB308]">
@@ -210,7 +210,7 @@ export default function RegisterPage() {
                 </div>
               </div>
             </div>
-            <p className="mt-3 text-lg text-slate-500 italic">
+            <p className="text-type-base mt-3 text-slate-500 italic">
               &ldquo;FreshCart has transformed my shopping experience. The
               quality of the products is outstanding, and the delivery is always
               on time. Highly recommend!&rdquo;
@@ -219,10 +219,10 @@ export default function RegisterPage() {
         </aside>
 
         <section className="rounded-xl border border-[#E2E8F0] bg-white p-6 md:p-7">
-          <h2 className="text-center text-4xl font-bold text-slate-700">
+          <h2 className="text-type-max text-center font-bold text-slate-700">
             Create Your Account
           </h2>
-          <p className="mt-2 text-center text-lg text-slate-500">
+          <p className="text-type-base mt-2 text-center text-slate-500">
             Start your fresh journey with us today
           </p>
 
@@ -245,7 +245,7 @@ export default function RegisterPage() {
             </Button>
           </div>
 
-          <div className="my-5 flex items-center gap-3 text-sm text-slate-400">
+          <div className="text-type-sm my-5 flex items-center gap-3 text-slate-400">
             <div className="h-px flex-1 bg-[#E2E8F0]" />
             <span>or</span>
             <div className="h-px flex-1 bg-[#E2E8F0]" />
@@ -258,7 +258,7 @@ export default function RegisterPage() {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-base font-medium text-slate-700">
+                    <FormLabel className="text-type-base font-medium text-slate-700">
                       Name*
                     </FormLabel>
                     <FormControl>
@@ -274,7 +274,7 @@ export default function RegisterPage() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-base font-medium text-slate-700">
+                    <FormLabel className="text-type-base font-medium text-slate-700">
                       Email*
                     </FormLabel>
                     <FormControl>
@@ -295,7 +295,7 @@ export default function RegisterPage() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-base font-medium text-slate-700">
+                    <FormLabel className="text-type-base font-medium text-slate-700">
                       Password*
                     </FormLabel>
                     <FormControl>
@@ -317,7 +317,7 @@ export default function RegisterPage() {
                         />
                       </div>
                       <span
-                        className="text-xs font-semibold"
+                        className="text-type-min font-semibold"
                         style={{ color: strength.color }}
                       >
                         {strength.label}
@@ -336,7 +336,7 @@ export default function RegisterPage() {
                 name="rePassword"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-base font-medium text-slate-700">
+                    <FormLabel className="text-type-base font-medium text-slate-700">
                       Confirm Password*
                     </FormLabel>
                     <FormControl>
@@ -357,7 +357,7 @@ export default function RegisterPage() {
                 name="phone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-base font-medium text-slate-700">
+                    <FormLabel className="text-type-base font-medium text-slate-700">
                       Phone Number*
                     </FormLabel>
                     <FormControl>
@@ -372,7 +372,7 @@ export default function RegisterPage() {
                 )}
               />
 
-              <label className="flex items-center gap-3 text-sm text-slate-600">
+              <label className="text-type-sm flex items-center gap-3 text-slate-600">
                 <input
                   className="size-4 rounded border border-[#CBD5E1]"
                   type="checkbox"
@@ -383,7 +383,7 @@ export default function RegisterPage() {
               </label>
 
               <Button
-                className="h-11 w-full text-base font-semibold text-white"
+                className="text-type-base h-11 w-full font-semibold text-white"
                 disabled={isLoading}
                 style={{ backgroundColor: BRAND_GREEN }}
                 type="submit"
@@ -394,7 +394,7 @@ export default function RegisterPage() {
             </form>
           </Form>
 
-          <p className="mt-8 text-center text-sm text-slate-600">
+          <p className="text-type-sm mt-8 text-center text-slate-600">
             Already have an account?{" "}
             <Link
               className="font-semibold"

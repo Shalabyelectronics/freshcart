@@ -113,14 +113,14 @@ export default function ProductCard({ product }: ProductCardProps) {
           </div>
         </div>
 
-        <p className="mt-3 text-xs text-slate-500">
+        <p className="text-type-min mt-3 text-slate-500">
           {product.category?.name ?? "General"}
         </p>
-        <h3 className="mt-1 line-clamp-2 min-h-10 text-base font-semibold text-slate-800">
+        <h3 className="text-type-md mt-1 line-clamp-2 min-h-10 font-semibold text-slate-800">
           {product.title}
         </h3>
 
-        <div className="mt-2 flex items-center gap-1 text-xs text-slate-500">
+        <div className="text-type-min mt-2 flex items-center gap-1 text-slate-500">
           <Star className="size-3.5 fill-[#FACC15] text-[#FACC15]" />
           <span className="font-medium text-slate-700">
             {rating.toFixed(1)}
@@ -129,7 +129,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
 
         <div className="mt-3 flex items-center justify-between">
-          <p className="text-lg font-bold text-slate-900">
+          <p className="text-type-md-lg font-bold text-slate-900">
             {product.price} EGP
           </p>
           <Button
@@ -149,7 +149,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             className="h-8 w-8 rounded-full p-0 text-lg font-semibold text-white disabled:opacity-50"
             style={{ backgroundColor: "#16A34A" }}
           >
-            {isLoading ? "..." : "+"}+
+            {isLoading ? "..." : "+"}
           </Button>
         </div>
       </article>

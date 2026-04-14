@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, Lock, Mail, KeyRound, Loader2 } from "lucide-react";
 import Link from "next/link";
@@ -29,7 +29,7 @@ import {
   type ForgotPasswordFormValues,
 } from "@/types/schemas";
 
-export default function ForgotPasswordPage() {
+function ForgotPasswordPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [apiError, setApiError] = useState<string>("");
@@ -80,7 +80,7 @@ export default function ForgotPasswordPage() {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-[31px] font-semibold text-[#0F2A4D]">
+                <FormLabel className="text-type-lg font-semibold text-[#0F2A4D]">
                   Email Address
                 </FormLabel>
                 <FormControl>
@@ -89,12 +89,12 @@ export default function ForgotPasswordPage() {
                     <Input
                       type="email"
                       placeholder="Enter your email"
-                      className="h-16 rounded-[13px] border-[#CBD5E1] bg-[#E2E8F0] pl-12 text-[31px] text-[#0F172A] placeholder:text-[#94A3B8] focus-visible:ring-[#16A34A]"
+                      className="text-type-lg h-16 rounded-[13px] border-[#CBD5E1] bg-[#E2E8F0] pl-12 text-[#0F172A] placeholder:text-[#94A3B8] focus-visible:ring-[#16A34A]"
                       {...field}
                     />
                   </div>
                 </FormControl>
-                <FormMessage className="text-base" />
+                <FormMessage className="text-type-base" />
               </FormItem>
             )}
           />
@@ -108,7 +108,7 @@ export default function ForgotPasswordPage() {
           <Button
             type="submit"
             disabled={isLoading}
-            className="h-16 w-full rounded-[13px] bg-[#16A34A] text-[35px] font-bold text-white shadow-[0_10px_20px_rgba(22,163,74,0.26)] hover:bg-[#15803D]"
+            className="text-type-max h-16 w-full rounded-[13px] bg-[#16A34A] font-bold text-white shadow-[0_10px_20px_rgba(22,163,74,0.26)] hover:bg-[#15803D]"
           >
             {isLoading ? (
               <span className="inline-flex items-center gap-2">
@@ -122,7 +122,7 @@ export default function ForgotPasswordPage() {
           <div className="pt-1 text-center">
             <Link
               href="/login"
-              className="inline-flex items-center gap-2 text-[30px] font-medium text-[#16A34A] hover:underline"
+              className="text-type-max inline-flex items-center gap-2 font-medium text-[#16A34A] hover:underline"
             >
               <ArrowLeft className="size-4" />
               Back to Sign In
@@ -130,7 +130,7 @@ export default function ForgotPasswordPage() {
           </div>
 
           <div className="border-t border-[#E2E8F0] pt-6 text-center">
-            <p className="text-[29px] text-[#64748B]">
+            <p className="text-type-lg text-[#64748B]">
               Need Help?{" "}
               <Link
                 href="/login"
@@ -139,7 +139,7 @@ export default function ForgotPasswordPage() {
                 Contact Support
               </Link>
             </p>
-            <p className="mt-3 text-[31px] text-[#475569]">
+            <p className="text-type-lg mt-3 text-[#475569]">
               Remember your password?{" "}
               <Link
                 href="/login"
@@ -152,5 +152,13 @@ export default function ForgotPasswordPage() {
         </form>
       </Form>
     </PasswordResetShell>
+  );
+}
+
+export default function ForgotPasswordPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#F3F4F6]" />}>
+      <ForgotPasswordPageContent />
+    </Suspense>
   );
 }

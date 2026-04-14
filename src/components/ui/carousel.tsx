@@ -140,7 +140,7 @@ function CarouselPrevious({
       size="icon"
       variant="secondary"
       className={cn(
-        "absolute left-2 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/85 text-[#16A34A] shadow-sm hover:bg-white",
+        "absolute left-2 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/85 text-[#16A34A] shadow-sm hover:bg-white active:-translate-y-1/2!",
         className,
       )}
       disabled={!canScrollPrev}
@@ -165,7 +165,7 @@ function CarouselNext({
       size="icon"
       variant="secondary"
       className={cn(
-        "absolute right-2 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/85 text-[#16A34A] shadow-sm hover:bg-white",
+        "absolute right-2 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/85 text-[#16A34A] shadow-sm hover:bg-white active:-translate-y-1/2!",
         className,
       )}
       disabled={!canScrollNext}
@@ -178,6 +178,64 @@ function CarouselNext({
   );
 }
 
+function CarouselIndicators({
+  className,
+  ...props
+}: React.ComponentProps<"div">) {
+  const { api } = useCarousel();
+  const [selectedIndex, setSelectedIndex] = React.useState(0);
+  const [scrollSnaps, setScrollSnaps] = React.useState<number[]>([]);
+
+  React.useEffect(() => {
+    if (!api) {
+      return;
+    }
+
+    const onChange = () => {
+      setScrollSnaps(api.scrollSnapList());
+      setSelectedIndex(api.selectedScrollSnap());
+    };
+
+    onChange();
+    api.on("reInit", onChange);
+    api.on("select", onChange);
+
+    return () => {
+      api.off("select", onChange);
+      api.off("reInit", onChange);
+    };
+  }, [api]);
+
+  if (scrollSnaps.length <= 1) {
+    return null;
+  }
+
+  return (
+    <div
+      data-slot="carousel-indicators"
+      className={cn(
+        "absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 rounded-full bg-white/20 px-3 py-1 backdrop-blur-sm",
+        className,
+      )}
+      {...props}
+    >
+      {scrollSnaps.map((_, index) => (
+        <button
+          key={`carousel-dot-${index}`}
+          type="button"
+          onClick={() => api?.scrollTo(index)}
+          className={cn(
+            "h-3 rounded-full transition-all",
+            selectedIndex === index ? "w-9 bg-white" : "w-3 bg-white/50",
+          )}
+          aria-label={`Go to slide ${index + 1}`}
+          aria-current={selectedIndex === index}
+        />
+      ))}
+    </div>
+  );
+}
+
 export {
   type CarouselApi,
   Carousel,
@@ -185,4 +243,5 @@ export {
   CarouselItem,
   CarouselPrevious,
   CarouselNext,
+  CarouselIndicators,
 };

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, KeyRound, Loader2, Lock, Mail, Shield } from "lucide-react";
 import Link from "next/link";
@@ -33,7 +33,7 @@ import {
   type VerifyResetCodeFormValues,
 } from "@/types/schemas";
 
-export default function VerifyCodePage() {
+function VerifyCodePageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [apiError, setApiError] = useState("");
@@ -117,7 +117,7 @@ export default function VerifyCodePage() {
             name="resetCode"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-[31px] font-semibold text-[#0F2A4D]">
+                <FormLabel className="text-type-lg font-semibold text-[#0F2A4D]">
                   Verification Code
                 </FormLabel>
                 <FormControl>
@@ -128,7 +128,7 @@ export default function VerifyCodePage() {
                       autoComplete="one-time-code"
                       maxLength={6}
                       placeholder="Enter 6-digit code"
-                      className="h-16 rounded-[13px] border-[#16A34A] bg-[#F8FAFC] pl-12 text-center text-[39px] tracking-[0.35em] text-[#0F2A4D] placeholder:tracking-normal placeholder:text-[24px] placeholder:text-[#94A3B8] focus-visible:ring-[#16A34A]"
+                      className="text-type-max h-16 rounded-[13px] border-[#16A34A] bg-[#F8FAFC] pl-12 text-center tracking-[0.35em] text-[#0F2A4D] placeholder:tracking-normal placeholder:text-type-lg placeholder:text-[#94A3B8] focus-visible:ring-[#16A34A]"
                       {...field}
                       onChange={(event) => {
                         const digitsOnly = event.target.value
@@ -139,7 +139,7 @@ export default function VerifyCodePage() {
                     />
                   </div>
                 </FormControl>
-                <FormMessage className="text-base" />
+                <FormMessage className="text-type-base" />
               </FormItem>
             )}
           />
@@ -150,7 +150,7 @@ export default function VerifyCodePage() {
             </p>
           ) : null}
 
-          <p className="pt-1 text-center text-[30px] text-[#64748B]">
+          <p className="text-type-lg pt-1 text-center text-[#64748B]">
             Didn&apos;t receive the code?{" "}
             <button
               type="button"
@@ -165,7 +165,7 @@ export default function VerifyCodePage() {
           <Button
             type="submit"
             disabled={isLoading || !email}
-            className="h-16 w-full rounded-[13px] bg-[#16A34A] text-[35px] font-bold text-white shadow-[0_10px_20px_rgba(22,163,74,0.26)] hover:bg-[#15803D]"
+            className="text-type-max h-16 w-full rounded-[13px] bg-[#16A34A] font-bold text-white shadow-[0_10px_20px_rgba(22,163,74,0.26)] hover:bg-[#15803D]"
           >
             {isLoading ? (
               <span className="inline-flex items-center gap-2">
@@ -179,7 +179,7 @@ export default function VerifyCodePage() {
           <div className="pt-1 text-center">
             <Link
               href={`/forgot-password${email ? `?email=${encodeURIComponent(email)}` : ""}`}
-              className="inline-flex items-center gap-2 text-[30px] text-[#64748B] hover:text-[#0F2A4D]"
+              className="text-type-lg inline-flex items-center gap-2 text-[#64748B] hover:text-[#0F2A4D]"
             >
               <ArrowLeft className="size-4" />
               Change email address
@@ -188,5 +188,13 @@ export default function VerifyCodePage() {
         </form>
       </Form>
     </PasswordResetShell>
+  );
+}
+
+export default function VerifyCodePage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#F3F4F6]" />}>
+      <VerifyCodePageContent />
+    </Suspense>
   );
 }

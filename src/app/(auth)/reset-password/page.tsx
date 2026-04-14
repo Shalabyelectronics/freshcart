@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, KeyRound, Loader2, Lock, Mail } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -30,7 +30,7 @@ import {
   type ResetPasswordFormValues,
 } from "@/types/schemas";
 
-export default function ResetPasswordPage() {
+function ResetPasswordPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [apiError, setApiError] = useState("");
@@ -105,7 +105,7 @@ export default function ResetPasswordPage() {
             name="newPassword"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-[31px] font-semibold text-[#0F2A4D]">
+                <FormLabel className="text-type-lg font-semibold text-[#0F2A4D]">
                   New Password
                 </FormLabel>
                 <FormControl>
@@ -114,7 +114,7 @@ export default function ResetPasswordPage() {
                     <Input
                       type={showNewPassword ? "text" : "password"}
                       placeholder="Enter new password"
-                      className="h-16 rounded-[13px] border-[#CBD5E1] bg-[#F9FAFB] pl-12 pr-12 text-[31px] text-[#0F172A] placeholder:text-[#94A3B8] focus-visible:ring-[#16A34A]"
+                      className="text-type-lg h-16 rounded-[13px] border-[#CBD5E1] bg-[#F9FAFB] pl-12 pr-12 text-[#0F172A] placeholder:text-[#94A3B8] focus-visible:ring-[#16A34A]"
                       {...field}
                     />
                     <button
@@ -133,7 +133,7 @@ export default function ResetPasswordPage() {
                     </button>
                   </div>
                 </FormControl>
-                <FormMessage className="text-base" />
+                <FormMessage className="text-type-base" />
               </FormItem>
             )}
           />
@@ -143,7 +143,7 @@ export default function ResetPasswordPage() {
             name="confirmPassword"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-[31px] font-semibold text-[#0F2A4D]">
+                <FormLabel className="text-type-lg font-semibold text-[#0F2A4D]">
                   Confirm Password
                 </FormLabel>
                 <FormControl>
@@ -152,7 +152,7 @@ export default function ResetPasswordPage() {
                     <Input
                       type={showConfirmPassword ? "text" : "password"}
                       placeholder="Confirm new password"
-                      className="h-16 rounded-[13px] border-[#CBD5E1] bg-[#F9FAFB] pl-12 pr-12 text-[31px] text-[#0F172A] placeholder:text-[#94A3B8] focus-visible:ring-[#16A34A]"
+                      className="text-type-lg h-16 rounded-[13px] border-[#CBD5E1] bg-[#F9FAFB] pl-12 pr-12 text-[#0F172A] placeholder:text-[#94A3B8] focus-visible:ring-[#16A34A]"
                       {...field}
                     />
                     <button
@@ -173,7 +173,7 @@ export default function ResetPasswordPage() {
                     </button>
                   </div>
                 </FormControl>
-                <FormMessage className="text-base" />
+                <FormMessage className="text-type-base" />
               </FormItem>
             )}
           />
@@ -187,7 +187,7 @@ export default function ResetPasswordPage() {
           <Button
             type="submit"
             disabled={isLoading || !email}
-            className="h-16 w-full rounded-[13px] bg-[#16A34A] text-[35px] font-bold text-white shadow-[0_10px_20px_rgba(22,163,74,0.26)] hover:bg-[#15803D]"
+            className="text-type-max h-16 w-full rounded-[13px] bg-[#16A34A] font-bold text-white shadow-[0_10px_20px_rgba(22,163,74,0.26)] hover:bg-[#15803D]"
           >
             {isLoading ? (
               <span className="inline-flex items-center gap-2">
@@ -200,5 +200,13 @@ export default function ResetPasswordPage() {
         </form>
       </Form>
     </PasswordResetShell>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#F3F4F6]" />}>
+      <ResetPasswordPageContent />
+    </Suspense>
   );
 }

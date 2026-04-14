@@ -128,15 +128,15 @@ export default function LoginPage() {
           </div>
 
           <div className="px-1 pt-5 text-center lg:text-left">
-            <h1 className="text-3xl leading-tight font-bold text-slate-800 md:text-4xl">
+            <h1 className="text-type-max leading-tight font-bold text-slate-800">
               FreshCart - Your One-Stop Shop for Fresh Products
             </h1>
-            <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-slate-600 md:text-lg lg:mx-0">
+            <p className="text-type-base mx-auto mt-4 max-w-xl leading-7 text-slate-600 lg:mx-0">
               Join thousands of happy customers who trust FreshCart for their
               daily grocery needs
             </p>
 
-            <div className="mt-5 flex flex-wrap items-center justify-center gap-6 text-sm text-slate-600 lg:justify-start">
+            <div className="text-type-sm mt-5 flex flex-wrap items-center justify-center gap-6 text-slate-600 lg:justify-start">
               <span className="inline-flex items-center gap-2">
                 <Truck className="size-4 text-[#16A34A]" />
                 Free Delivery
@@ -155,11 +155,11 @@ export default function LoginPage() {
 
         <section className="rounded-2xl border border-[#E2E8F0] bg-white px-5 py-6 shadow-sm md:px-8 md:py-8">
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-[#16A34A]">FreshCart</h2>
-            <h3 className="mt-2 text-2xl font-bold text-slate-800">
+            <h2 className="text-type-lg font-bold text-[#16A34A]">FreshCart</h2>
+            <h3 className="text-type-lg mt-2 font-bold text-slate-800">
               Welcome Back!
             </h3>
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="text-type-sm mt-1 text-slate-500">
               Sign in to continue your fresh shopping experience
             </p>
           </div>
@@ -185,7 +185,7 @@ export default function LoginPage() {
             </Button>
           </div>
 
-          <div className="my-5 flex items-center gap-3 text-center text-xs uppercase tracking-[0.18em] text-slate-400">
+          <div className="text-type-min my-5 flex items-center gap-3 text-center uppercase tracking-[0.18em] text-slate-400">
             <div className="h-px flex-1 bg-[#E2E8F0]" />
             <span>OR CONTINUE WITH EMAIL</span>
             <div className="h-px flex-1 bg-[#E2E8F0]" />
@@ -198,14 +198,14 @@ export default function LoginPage() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm font-semibold text-slate-700">
+                    <FormLabel className="text-type-sm font-semibold text-slate-700">
                       Email Address
                     </FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Mail className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
                         <Input
-                          className="h-12 rounded-xl border-[#D9DEE7] pl-10 text-sm"
+                          className="text-type-sm h-12 rounded-xl border-[#D9DEE7] pl-10"
                           placeholder="Enter your email"
                           type="email"
                           {...field}
@@ -223,12 +223,12 @@ export default function LoginPage() {
                 render={({ field }) => (
                   <FormItem>
                     <div className="flex items-center justify-between gap-4">
-                      <FormLabel className="text-sm font-semibold text-slate-700">
+                      <FormLabel className="text-type-sm font-semibold text-slate-700">
                         Password
                       </FormLabel>
                       <Link
                         href="/forgot-password"
-                        className="text-sm font-medium text-[#16A34A] hover:underline"
+                        className="text-type-sm font-medium text-[#16A34A] hover:underline"
                       >
                         Forgot Password?
                       </Link>
@@ -237,7 +237,7 @@ export default function LoginPage() {
                       <div className="relative">
                         <Lock className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
                         <Input
-                          className="h-12 rounded-xl border-[#D9DEE7] pl-10 pr-10 text-sm"
+                          className="text-type-sm h-12 rounded-xl border-[#D9DEE7] pl-10 pr-10"
                           placeholder="Enter your password"
                           type={showPassword ? "text" : "password"}
                           {...field}
@@ -263,7 +263,7 @@ export default function LoginPage() {
                 )}
               />
 
-              <label className="flex items-center gap-2 text-sm text-slate-600">
+              <label className="text-type-sm flex items-center gap-2 text-slate-600">
                 <input
                   className="size-4 rounded border-[#CBD5E1] text-[#16A34A] focus:ring-[#16A34A]"
                   type="checkbox"
@@ -272,7 +272,7 @@ export default function LoginPage() {
               </label>
 
               <Button
-                className="h-12 w-full rounded-xl text-base font-semibold text-white shadow-[0_10px_24px_rgba(22,163,74,0.22)]"
+                className="text-type-base h-12 w-full rounded-xl font-semibold text-white shadow-[0_10px_24px_rgba(22,163,74,0.22)]"
                 disabled={isLoading}
                 style={{ backgroundColor: BRAND_GREEN }}
                 type="submit"
@@ -290,7 +290,7 @@ export default function LoginPage() {
           </Form>
 
           <div className="my-6 border-t border-[#E2E8F0] pt-5 text-center">
-            <p className="text-sm text-slate-600">
+            <p className="text-type-sm text-slate-600">
               New to FreshCart?{" "}
               <Link
                 href="/register"
@@ -299,7 +299,7 @@ export default function LoginPage() {
                 Create an account
               </Link>
             </p>
-            <div className="mt-4 flex flex-wrap items-center justify-center gap-4 text-xs text-slate-500">
+            <div className="text-type-min mt-4 flex flex-wrap items-center justify-center gap-4 text-slate-500">
               <span className="inline-flex items-center gap-1.5">
                 <Lock className="size-3.5" />
                 SSL Secured

@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import ImageGallery from "@/components/custom/ImageGallery";
 import QuantitySelector from "@/components/custom/QuantitySelector";
-import TrustBadges from "@/components/custom/TrustBadges";
+import TrustBadges from "@/components/custom/TrustBadgesFooter";
 import ProductCard from "@/components/custom/ProductCard";
 import {
   Carousel,

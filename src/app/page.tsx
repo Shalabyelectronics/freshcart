@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/carousel";
 import { Input } from "@/components/ui/input";
 import { useGetCategoriesQuery, useGetProductsQuery } from "@/store/apiSlice";
+import TrustBadgesHeader from "@/components/custom/TrustBadgesHeader";
 
 const sliderItems = [
   {
@@ -131,9 +132,11 @@ export default function Home() {
           <CarouselIndicators className="bottom-6 md:bottom-6" />
         </Carousel>
       </section>
-      <div className="mx-auto w-full max-w-[1280px] space-y-8 px-4 pt-4 md:px-6 md:pt-6 lg:space-y-10">
+
+      <TrustBadgesHeader />
+      <div className="mx-auto w-full max-w-7xl space-y-8 px-4 pt-4 md:px-6 md:pt-6 lg:space-y-10">
         <section className="space-y-5">
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <h2 className="text-type-max flex items-center gap-3 font-bold text-slate-900">
               <span
                 className="h-10 w-1.5 rounded-full"
@@ -143,7 +146,7 @@ export default function Home() {
             </h2>
             <Link
               href="/categories"
-              className="text-type-md-lg inline-flex items-center gap-2 font-medium text-[#16A34A]"
+              className="text-type-md-lg inline-flex items-center gap-2 font-medium text-[#16A34A] self-end md:self-auto"
             >
               View All Categories
               <ArrowRight className="size-5" />

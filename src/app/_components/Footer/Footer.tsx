@@ -1,3 +1,4 @@
+import TrustBadgesFooter from "@/components/custom/TrustBadgesFooter";
 import {
   Globe,
   Mail,
@@ -7,10 +8,7 @@ import {
   Phone,
   Camera,
   CreditCard,
-  Truck,
-  ShieldCheck,
-  RotateCcw,
-  Headset,
+
 } from "lucide-react";
 import Link from "next/link";
 
@@ -37,71 +35,14 @@ const SUPPORT_LINKS = [
   "Returns & Refunds",
   "Track Order",
 ];
-const sectionServices = [
-  {
-    icon: Truck,
-    title: "Free Shipping",
-    description: "On orders over 500 EGP",
-    color: "#3B82F6",
-    bg: "#EFF6FF",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Secure Payment",
-    description: "100% secure transactions",
-    color: "#16A34A",
-    bg: "#ECFDF5",
-  },
-  {
-    icon: RotateCcw,
-    title: "Easy Returns",
-    description: "14-day return policy",
-    color: "#F97316",
-    bg: "#FFF7ED",
-  },
-  {
-    icon: Headset,
-    title: "24/7 Support",
-    description: "Dedicated support team",
-    color: "#A855F7",
-    bg: "#FAF5FF",
-  },
-];
+
 const LEGAL_LINKS = ["Privacy Policy", "Terms of Service", "Cookie Policy"];
 
 export default function Footer() {
   return (
     <footer className="mt-10">
-      <div className="mx-auto w-full max-w-7xl px-4 py-10 md:px-6 md:py-12">
-        <section className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
-          {sectionServices.map((item) => {
-            const Icon = item.icon;
-            return (
-              <article
-                key={item.title}
-                className="rounded-2xl border border-[#E5E7EB] bg-white p-4 shadow-[0_2px_8px_rgba(15,23,42,0.04)]"
-              >
-                <div className="flex items-center gap-3">
-                  <span
-                    className="inline-flex size-12 shrink-0 items-center justify-center rounded-full"
-                    style={{ color: item.color, backgroundColor: item.bg }}
-                  >
-                    <Icon className="size-5" />
-                  </span>
-                  <div>
-                    <h3 className="text-type-md-lg font-bold text-slate-800">
-                      {item.title}
-                    </h3>
-                    <p className="text-type-base text-slate-500">
-                      {item.description}
-                    </p>
-                  </div>
-                </div>
-              </article>
-            );
-          })}
-        </section>
-      </div>
+      <TrustBadgesFooter />
+
       <div className="inner-footer  bg-linear-to-r from-[#0B1227] to-[#0F172A] text-slate-300">
         <div className="mx-auto w-full max-w-7xl px-4 py-10 md:px-6 md:py-12">
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-6">

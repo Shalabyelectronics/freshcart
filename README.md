@@ -1,6 +1,6 @@
 # FreshCart - E-Commerce Web App
 
-This is my graduation project for the Web Development course. It's a fully functional e-commerce website built with modern web technologies. Users can browse products, leave reviews, and manage their shopping carts.
+This is my graduation project for the Front End Development course with Route Academy. It's a fully functional e-commerce website built with modern web technologies. Users can browse products, leave reviews, and manage their shopping carts.
 
 ## Features
 

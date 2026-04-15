@@ -362,3 +362,49 @@ export interface ChangePasswordResponse {
   message: string;
   token?: string;
 }
+
+export interface ReviewUser {
+  _id: string;
+  name: string;
+}
+
+export interface Review {
+  _id: string;
+  title?: string;
+  ratings: number;
+  user: ReviewUser;
+  product?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateReviewRequestBody {
+  title?: string;
+  ratings: number;
+}
+
+export interface UpdateReviewRequestBody {
+  title?: string;
+  ratings?: number;
+}
+
+export interface ReviewResponse {
+  message?: string;
+  data: Review;
+}
+
+export interface ReviewsResponse {
+  results: number;
+  metadata?: ApiPaginationMetadata;
+  data: Review[];
+}
+
+export interface ReviewsListTransformed {
+  data: Review[];
+  metadata?: ApiPaginationMetadata;
+}
+
+export interface DeleteReviewResponse {
+  status?: string;
+  message?: string;
+}

@@ -12,13 +12,18 @@ import type {
   CategoriesResponse,
   ChangePasswordRequestBody,
   ChangePasswordResponse,
+  CreateReviewRequestBody,
   CreateCashOrderResponse,
   CreateOnlineOrderSessionResponse,
+  DeleteReviewResponse,
   ForgotPasswordRequestBody,
   ForgotPasswordResponse,
   ProductResponse,
   ProductsQueryParams,
   ProductsResponse,
+  ReviewResponse,
+  ReviewsListTransformed,
+  ReviewsResponse,
   ResetPasswordRequestBody,
   ResetPasswordResponse,
   ShippingAddress,
@@ -31,6 +36,7 @@ import type {
   UpdateMeRequestBody,
   UpdateMeResponse,
   UpdateCartProductQuantityRequestBody,
+  UpdateReviewRequestBody,
   UserOrdersResponse,
   VerifyResetCodeRequestBody,
   VerifyResetCodeResponse,
@@ -41,7 +47,14 @@ import type {
 
 export const apiSlice = createApi({
   reducerPath: "api",
-  tagTypes: ["Cart", "Wishlist", "Brands", "Addresses", "SubCategories"],
+  tagTypes: [
+    "Cart",
+    "Wishlist",
+    "Brands",
+    "Addresses",
+    "SubCategories",
+    "Reviews",
+  ],
   baseQuery: fetchBaseQuery({
     baseUrl: "https://ecommerce.routemisr.com/api/v1",
     prepareHeaders: (headers, { getState }) => {
@@ -56,6 +69,7 @@ export const apiSlice = createApi({
 
       if (token) {
         headers.set("token", token);
+        headers.set("Authorization", `Bearer ${token}`);
       }
 
       return headers;
@@ -207,6 +221,64 @@ export const apiSlice = createApi({
       query: (id) => ({
         url: `/products/${id}`,
       }),
+    }),
+    createReview: builder.mutation<
+      ReviewResponse,
+      { productId: string; body: CreateReviewRequestBody }
+    >({
+      query: ({ productId, body }) => ({
+        url: `/products/${productId}/reviews`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Reviews"],
+    }),
+    getProductReviews: builder.query<ReviewsListTransformed, string>({
+      query: (productId) => ({
+        url: `/products/${productId}/reviews`,
+        method: "GET",
+      }),
+      transformResponse: (response: ReviewsResponse) => ({
+        data: response.data,
+        metadata: response.metadata,
+      }),
+      providesTags: ["Reviews"],
+    }),
+    getAllReviews: builder.query<ReviewsListTransformed, void>({
+      query: () => ({
+        url: "/reviews",
+        method: "GET",
+      }),
+      transformResponse: (response: ReviewsResponse) => ({
+        data: response.data,
+        metadata: response.metadata,
+      }),
+      providesTags: ["Reviews"],
+    }),
+    getReviewById: builder.query<ReviewResponse, string>({
+      query: (id) => ({
+        url: `/reviews/${id}`,
+        method: "GET",
+      }),
+      providesTags: ["Reviews"],
+    }),
+    updateReview: builder.mutation<
+      ReviewResponse,
+      { id: string; body: UpdateReviewRequestBody }
+    >({
+      query: ({ id, body }) => ({
+        url: `/reviews/${id}`,
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: ["Reviews"],
+    }),
+    deleteReview: builder.mutation<DeleteReviewResponse, string>({
+      query: (id) => ({
+        url: `/reviews/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Reviews"],
     }),
     addToCart: builder.mutation<CartMutationResponse, AddToCartRequestBody>({
       query: (body) => ({
@@ -383,6 +455,12 @@ export const {
   useGetSubCategoriesQuery,
   useGetSpecificSubCategoryQuery,
   useGetSubCategoriesOnCategoryQuery,
+  useCreateReviewMutation,
+  useGetProductReviewsQuery,
+  useGetAllReviewsQuery,
+  useGetReviewByIdQuery,
+  useUpdateReviewMutation,
+  useDeleteReviewMutation,
   useGetUserOrdersQuery,
   useGetWishlistQuery,
   useRemoveAddressMutation,

@@ -168,7 +168,7 @@ export default function ProductDetailsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white overflow-hidden">
       <div className="container mx-auto px-4 py-6">
         {/* Breadcrumbs */}
         <div className="flex items-center gap-2 mb-8 text-sm">

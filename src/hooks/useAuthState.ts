@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 export interface AuthProfile {
+  _id?: string;
   name: string;
   email: string;
 }
@@ -13,6 +14,8 @@ export interface AuthState {
 }
 
 const AUTH_CHANGED_EVENT = "freshcart-auth-changed";
+const VERIFY_TOKEN_URL =
+  "https://ecommerce.routemisr.com/api/v1/auth/verifyToken";
 
 function readAuthState(): AuthState {
   if (typeof window === "undefined") {
@@ -32,12 +35,19 @@ function readAuthState(): AuthState {
   if (userData) {
     try {
       const parsed = JSON.parse(userData) as {
+        _id?: string;
+        id?: string;
         name?: string;
         email?: string;
       };
 
-      if (parsed.name || parsed.email) {
+      if (parsed._id || parsed.id || parsed.name || parsed.email) {
         profile = {
+          _id:
+            parsed._id ??
+            parsed.id ??
+            window.localStorage.getItem("userId") ??
+            undefined,
           name: parsed.name ?? window.localStorage.getItem("userName") ?? "",
           email: parsed.email ?? window.localStorage.getItem("userEmail") ?? "",
         };
@@ -48,11 +58,12 @@ function readAuthState(): AuthState {
   }
 
   if (!profile) {
+    const id = window.localStorage.getItem("userId") ?? undefined;
     const name = window.localStorage.getItem("userName") ?? "";
     const email = window.localStorage.getItem("userEmail") ?? "";
 
-    if (name || email) {
-      profile = { name, email };
+    if (id || name || email) {
+      profile = { _id: id, name, email };
     }
   }
 
@@ -80,6 +91,7 @@ export function clearAuthStorage() {
   window.localStorage.removeItem("userName");
   window.localStorage.removeItem("userEmail");
   window.localStorage.removeItem("userData");
+  window.localStorage.removeItem("userId");
 
   notifyAuthStateChanged();
 }
@@ -91,8 +103,74 @@ export function useAuthState() {
   });
 
   useEffect(() => {
-    const syncAuthState = () => {
-      setAuthState(readAuthState());
+    let isMounted = true;
+
+    const syncAuthState = async () => {
+      const baseState = readAuthState();
+
+      if (!baseState.isLoggedIn) {
+        if (isMounted) {
+          setAuthState(baseState);
+        }
+        return;
+      }
+
+      const token =
+        window.localStorage.getItem("userToken") ||
+        window.localStorage.getItem("token");
+
+      if (!token) {
+        if (isMounted) {
+          setAuthState(baseState);
+        }
+        return;
+      }
+
+      try {
+        const response = await fetch(VERIFY_TOKEN_URL, {
+          method: "GET",
+          headers: {
+            token,
+          },
+        });
+
+        if (!response.ok) {
+          if (isMounted) {
+            setAuthState(baseState);
+          }
+          return;
+        }
+
+        const payload = (await response.json()) as {
+          decoded?: { id?: string; name?: string };
+        };
+
+        const verifiedId = payload.decoded?.id ?? "";
+        const verifiedName = payload.decoded?.name ?? "";
+
+        if (verifiedId) {
+          window.localStorage.setItem("userId", verifiedId);
+        }
+
+        if (verifiedName && !window.localStorage.getItem("userName")) {
+          window.localStorage.setItem("userName", verifiedName);
+        }
+
+        if (isMounted) {
+          setAuthState({
+            isLoggedIn: true,
+            profile: {
+              _id: verifiedId || baseState.profile?._id,
+              name: baseState.profile?.name || verifiedName,
+              email: baseState.profile?.email || "",
+            },
+          });
+        }
+      } catch {
+        if (isMounted) {
+          setAuthState(baseState);
+        }
+      }
     };
 
     syncAuthState();
@@ -101,6 +179,7 @@ export function useAuthState() {
     window.addEventListener(AUTH_CHANGED_EVENT, syncAuthState);
 
     return () => {
+      isMounted = false;
       window.removeEventListener("storage", syncAuthState);
       window.removeEventListener(AUTH_CHANGED_EVENT, syncAuthState);
     };

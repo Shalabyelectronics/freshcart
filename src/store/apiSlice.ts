@@ -12,7 +12,6 @@ import type {
   CategoriesResponse,
   ChangePasswordRequestBody,
   ChangePasswordResponse,
-  CreateReviewRequestBody,
   CreateCashOrderResponse,
   CreateOnlineOrderSessionResponse,
   DeleteReviewResponse,
@@ -64,7 +63,10 @@ export const apiSlice = createApi({
       token = state.auth?.token;
 
       if (!token && typeof window !== "undefined") {
-        token = window.localStorage.getItem("token") ?? undefined;
+        token =
+          window.localStorage.getItem("token") ??
+          window.localStorage.getItem("userToken") ??
+          undefined;
       }
 
       if (token) {
@@ -224,12 +226,12 @@ export const apiSlice = createApi({
     }),
     createReview: builder.mutation<
       ReviewResponse,
-      { productId: string; body: CreateReviewRequestBody }
+      { productId: string; review: string; rating: number }
     >({
-      query: ({ productId, body }) => ({
+      query: ({ productId, review, rating }) => ({
         url: `/products/${productId}/reviews`,
         method: "POST",
-        body,
+        body: { review, rating },
       }),
       invalidatesTags: ["Reviews"],
     }),

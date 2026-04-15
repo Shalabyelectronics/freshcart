@@ -370,8 +370,10 @@ export interface ReviewUser {
 
 export interface Review {
   _id: string;
+  review?: string;
+  rating?: number;
   title?: string;
-  ratings: number;
+  ratings?: number;
   user: ReviewUser;
   product?: string;
   createdAt?: string;
@@ -379,13 +381,13 @@ export interface Review {
 }
 
 export interface CreateReviewRequestBody {
-  title?: string;
-  ratings: number;
+  review: string;
+  rating: number;
 }
 
 export interface UpdateReviewRequestBody {
-  title?: string;
-  ratings?: number;
+  review?: string;
+  rating?: number;
 }
 
 export interface ReviewResponse {

@@ -14,6 +14,7 @@ type CarouselApi = NonNullable<UseEmblaCarouselType[1]>;
 type CarouselProps = {
   opts?: EmblaOptionsType;
   setApi?: (api: CarouselApi) => void;
+  draggable?: boolean;
 };
 
 type CarouselContextProps = {
@@ -40,9 +41,20 @@ function useCarousel() {
 function Carousel({
   opts,
   setApi,
+  draggable = true,
+  className,
   ...props
-}: React.ComponentProps<"div"> & CarouselProps) {
-  const [carouselRef, api] = useEmblaCarousel(opts);
+}: Omit<React.ComponentProps<"div">, "className"> &
+  CarouselProps & { className?: string }) {
+  const mergedOpts = React.useMemo(
+    () => ({
+      ...opts,
+      watchDrag: draggable,
+    }),
+    [draggable, opts],
+  );
+
+  const [carouselRef, api] = useEmblaCarousel(mergedOpts);
   const [canScrollPrev, setCanScrollPrev] = React.useState(false);
   const [canScrollNext, setCanScrollNext] = React.useState(false);
 
@@ -95,7 +107,7 @@ function Carousel({
     >
       <div
         data-slot="carousel"
-        className={cn("relative", props.className)}
+        className={cn("relative", className)}
         {...props}
       />
     </CarouselContext.Provider>
@@ -108,7 +120,7 @@ function CarouselContent({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       ref={carouselRef}
-      className="overflow-hidden"
+      className="overflow-hidden [touch-action:pan-y]"
       data-slot="carousel-content"
     >
       <div className={cn("flex", className)} {...props} />
@@ -214,7 +226,7 @@ function CarouselIndicators({
     <div
       data-slot="carousel-indicators"
       className={cn(
-        "absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 rounded-full bg-white/20 px-3 py-1 backdrop-blur-sm",
+        "pointer-events-auto absolute bottom-6 left-1/2 z-30 flex -translate-x-1/2 items-center gap-2 rounded-full  px-3 py-1.5 ",
         className,
       )}
       {...props}
@@ -226,7 +238,9 @@ function CarouselIndicators({
           onClick={() => api?.scrollTo(index)}
           className={cn(
             "h-3 rounded-full transition-all",
-            selectedIndex === index ? "w-9 bg-white" : "w-3 bg-white/50",
+            selectedIndex === index
+              ? "w-8 bg-[#BBF7D0] ring-1 ring-white"
+              : "w-3 bg-white/60 hover:bg-white/80",
           )}
           aria-label={`Go to slide ${index + 1}`}
           aria-current={selectedIndex === index}

@@ -76,7 +76,11 @@ export default function Home() {
   return (
     <main className="bg-[#F9FAFB] pb-12">
       <section className="w-full">
-        <Carousel opts={{ loop: true }} className="overflow-hidden">
+        <Carousel
+          opts={{ loop: true, watchDrag: true }}
+          draggable
+          className="overflow-hidden"
+        >
           <CarouselContent>
             {sliderItems.map((slide) => (
               <CarouselItem key={slide.image}>
@@ -88,29 +92,33 @@ export default function Home() {
                   />
                   <div className="absolute inset-0 bg-[#16A34A]/70" />
 
-                  <div className="absolute left-6 top-8 z-10 max-w-md text-white md:left-10 md:top-12">
-                    <h1 className="text-type-max font-bold ps-6">
-                      {slide.title}
-                    </h1>
-                    <p className="mt-3 text-type-md-lg text-white/95 ps-6">
-                      {slide.subtitle}
-                    </p>
-                    <div className="mt-5 flex items-center gap-3 ps-6">
-                      <Button
-                        className="text-type-base h-11 rounded-xl px-6  font-semibold"
-                        style={{
-                          backgroundColor: "#ffffff",
-                          color: "#16A34A",
-                        }}
-                      >
-                        Shop Now
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="text-type-base h-11 rounded-xl border-white/75 bg-transparent px-6 text-white hover:bg-white/10"
-                      >
-                        View Deals
-                      </Button>
+                  <div className="pointer-events-none absolute inset-0 z-10 flex items-center pb-12">
+                    <div className="w-full px-6 text-white md:px-10">
+                      <div className="pointer-events-auto max-w-md">
+                        <h1 className="text-type-max font-bold">
+                          {slide.title}
+                        </h1>
+                        <p className="mt-3 text-type-md-lg text-white/95">
+                          {slide.subtitle}
+                        </p>
+                        <div className="mt-5 flex flex-wrap items-center justify-center gap-3 sm:justify-start">
+                          <Button
+                            className="text-type-base h-11 rounded-xl px-6  font-semibold"
+                            style={{
+                              backgroundColor: "#ffffff",
+                              color: "#16A34A",
+                            }}
+                          >
+                            Shop Now
+                          </Button>
+                          <Button
+                            variant="outline"
+                            className="text-type-base h-11 rounded-xl border-white/75 bg-transparent px-6 text-white hover:bg-white/10"
+                          >
+                            View Deals
+                          </Button>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -118,9 +126,9 @@ export default function Home() {
             ))}
           </CarouselContent>
 
-          <CarouselPrevious className="left-3 h-11 w-11 border-0 cursor-pointer" />
-          <CarouselNext className="right-3 h-11 w-11 border-0 cursor-pointer" />
-          <CarouselIndicators />
+          <CarouselPrevious className="left-3 hidden h-11 w-11 cursor-pointer border-0 md:flex" />
+          <CarouselNext className="right-3 hidden h-11 w-11 cursor-pointer border-0 md:flex" />
+          <CarouselIndicators className="bottom-6 md:bottom-6" />
         </Carousel>
       </section>
       <div className="mx-auto w-full max-w-[1280px] space-y-8 px-4 pt-4 md:px-6 md:pt-6 lg:space-y-10">

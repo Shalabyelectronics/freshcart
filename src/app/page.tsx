@@ -146,7 +146,7 @@ export default function Home() {
             {filteredCategories.map((category) => (
               <Link
                 key={category._id}
-                href={`/categories/${category._id}`}
+                href={`/products?category=${encodeURIComponent(category._id)}`}
                 className="block rounded-xl border border-[#E5E7EB] bg-white p-3 text-center shadow-[0_2px_8px_rgba(15,23,42,0.03)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#BBF7D0] hover:shadow-[0_6px_16px_rgba(22,163,74,0.10)]"
               >
                 <div className="mx-auto h-20 w-20 overflow-hidden rounded-full bg-[#ECFDF5]">

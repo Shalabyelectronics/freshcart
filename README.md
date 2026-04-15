@@ -34,17 +34,20 @@ This is my graduation project for the Web Development course. It's a fully funct
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone <repository-url>
 cd e-commerce-project
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Create a `.env.local` file (if needed for API keys):
+
 ```bash
 # Add any required environment variables here
 ```
@@ -52,6 +55,7 @@ npm install
 ### Development
 
 Run the development server:
+
 ```bash
 npm run dev
 ```
@@ -63,11 +67,13 @@ The app will auto-refresh as you make changes to the code.
 ### Building for Production
 
 Build the project:
+
 ```bash
 npm run build
 ```
 
 Start the production server:
+
 ```bash
 npm start
 ```
@@ -94,17 +100,21 @@ src/
 ## Key Features Explained
 
 ### Reviews System
+
 Users can submit reviews with star ratings and comments. Only the review author can edit or delete their own reviews. The app prevents duplicate reviews from the same user.
 
 ### Shopping Cart
+
 The cart is managed through the API. Users can add products, adjust quantities, and the total is calculated automatically.
 
 ### Authentication
+
 User authentication uses JWT tokens stored securely. The app verifies tokens on page load to maintain user sessions.
 
 ## API Integration
 
 This project uses the RouteMisr E-Commerce API with the following endpoints:
+
 - Authentication: Sign up, login, password reset
 - Products: Get all products, get product by ID
 - Categories: Get all categories
@@ -116,6 +126,7 @@ This project uses the RouteMisr E-Commerce API with the following endpoints:
 ## Challenges Overcome
 
 During development, I had to solve several challenges:
+
 - Implementing a robust authentication system with token verification
 - Handling complex API responses and transforming data for the UI
 - Building a responsive design that works on all screen sizes

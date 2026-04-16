@@ -36,7 +36,7 @@ import type {
   UpdateMeResponse,
   UpdateCartProductQuantityRequestBody,
   UpdateReviewRequestBody,
-  UserOrdersResponse,
+  UserOrdersApiResponse,
   VerifyResetCodeRequestBody,
   VerifyResetCodeResponse,
   VerifyTokenResponse,
@@ -348,9 +348,9 @@ export const apiSlice = createApi({
       },
       invalidatesTags: ["Cart"],
     }),
-    getUserOrders: builder.query<UserOrdersResponse, void>({
-      query: () => ({
-        url: "/orders",
+    getUserOrders: builder.query<UserOrdersApiResponse, string>({
+      query: (userId) => ({
+        url: `/orders/user/${userId}`,
         method: "GET",
       }),
     }),

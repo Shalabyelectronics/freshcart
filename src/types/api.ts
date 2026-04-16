@@ -274,7 +274,14 @@ export type OrderResponse =
 
 export interface OrderItem {
   _id: string;
-  product: string;
+  product:
+    | string
+    | {
+        _id?: string;
+        title?: string;
+        imageCover?: string;
+        image?: string;
+      };
   count: number;
   price: number;
 }
@@ -298,6 +305,8 @@ export interface UserOrdersResponse {
   results: number;
   data: Order[];
 }
+
+export type UserOrdersApiResponse = UserOrdersResponse | Order[];
 
 export interface Address {
   _id: string;

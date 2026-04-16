@@ -6,17 +6,20 @@ import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   Calendar,
-  CreditCard,
-  DollarSign,
+  ChevronDown,
+  ChevronUp,
   Loader2,
+  MapPin,
+  Package,
   Package2,
+  Phone,
   ShoppingBag,
-  Truck,
 } from "lucide-react";
-import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { useAuthState } from "@/hooks/useAuthState";
 import { useGetUserOrdersQuery } from "@/store/apiSlice";
+import type { Order, OrderItem } from "@/types/api";
 
 function PageLoader() {
   return (
@@ -29,38 +32,101 @@ function PageLoader() {
   );
 }
 
+function getOrderStatus(order: Order) {
+  if (order.isDelivered) {
+    return {
+      label: "Delivered",
+      className: "border-emerald-200 bg-emerald-50 text-emerald-700",
+    };
+  }
+
+  if (order.isPaid) {
+    return {
+      label: "On the way",
+      className: "border-blue-200 bg-blue-50 text-blue-700",
+    };
+  }
+
+  return {
+    label: "Processing",
+    className: "border-amber-200 bg-amber-50 text-amber-700",
+  };
+}
+
+function formatOrderDate(createdAt: string) {
+  return new Date(createdAt).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+
+function getItemTitle(item?: OrderItem) {
+  if (!item) {
+    return "Ordered Product";
+  }
+
+  if (typeof item.product === "object" && item.product?.title) {
+    return item.product.title;
+  }
+
+  return "Ordered Product";
+}
+
+function getItemImage(item?: OrderItem) {
+  if (!item) {
+    return "";
+  }
+
+  if (typeof item.product === "object") {
+    return item.product.imageCover ?? item.product.image ?? "";
+  }
+
+  return "";
+}
+
 export default function AllOrdersPage() {
   const router = useRouter();
-  const [isMounted, setIsMounted] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { profile } = useAuthState();
+  const [expandedOrders, setExpandedOrders] = useState<Record<string, boolean>>(
+    {},
+  );
+
+  const hasToken =
+    typeof window !== "undefined" &&
+    Boolean(
+      window.localStorage.getItem("userToken") ||
+      window.localStorage.getItem("token"),
+    );
+
+  const resolvedUserId =
+    profile?._id ??
+    (typeof window !== "undefined"
+      ? (window.localStorage.getItem("userId") ?? "")
+      : "");
 
   useEffect(() => {
-    if (typeof window === "undefined") {
+    if (typeof window === "undefined" || hasToken) {
       return;
     }
 
-    const token =
-      window.localStorage.getItem("userToken") ||
-      window.localStorage.getItem("token");
-
-    if (!token) {
-      router.push("/login");
-      return;
-    }
-
-    setIsLoggedIn(true);
-    setIsMounted(true);
-  }, [router]);
+    router.push("/login");
+  }, [hasToken, router]);
 
   const {
     data: ordersResponse,
     isLoading,
     isError,
-  } = useGetUserOrdersQuery(undefined, {
-    skip: !isMounted || !isLoggedIn,
+  } = useGetUserOrdersQuery(resolvedUserId, {
+    skip: !hasToken || !resolvedUserId,
   });
 
-  if (!isMounted || !isLoggedIn || isLoading) {
+  if (
+    typeof window === "undefined" ||
+    !hasToken ||
+    !resolvedUserId ||
+    isLoading
+  ) {
     return <PageLoader />;
   }
 
@@ -77,7 +143,7 @@ export default function AllOrdersPage() {
           </Link>
 
           <div className="rounded-2xl border border-red-200 bg-white p-8 shadow-sm">
-            <div className="flex items-center gap-3 mb-3">
+            <div className="mb-3 flex items-center gap-3">
               <div className="rounded-full bg-red-100 p-2">
                 <Package2 className="size-5 text-red-600" />
               </div>
@@ -95,7 +161,9 @@ export default function AllOrdersPage() {
     );
   }
 
-  const orders = ordersResponse?.data ?? [];
+  const orders = Array.isArray(ordersResponse)
+    ? ordersResponse
+    : (ordersResponse?.data ?? []);
 
   if (orders.length === 0) {
     return (
@@ -115,8 +183,8 @@ export default function AllOrdersPage() {
               No Orders Yet
             </h2>
             <p className="mt-3 text-slate-600">
-              You haven't placed any orders yet. Start shopping to create your
-              first order!
+              You have not placed any orders yet. Start shopping to create your
+              first order.
             </p>
             <Button
               asChild
@@ -136,12 +204,13 @@ export default function AllOrdersPage() {
         <div className="mb-8 flex items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-slate-950">
-              Your Orders
+              My Orders
             </h1>
             <p className="mt-1 text-sm text-slate-600">
-              Track and manage all your purchases
+              Track and manage your {orders.length} orders
             </p>
           </div>
+
           <Link
             href="/products"
             className="inline-flex items-center gap-2 text-sm font-medium text-green-700 hover:text-green-800"
@@ -152,133 +221,190 @@ export default function AllOrdersPage() {
         </div>
 
         <div className="space-y-4">
-          {orders.map((order) => {
-            const orderDate = new Date(order.createdAt);
-            const formattedDate = orderDate.toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-            });
-            const formattedTime = orderDate.toLocaleTimeString("en-US", {
-              hour: "2-digit",
-              minute: "2-digit",
-            });
-
-            const statusColor = order.isDelivered
-              ? "bg-emerald-50 border-emerald-200 text-emerald-700"
-              : order.isPaid
-                ? "bg-blue-50 border-blue-200 text-blue-700"
-                : "bg-yellow-50 border-yellow-200 text-yellow-700";
-
-            const statusLabel = order.isDelivered
-              ? "Delivered"
-              : order.isPaid
-                ? "Processing"
-                : "Pending Payment";
+          {orders.map((order, index) => {
+            const status = getOrderStatus(order);
+            const isExpanded = expandedOrders[order._id] ?? index === 0;
+            const firstItem = order.cartItems?.[0];
 
             return (
-              <div
+              <article
                 key={order._id}
-                className="rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md"
+                className="rounded-2xl border border-emerald-200 bg-white shadow-sm"
               >
-                <div className="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-5">
-                  {/* Order ID */}
-                  <div>
-                    <p className="text-xs font-semibold text-slate-500 uppercase">
-                      Order ID
-                    </p>
-                    <p className="mt-1 font-mono text-sm font-semibold text-slate-900">
-                      {order._id.slice(-8).toUpperCase()}
-                    </p>
-                  </div>
+                <div className="flex flex-col gap-4 p-4 sm:p-5">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+                      <div className="flex size-15 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-white">
+                        {getItemImage(firstItem) ? (
+                          <img
+                            src={getItemImage(firstItem)}
+                            alt={getItemTitle(firstItem)}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <Package className="size-6 text-slate-400" />
+                        )}
+                      </div>
 
-                  {/* Date */}
-                  <div>
-                    <p className="flex items-center gap-1 text-xs font-semibold text-slate-500 uppercase">
-                      <Calendar className="size-3" />
-                      Date
-                    </p>
-                    <p className="mt-1 text-sm text-slate-700">
-                      {formattedDate}
-                    </p>
-                    <p className="text-xs text-slate-500">{formattedTime}</p>
-                  </div>
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span
+                            className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold ${status.className}`}
+                          >
+                            {status.label}
+                          </span>
+                          <p className="font-mono text-lg font-semibold text-slate-900">
+                            # {order._id.slice(-5)}
+                          </p>
+                        </div>
 
-                  {/* Total Price */}
-                  <div>
-                    <p className="flex items-center gap-1 text-xs font-semibold text-slate-500 uppercase">
-                      <DollarSign className="size-3" />
-                      Total
-                    </p>
-                    <p className="mt-1 text-sm font-semibold text-green-700">
-                      {order.totalOrderPrice.toLocaleString()} EGP
-                    </p>
-                  </div>
+                        <p className="mt-1 flex flex-wrap items-center gap-3 text-sm text-slate-500">
+                          <span className="inline-flex items-center gap-1">
+                            <Calendar className="size-3.5" />
+                            {formatOrderDate(order.createdAt)}
+                          </span>
+                          <span>{order.cartItems.length} item(s)</span>
+                          <span>
+                            {order.shippingAddress?.city || "City N/A"}
+                          </span>
+                        </p>
 
-                  {/* Payment Method */}
-                  <div>
-                    <p className="flex items-center gap-1 text-xs font-semibold text-slate-500 uppercase">
-                      <CreditCard className="size-3" />
-                      Payment
-                    </p>
-                    <p className="mt-1 text-sm text-slate-700 capitalize">
-                      {order.paymentMethodType === "cash"
-                        ? "Cash on Delivery"
-                        : "Card Payment"}
-                    </p>
-                  </div>
-
-                  {/* Status */}
-                  <div>
-                    <p className="flex items-center gap-1 text-xs font-semibold text-slate-500 uppercase">
-                      <Truck className="size-3" />
-                      Status
-                    </p>
-                    <div
-                      className={`mt-1 inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${statusColor}`}
-                    >
-                      {statusLabel}
+                        <p className="mt-2 text-3xl font-bold text-slate-900">
+                          {order.totalOrderPrice.toLocaleString()}
+                          <span className="ml-1 text-sm font-semibold text-slate-500">
+                            EGP
+                          </span>
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                </div>
 
-                {/* Items Preview */}
-                <div className="border-t border-slate-100 px-5 py-4">
-                  <p className="text-xs font-semibold text-slate-500 uppercase">
-                    Order Items ({order.cartItems.length})
-                  </p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {order.cartItems.slice(0, 3).map((item, idx) => (
-                      <div
-                        key={item._id}
-                        className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2"
-                      >
-                        <span className="text-xs font-medium text-slate-600">
-                          {idx + 1}.
-                        </span>
-                        <span className="text-xs text-slate-700">
-                          x{item.count} @ {item.price} EGP
-                        </span>
-                      </div>
-                    ))}
-                    {order.cartItems.length > 3 && (
-                      <div className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2">
-                        <span className="text-xs font-medium text-slate-600">
-                          +{order.cartItems.length - 3} more
-                        </span>
-                      </div>
-                    )}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="h-10 w-full border-emerald-200 text-emerald-700 hover:bg-emerald-50 sm:w-auto"
+                      onClick={() =>
+                        setExpandedOrders((previous) => ({
+                          ...previous,
+                          [order._id]: !isExpanded,
+                        }))
+                      }
+                    >
+                      {isExpanded ? "Hide" : "Details"}
+                      {isExpanded ? (
+                        <ChevronUp className="ml-2 size-4" />
+                      ) : (
+                        <ChevronDown className="ml-2 size-4" />
+                      )}
+                    </Button>
                   </div>
+
+                  {isExpanded ? (
+                    <div className="space-y-4 border-t border-slate-100 pt-4">
+                      <section>
+                        <p className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
+                          <Package className="size-4 text-emerald-600" />
+                          Order Items
+                        </p>
+
+                        <div className="space-y-2 rounded-xl border border-slate-100 bg-slate-50 p-2">
+                          {order.cartItems.map((item) => (
+                            <div
+                              key={item._id}
+                              className="flex items-center justify-between gap-3 rounded-lg bg-white p-3"
+                            >
+                              <div className="flex min-w-0 items-center gap-3">
+                                <div className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-md border border-slate-200 bg-white">
+                                  {getItemImage(item) ? (
+                                    <img
+                                      src={getItemImage(item)}
+                                      alt={getItemTitle(item)}
+                                      className="h-full w-full object-cover"
+                                    />
+                                  ) : (
+                                    <Package className="size-4 text-slate-400" />
+                                  )}
+                                </div>
+                                <p className="truncate text-sm font-medium text-slate-800">
+                                  {getItemTitle(item)}
+                                </p>
+                              </div>
+
+                              <p className="text-sm text-slate-600">
+                                {item.count} x {item.price.toLocaleString()} EGP
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      </section>
+
+                      <div className="grid gap-4 lg:grid-cols-2">
+                        <section className="rounded-xl border border-slate-100 bg-white p-4">
+                          <p className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
+                            <MapPin className="size-4 text-blue-500" />
+                            Delivery Address
+                          </p>
+
+                          <div className="space-y-1 text-sm text-slate-600">
+                            <p className="font-medium text-slate-800">
+                              {order.shippingAddress?.city || "City N/A"}
+                            </p>
+                            <p>
+                              {order.shippingAddress?.details || "Address N/A"}
+                            </p>
+                            <p className="inline-flex items-center gap-1">
+                              <Phone className="size-3.5" />
+                              {order.shippingAddress?.phone || "Phone N/A"}
+                            </p>
+                          </div>
+                        </section>
+
+                        <section className="rounded-xl border border-amber-200 bg-amber-50 p-4">
+                          <p className="mb-3 text-sm font-semibold text-amber-900">
+                            Order Summary
+                          </p>
+
+                          <div className="space-y-2 text-sm text-slate-700">
+                            <div className="flex items-center justify-between">
+                              <span>Subtotal</span>
+                              <span>
+                                {order.totalOrderPrice.toLocaleString()} EGP
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span>Shipping</span>
+                              <span>Free</span>
+                            </div>
+                            <div className="flex items-center justify-between border-t border-amber-200 pt-2 font-semibold text-slate-900">
+                              <span>Total</span>
+                              <span>
+                                {order.totalOrderPrice.toLocaleString()} EGP
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="mt-3 flex flex-wrap gap-2 text-xs">
+                            <span className="rounded-full bg-white px-2.5 py-1 text-slate-700">
+                              Payment: {order.isPaid ? "Paid" : "Pending"}
+                            </span>
+                            <span className="rounded-full bg-white px-2.5 py-1 text-slate-700">
+                              Delivery:{" "}
+                              {order.isDelivered ? "Delivered" : "In Progress"}
+                            </span>
+                          </div>
+                        </section>
+                      </div>
+                    </div>
+                  ) : null}
                 </div>
-              </div>
+              </article>
             );
           })}
         </div>
 
         <div className="mt-8 rounded-2xl border border-emerald-200 bg-emerald-50 px-6 py-4">
           <p className="text-sm text-emerald-700">
-            ✓ Thank you for your business! If you have any questions about your
-            orders, please contact our support team.
+            Thank you for your business. If you have any questions about your
+            orders, contact our support team.
           </p>
         </div>
       </div>

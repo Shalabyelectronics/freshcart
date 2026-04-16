@@ -4,8 +4,11 @@ import { useState, useMemo } from "react";
 import {
   ChevronDown,
   CircleUserRound,
+  Headphones,
   Headset,
   Heart,
+  Home,
+  Layers,
   LogOut,
   Mail,
   MapPin,
@@ -13,6 +16,7 @@ import {
   Package,
   Phone,
   Search,
+  Store,
   ShoppingCart,
   Settings,
   User,
@@ -58,6 +62,22 @@ const CATEGORY_MENU_LABELS = [
   "Men's Fashion",
   "Beauty & Health",
 ];
+
+const MOBILE_LINK_CLASS =
+  "flex items-center gap-2 rounded-lg px-3 py-2 font-medium text-[14px] text-gray-700 transition-colors hover:bg-green-50 hover:text-green-600";
+
+function getMobileNavIcon(label: string) {
+  switch (label) {
+    case "Home":
+      return <Home size={18} />;
+    case "Shop":
+      return <Store size={18} />;
+    case "Brands":
+      return <Package size={18} />;
+    default:
+      return null;
+  }
+}
 
 export default function Navbar() {
   const router = useRouter();
@@ -131,7 +151,7 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-40 border-b border-[#E5E7EB] bg-white">
       <div className="hidden border-b border-[#E5E7EB] bg-[#F8F9FA] lg:block">
-        <div className="text-type-sm mx-auto flex h-11 w-full max-w-[1280px] items-center justify-between px-4 text-slate-600 md:px-6">
+        <div className="text-type-sm mx-auto flex h-11 w-full max-w-7xl items-center justify-between px-4 text-slate-600 md:px-6">
           <div className="flex items-center gap-8">
             <p className="inline-flex items-center gap-2">
               <ShoppingCart className="size-4 text-[#16A34A]" />
@@ -261,16 +281,21 @@ export default function Navbar() {
           </nav>
 
           <div className="flex items-center gap-4 border-l border-[#D7DCE2] pl-4 text-slate-500">
-            <span className="inline-flex size-11 items-center justify-center rounded-full bg-[#ECFDF5] text-[#16A34A]">
-              <Headset className="size-5" />
-            </span>
-            <p className="leading-tight">
-              <span className="text-type-sm text-slate-400">Support</span>
-              <br />
-              <span className="text-type-base font-semibold text-slate-700">
-                24/7 Help
+            <Link
+              href="/contact"
+              className="inline-flex items-center gap-3 rounded-xl px-1 py-1 transition hover:bg-emerald-50"
+            >
+              <span className="inline-flex size-11 items-center justify-center rounded-full bg-[#ECFDF5] text-[#16A34A]">
+                <Headset className="size-5" />
               </span>
-            </p>
+              <p className="leading-tight">
+                <span className="text-type-sm text-slate-400">Support</span>
+                <br />
+                <span className="text-type-base font-semibold text-slate-700">
+                  24/7 Help
+                </span>
+              </p>
+            </Link>
             <Link
               href="/wishlist"
               className="relative p-1 transition hover:text-[#16A34A]"
@@ -430,12 +455,12 @@ export default function Navbar() {
                 </SheetTitle>
               </SheetHeader>
 
-              <div className="flex h-full max-h-screen flex-col overflow-y-auto px-4 pb-4">
-                <form onSubmit={handleSearchSubmit} className="relative">
+              <div className="flex max-h-screen flex-col overflow-y-auto px-3 pb-3">
+                <form onSubmit={handleSearchSubmit} className="relative mt-3">
                   <Input
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
-                    className="mt-4 h-11 rounded-2xl border-[#D5DBE3] bg-white pr-12 text-base"
+                    className="h-10 rounded-xl border-[#D5DBE3] bg-white pr-12 text-sm"
                     placeholder="Search products..."
                   />
                   <button
@@ -446,15 +471,13 @@ export default function Navbar() {
                   </button>
                 </form>
 
-                <nav className="mt-5 space-y-0.5 py-1">
+                <nav className="mt-3 space-y-0.5 py-0.5">
                   {DRAWER_ITEMS.filter(
                     (item) => item.label !== "Categories",
                   ).map((item) => (
                     <SheetClose asChild key={item.label}>
-                      <Link
-                        href={item.href}
-                        className="flex min-h-11 items-center rounded-lg px-3 py-2 text-base leading-6 font-medium text-[#364153] transition hover:bg-slate-50"
-                      >
+                      <Link href={item.href} className={MOBILE_LINK_CLASS}>
+                        {getMobileNavIcon(item.label)}
                         {item.label}
                       </Link>
                     </SheetClose>
@@ -466,9 +489,12 @@ export default function Navbar() {
                       onClick={() =>
                         setIsMobileCategoriesOpen((previous) => !previous)
                       }
-                      className="flex min-h-11 w-full items-center justify-between rounded-lg px-3 py-2 text-base leading-6 font-medium text-[#364153] transition hover:bg-slate-50"
+                      className={`${MOBILE_LINK_CLASS} w-full justify-between`}
                     >
-                      <span>Categories</span>
+                      <span className="inline-flex items-center gap-2">
+                        <Layers size={18} />
+                        Categories
+                      </span>
                       <ChevronDown
                         className={`size-4 text-slate-500 transition-transform ${
                           isMobileCategoriesOpen ? "rotate-180" : "rotate-0"
@@ -482,7 +508,7 @@ export default function Navbar() {
                           <SheetClose asChild key={`drawer-${category.label}`}>
                             <Link
                               href={category.href}
-                              className="flex min-h-9 items-center rounded-md px-2 py-1.5 text-sm leading-5 font-medium text-slate-500 transition hover:bg-slate-50 hover:text-[#364153]"
+                              className="flex items-center gap-2 rounded-md px-2 py-1.5 text-[13px] font-medium text-slate-500 transition-colors hover:bg-green-50 hover:text-green-600"
                             >
                               {category.label}
                             </Link>
@@ -493,34 +519,32 @@ export default function Navbar() {
                   </div>
                 </nav>
 
-                <div className="mt-4 space-y-3 border-y border-[#E5E7EB] py-4">
+                <div className="mt-2 space-y-1.5 border-y border-[#E5E7EB] py-2">
                   <SheetClose asChild>
-                    <Link
-                      href="/allorders"
-                      className="flex items-center gap-3 rounded-xl px-3 py-2 text-slate-700 transition hover:bg-slate-50"
-                    >
-                      <span className="inline-flex size-12 items-center justify-center rounded-full bg-amber-50 text-amber-500">
-                        <Package className="size-6" />
-                      </span>
-                      <span className="text-base font-medium text-[#364153]">
-                        My Orders
-                      </span>
+                    <Link href="/contact" className={MOBILE_LINK_CLASS}>
+                      <Headphones size={18} />
+                      Contact Us
+                    </Link>
+                  </SheetClose>
+
+                  <SheetClose asChild>
+                    <Link href="/allorders" className={MOBILE_LINK_CLASS}>
+                      <Package size={18} />
+                      My Orders
                     </Link>
                   </SheetClose>
 
                   <SheetClose asChild>
                     <Link
                       href="/wishlist"
-                      className="flex items-center gap-3 rounded-xl px-3 py-2 text-slate-700 transition hover:bg-slate-50"
+                      className={`${MOBILE_LINK_CLASS} justify-between`}
                     >
-                      <span className="inline-flex size-12 items-center justify-center rounded-full bg-red-50 text-red-500">
-                        <Heart className="size-6" />
-                      </span>
-                      <span className="text-base font-medium text-[#364153]">
+                      <span className="inline-flex items-center gap-2">
+                        <Heart size={18} />
                         Wishlist
                       </span>
                       {wishlistData?.count ? (
-                        <span className="ml-auto inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-red-500 px-2 text-xs font-bold text-white">
+                        <span className="ml-auto inline-flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[11px] font-bold text-white">
                           {wishlistData.count}
                         </span>
                       ) : null}
@@ -530,16 +554,14 @@ export default function Navbar() {
                   <SheetClose asChild>
                     <Link
                       href="/cart"
-                      className="flex items-center gap-3 rounded-xl px-3 py-2 text-slate-700 transition hover:bg-slate-50"
+                      className={`${MOBILE_LINK_CLASS} justify-between`}
                     >
-                      <span className="inline-flex size-12 items-center justify-center rounded-full bg-[#DCFCE7] text-[#16A34A]">
-                        <ShoppingCart className="size-6" />
-                      </span>
-                      <span className="text-base font-medium text-[#364153]">
+                      <span className="inline-flex items-center gap-2">
+                        <ShoppingCart size={18} />
                         Cart
                       </span>
                       {cartData?.numOfCartItems ? (
-                        <span className="ml-auto inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-red-500 px-2 text-xs font-bold text-white">
+                        <span className="ml-auto inline-flex h-5 w-5 items-center justify-center rounded-full bg-green-600 text-[11px] font-bold text-white">
                           {cartData.numOfCartItems}
                         </span>
                       ) : null}
@@ -547,40 +569,31 @@ export default function Navbar() {
                   </SheetClose>
                 </div>
 
-                <div className="mt-auto pt-4">
+                <div className="mt-2 pt-2">
                   {isLoggedIn ? (
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                       <SheetClose asChild>
-                        <Link
-                          href="/account"
-                          className="flex h-12 items-center gap-3 rounded-xl px-3 text-[#364153] transition hover:bg-slate-50"
-                        >
-                          <span className="inline-flex size-9 items-center justify-center rounded-full bg-[#F1F5F9]">
-                            <CircleUserRound className="size-4 text-slate-500" />
-                          </span>
-                          <span className="text-base font-medium">
-                            {displayName}
-                          </span>
+                        <Link href="/account" className={MOBILE_LINK_CLASS}>
+                          <CircleUserRound size={18} />
+                          {displayName}
                         </Link>
                       </SheetClose>
 
                       <button
                         type="button"
                         onClick={handleSignOut}
-                        className="flex h-12 w-full items-center gap-3 rounded-xl px-3 text-left text-base font-medium text-red-500 transition hover:bg-red-50"
+                        className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left font-medium text-[14px] text-red-500 transition-colors hover:bg-red-50"
                       >
-                        <span className="inline-flex size-9 items-center justify-center rounded-full bg-red-50">
-                          <LogOut className="size-4" />
-                        </span>
+                        <LogOut size={18} />
                         Sign Out
                       </button>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-2 gap-2">
                       <SheetClose asChild>
                         <Link
                           href="/login"
-                          className="inline-flex h-12 items-center justify-center rounded-2xl bg-[#16A34A] px-4 text-base font-semibold text-white"
+                          className="inline-flex h-10 items-center justify-center rounded-xl bg-[#16A34A] px-4 text-[14px] font-semibold text-white"
                         >
                           Sign In
                         </Link>
@@ -588,7 +601,7 @@ export default function Navbar() {
                       <SheetClose asChild>
                         <Link
                           href="/register"
-                          className="inline-flex h-12 items-center justify-center rounded-2xl border-2 border-[#16A34A] px-4 text-base font-semibold text-[#16A34A]"
+                          className="inline-flex h-10 items-center justify-center rounded-xl border-2 border-[#16A34A] px-4 text-[14px] font-semibold text-[#16A34A]"
                         >
                           Sign Up
                         </Link>
@@ -596,24 +609,15 @@ export default function Navbar() {
                     </div>
                   )}
 
-                  <div className="mt-4 rounded-2xl border border-[#E5E7EB] bg-[#F8FAFC] p-4">
-                    <div className="flex items-center gap-3">
-                      <span className="inline-flex size-12 items-center justify-center rounded-full bg-[#DCFCE7] text-[#16A34A]">
-                        <Headset className="size-6" />
-                      </span>
-                      <div>
-                        <p className="text-type-md font-semibold text-slate-800">
-                          Need Help?
-                        </p>
-                        <a
-                          href="#"
-                          className="text-type-md font-medium text-[#16A34A]"
-                        >
-                          Contact Support
-                        </a>
-                      </div>
-                    </div>
-                  </div>
+                  <SheetClose asChild>
+                    <Link
+                      href="/contact"
+                      className="mt-2 flex items-center gap-2 rounded-lg border border-[#E5E7EB] bg-[#F8FAFC] px-3 py-2 text-[14px] font-medium text-slate-700 transition-colors hover:bg-green-50 hover:text-green-600"
+                    >
+                      <Headset size={18} />
+                      Need Help? Contact Support
+                    </Link>
+                  </SheetClose>
                 </div>
               </div>
             </SheetContent>

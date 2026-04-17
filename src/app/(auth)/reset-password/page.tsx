@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, KeyRound, Loader2, Lock, Mail } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
+import { toast } from "react-hot-toast";
 
 import PasswordResetShell from "@/app/(auth)/_components/PasswordResetShell";
 import {
@@ -50,7 +50,7 @@ function ResetPasswordPageContent() {
 
   useEffect(() => {
     if (!email) {
-      toast.info("Please verify your email first.");
+      toast("Please verify your email first.");
       router.replace("/forgot-password");
       return;
     }

@@ -4,7 +4,7 @@ import "./globals.css";
 import Navbar from "./_components/Navbar/Navbar";
 import Footer from "./_components/Footer/Footer";
 import StoreProvider from "@/store/provider";
-import { Toaster } from "@/components/ui/sonner";
+import { Toaster } from "react-hot-toast";
 
 const exo = Exo({
   variable: "--font-exo",
@@ -58,7 +58,7 @@ export default function RootLayout({
           <Navbar />
           {children}
           <Footer />
-          <Toaster richColors position="top-center" />
+          <Toaster position="top-center" />
         </StoreProvider>
       </body>
     </html>

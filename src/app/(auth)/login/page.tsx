@@ -17,7 +17,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
+import { toast } from "react-hot-toast";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -68,7 +68,7 @@ export default function LoginPage() {
   });
 
   function handleSocialLoginClick() {
-    toast.info("Social Login will be available soon!");
+    toast("Social Login will be available soon!");
   }
 
   async function onSubmit(values: LoginFormValues) {

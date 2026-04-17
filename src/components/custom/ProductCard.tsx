@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Eye, RefreshCw, Star, Heart } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "react-hot-toast";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -106,7 +106,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                toast.info("Compare feature coming soon!");
+                toast("Compare feature coming soon!");
               }}
               className="rounded-full bg-white/90 p-1.5 text-slate-500 hover:text-[#16A34A]"
             >

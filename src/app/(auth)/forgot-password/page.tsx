@@ -6,7 +6,7 @@ import { ArrowLeft, Lock, Mail, KeyRound, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
+import { toast } from "react-hot-toast";
 
 import PasswordResetShell from "@/app/(auth)/_components/PasswordResetShell";
 import {

@@ -1,20 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { Heart, Trash2, ChevronLeft } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "react-hot-toast";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import {
+  useAddToWishlistMutation,
+  useGetWishlistQuery,
   useGetLoggedUserCartQuery,
-  useUpdateCartProductQuantityMutation,
-  useRemoveCartItemMutation,
   useClearCartMutation,
+  useRemoveCartItemMutation,
+  useRemoveFromWishlistMutation,
+  useUpdateCartProductQuantityMutation,
 } from "@/store/apiSlice";
 
 function LoadingSpinner() {
@@ -38,6 +41,9 @@ export default function CartPage() {
     direction: "increase" | "decrease";
   } | null>(null);
   const [removeLoadingId, setRemoveLoadingId] = useState<string | null>(null);
+  const [wishlistLoadingId, setWishlistLoadingId] = useState<string | null>(
+    null,
+  );
 
   // Check auth on mount
   useEffect(() => {
@@ -52,12 +58,14 @@ export default function CartPage() {
       }
       isLogged = true;
     }
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsLoggedIn(isLogged);
     setIsMounted(true);
   }, [router]);
 
   const { data: cart, isLoading } = useGetLoggedUserCartQuery(undefined, {
+    skip: !isMounted || !isLoggedIn,
+  });
+  const { data: wishlist } = useGetWishlistQuery(undefined, {
     skip: !isMounted || !isLoggedIn,
   });
 
@@ -66,6 +74,39 @@ export default function CartPage() {
   const [removeItem, { isLoading: isRemovingItem }] =
     useRemoveCartItemMutation();
   const [clearCart, { isLoading: isClearingCart }] = useClearCartMutation();
+  const [addToWishlist, { isLoading: isAddingToWishlist }] =
+    useAddToWishlistMutation();
+  const [removeFromWishlist, { isLoading: isRemovingFromWishlist }] =
+    useRemoveFromWishlistMutation();
+
+  const wishlistIds = useMemo(() => {
+    return new Set((wishlist?.data ?? []).map((item) => item._id));
+  }, [wishlist?.data]);
+
+  const handleWishlistToggle = async (productId: string) => {
+    if (!productId || wishlistLoadingId === productId) {
+      return;
+    }
+
+    const isInWishlist = wishlistIds.has(productId);
+
+    try {
+      setWishlistLoadingId(productId);
+
+      if (isInWishlist) {
+        await removeFromWishlist(productId).unwrap();
+        toast.success("Removed from Wishlist");
+        return;
+      }
+
+      await addToWishlist({ productId }).unwrap();
+      toast.success("Added to Wishlist");
+    } catch {
+      toast.error("Wishlist action failed");
+    } finally {
+      setWishlistLoadingId(null);
+    }
+  };
 
   if (!isMounted || !isLoggedIn) {
     return <LoadingSpinner />;
@@ -184,63 +225,105 @@ export default function CartPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column: Cart Items */}
           <div className="lg:col-span-2 space-y-4">
-            {cartItems.map((cartItem) => (
-              <div
-                key={cartItem._id}
-                className="flex gap-4 p-4 border border-gray-200 rounded-lg hover:shadow-md transition"
-              >
-                {/* Product Image */}
-                <div className="relative flex-shrink-0">
-                  {!loadedImages[cartItem.product._id] ? (
-                    <Skeleton className="absolute inset-0 h-24 w-24 rounded-lg" />
-                  ) : null}
-                  <Image
-                    src={cartItem.product?.imageCover || "/placeholder.jpg"}
-                    alt={cartItem.product?.title || "Product"}
-                    width={96}
-                    height={96}
-                    onLoadingComplete={() =>
-                      setLoadedImages((prev) => ({
-                        ...prev,
-                        [cartItem.product._id]: true,
-                      }))
-                    }
-                    className={`w-24 h-24 object-cover rounded-lg transition-opacity duration-200 ${
-                      loadedImages[cartItem.product._id]
-                        ? "opacity-100"
-                        : "opacity-0"
-                    }`}
-                  />
-                </div>
+            {cartItems.map((cartItem) => {
+              const productId = cartItem.product._id;
+              const isInWishlist = wishlistIds.has(productId);
+              const isWishlistMutating =
+                wishlistLoadingId === productId &&
+                (isAddingToWishlist || isRemovingFromWishlist);
 
-                {/* Product Details */}
-                <div className="flex-1">
-                  <h3 className="font-bold text-gray-900 line-clamp-2 mb-2">
-                    {cartItem.product?.title}
-                  </h3>
-
-                  <div className="flex flex-col gap-2 mb-3 text-sm">
-                    <p className="text-gray-600">
-                      <span className="font-medium">Category:</span>{" "}
-                      {cartItem.product?.category?.name || "General"}
-                    </p>
-                    <p className="font-semibold text-green-600">
-                      {cartItem.price} EGP per unit
-                    </p>
+              return (
+                <div
+                  key={cartItem._id}
+                  className="flex gap-4 p-4 border border-gray-200 rounded-lg hover:shadow-md transition"
+                >
+                  {/* Product Image */}
+                  <div className="relative flex-shrink-0">
+                    {!loadedImages[cartItem.product._id] ? (
+                      <Skeleton className="absolute inset-0 h-24 w-24 rounded-lg" />
+                    ) : null}
+                    <Image
+                      src={cartItem.product?.imageCover || "/placeholder.jpg"}
+                      alt={cartItem.product?.title || "Product"}
+                      width={96}
+                      height={96}
+                      onLoadingComplete={() =>
+                        setLoadedImages((prev) => ({
+                          ...prev,
+                          [cartItem.product._id]: true,
+                        }))
+                      }
+                      className={`w-24 h-24 object-cover rounded-lg transition-opacity duration-200 ${
+                        loadedImages[cartItem.product._id]
+                          ? "opacity-100"
+                          : "opacity-0"
+                      }`}
+                    />
                   </div>
 
-                  {/* Quantity Controls */}
-                  <div className="flex items-center gap-3">
-                    <button
-                      onClick={() => {
-                        if (cartItem.count > 1) {
+                  {/* Product Details */}
+                  <div className="flex-1">
+                    <h3 className="font-bold text-gray-900 line-clamp-2 mb-2">
+                      {cartItem.product?.title}
+                    </h3>
+
+                    <div className="flex flex-col gap-2 mb-3 text-sm">
+                      <p className="text-gray-600">
+                        <span className="font-medium">Category:</span>{" "}
+                        {cartItem.product?.category?.name || "General"}
+                      </p>
+                      <p className="font-semibold text-green-600">
+                        {cartItem.price} EGP per unit
+                      </p>
+                    </div>
+
+                    {/* Quantity Controls */}
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => {
+                          if (cartItem.count > 1) {
+                            setQuantityLoading({
+                              id: cartItem.product._id,
+                              direction: "decrease",
+                            });
+                            updateQuantity({
+                              productId: cartItem.product._id,
+                              body: { count: cartItem.count - 1 },
+                            })
+                              .unwrap()
+                              .then(() => {
+                                toast.success("Quantity updated");
+                              })
+                              .catch(() => {
+                                toast.error("Failed to update quantity");
+                              })
+                              .finally(() => {
+                                setQuantityLoading(null);
+                              });
+                          }
+                        }}
+                        disabled={isUpdatingQuantity || cartItem.count <= 1}
+                        className="h-8 w-8 border border-gray-300 rounded flex items-center justify-center hover:bg-gray-100 disabled:opacity-50"
+                      >
+                        {quantityLoading?.id === cartItem.product._id &&
+                        quantityLoading.direction === "decrease" ? (
+                          <Spinner size="sm" className="text-gray-600" />
+                        ) : (
+                          "−"
+                        )}
+                      </button>
+                      <span className="w-8 text-center font-semibold">
+                        {cartItem.count}
+                      </span>
+                      <button
+                        onClick={() => {
                           setQuantityLoading({
                             id: cartItem.product._id,
-                            direction: "decrease",
+                            direction: "increase",
                           });
                           updateQuantity({
                             productId: cartItem.product._id,
-                            body: { count: cartItem.count - 1 },
+                            body: { count: cartItem.count + 1 },
                           })
                             .unwrap()
                             .then(() => {
@@ -252,104 +335,80 @@ export default function CartPage() {
                             .finally(() => {
                               setQuantityLoading(null);
                             });
+                        }}
+                        disabled={isUpdatingQuantity}
+                        className="h-8 w-8 border border-gray-300 rounded flex items-center justify-center hover:bg-gray-100 disabled:opacity-50"
+                      >
+                        {quantityLoading?.id === cartItem.product._id &&
+                        quantityLoading.direction === "increase" ? (
+                          <Spinner size="sm" className="text-gray-600" />
+                        ) : (
+                          "+"
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Item Total & Actions */}
+                  <div className="flex flex-col items-end justify-between">
+                    <div className="text-right">
+                      <p className="text-sm text-gray-500 mb-1">Total</p>
+                      <p className="text-xl font-bold text-green-600">
+                        {(cartItem.price * cartItem.count).toFixed(2)} EGP
+                      </p>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleWishlistToggle(productId)}
+                        disabled={isWishlistMutating}
+                        className="p-2 text-gray-400 hover:text-red-600 transition disabled:opacity-50"
+                      >
+                        {isWishlistMutating ? (
+                          <Spinner size="sm" className="text-gray-500" />
+                        ) : (
+                          <Heart
+                            size={18}
+                            className={
+                              isInWishlist
+                                ? "fill-red-500 text-red-500"
+                                : "text-gray-400"
+                            }
+                          />
+                        )}
+                      </button>
+                      <button
+                        onClick={() => {
+                          setRemoveLoadingId(cartItem.product._id);
+                          removeItem(cartItem.product._id)
+                            .unwrap()
+                            .then(() => {
+                              toast.success("Item removed from cart");
+                            })
+                            .catch(() => {
+                              toast.error("Failed to remove item");
+                            })
+                            .finally(() => {
+                              setRemoveLoadingId(null);
+                            });
+                        }}
+                        disabled={
+                          isRemovingItem ||
+                          removeLoadingId === cartItem.product._id
                         }
-                      }}
-                      disabled={isUpdatingQuantity || cartItem.count <= 1}
-                      className="h-8 w-8 border border-gray-300 rounded flex items-center justify-center hover:bg-gray-100 disabled:opacity-50"
-                    >
-                      {quantityLoading?.id === cartItem.product._id &&
-                      quantityLoading.direction === "decrease" ? (
-                        <Spinner size="sm" className="text-gray-600" />
-                      ) : (
-                        "−"
-                      )}
-                    </button>
-                    <span className="w-8 text-center font-semibold">
-                      {cartItem.count}
-                    </span>
-                    <button
-                      onClick={() => {
-                        setQuantityLoading({
-                          id: cartItem.product._id,
-                          direction: "increase",
-                        });
-                        updateQuantity({
-                          productId: cartItem.product._id,
-                          body: { count: cartItem.count + 1 },
-                        })
-                          .unwrap()
-                          .then(() => {
-                            toast.success("Quantity updated");
-                          })
-                          .catch(() => {
-                            toast.error("Failed to update quantity");
-                          })
-                          .finally(() => {
-                            setQuantityLoading(null);
-                          });
-                      }}
-                      disabled={isUpdatingQuantity}
-                      className="h-8 w-8 border border-gray-300 rounded flex items-center justify-center hover:bg-gray-100 disabled:opacity-50"
-                    >
-                      {quantityLoading?.id === cartItem.product._id &&
-                      quantityLoading.direction === "increase" ? (
-                        <Spinner size="sm" className="text-gray-600" />
-                      ) : (
-                        "+"
-                      )}
-                    </button>
+                        className="p-2 text-gray-400 hover:text-red-600 transition disabled:opacity-50"
+                      >
+                        {removeLoadingId === cartItem.product._id ? (
+                          <Spinner size="sm" className="text-gray-500" />
+                        ) : (
+                          <Trash2 size={18} />
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </div>
-
-                {/* Item Total & Actions */}
-                <div className="flex flex-col items-end justify-between">
-                  <div className="text-right">
-                    <p className="text-sm text-gray-500 mb-1">Total</p>
-                    <p className="text-xl font-bold text-green-600">
-                      {(cartItem.price * cartItem.count).toFixed(2)} EGP
-                    </p>
-                  </div>
-
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => {
-                        toast.info("Wishlist feature coming soon!");
-                      }}
-                      className="p-2 text-gray-400 hover:text-red-600 transition"
-                    >
-                      <Heart size={18} />
-                    </button>
-                    <button
-                      onClick={() => {
-                        setRemoveLoadingId(cartItem.product._id);
-                        removeItem(cartItem.product._id)
-                          .unwrap()
-                          .then(() => {
-                            toast.success("Item removed from cart");
-                          })
-                          .catch(() => {
-                            toast.error("Failed to remove item");
-                          })
-                          .finally(() => {
-                            setRemoveLoadingId(null);
-                          });
-                      }}
-                      disabled={
-                        isRemovingItem ||
-                        removeLoadingId === cartItem.product._id
-                      }
-                      className="p-2 text-gray-400 hover:text-red-600 transition disabled:opacity-50"
-                    >
-                      {removeLoadingId === cartItem.product._id ? (
-                        <Spinner size="sm" className="text-gray-500" />
-                      ) : (
-                        <Trash2 size={18} />
-                      )}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
+              );
+            })}
 
             {/* Continue Shopping Link */}
             <Link

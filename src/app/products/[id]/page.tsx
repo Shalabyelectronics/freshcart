@@ -15,7 +15,7 @@ import {
   Pencil,
   Trash2,
 } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "react-hot-toast";
 
 import {
   useGetProductByIdQuery,
@@ -558,7 +558,7 @@ export default function ProductDetailsPage() {
                 variant="outline"
                 size="icon"
                 className="py-6"
-                onClick={() => toast.info("Share link copied!")}
+                onClick={() => toast("Share link copied!")}
               >
                 <Share2 size={18} />
               </Button>

@@ -6,7 +6,7 @@ import { ArrowLeft, KeyRound, Loader2, Lock, Mail, Shield } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
+import { toast } from "react-hot-toast";
 
 import PasswordResetShell from "@/app/(auth)/_components/PasswordResetShell";
 import {
@@ -53,7 +53,7 @@ function VerifyCodePageContent() {
 
   useEffect(() => {
     if (!email) {
-      toast.info("Please enter your email first.");
+      toast("Please enter your email first.");
       router.replace("/forgot-password");
       return;
     }

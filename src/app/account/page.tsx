@@ -215,7 +215,7 @@ export default function AccountPage() {
     return roleValue.charAt(0).toUpperCase() + roleValue.slice(1).toLowerCase();
   }, [verifyTokenResponse?.decoded?.role]);
   const resolvedProfileName =
-    profileForm.name?.trim().length > 0
+    profileForm?.name?.trim() && profileForm.name.trim().length > 0
       ? profileForm.name
       : (verifyTokenResponse?.decoded?.name ?? "");
 

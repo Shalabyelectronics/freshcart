@@ -3,10 +3,13 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { Heart, Trash2, ChevronLeft } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Spinner } from "@/components/ui/spinner";
 import {
   useGetLoggedUserCartQuery,
   useUpdateCartProductQuantityMutation,
@@ -18,9 +21,7 @@ function LoadingSpinner() {
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
-        <div className="inline-block">
-          <div className="w-12 h-12 border-4 border-green-200 border-t-green-600 rounded-full animate-spin"></div>
-        </div>
+        <Spinner size="lg" className="text-green-600" />
         <p className="mt-4 text-gray-600">Loading cart...</p>
       </div>
     </div>
@@ -31,6 +32,12 @@ export default function CartPage() {
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
+  const [quantityLoading, setQuantityLoading] = useState<{
+    id: string;
+    direction: "increase" | "decrease";
+  } | null>(null);
+  const [removeLoadingId, setRemoveLoadingId] = useState<string | null>(null);
 
   // Check auth on mount
   useEffect(() => {
@@ -183,11 +190,26 @@ export default function CartPage() {
                 className="flex gap-4 p-4 border border-gray-200 rounded-lg hover:shadow-md transition"
               >
                 {/* Product Image */}
-                <div className="flex-shrink-0">
-                  <img
+                <div className="relative flex-shrink-0">
+                  {!loadedImages[cartItem.product._id] ? (
+                    <Skeleton className="absolute inset-0 h-24 w-24 rounded-lg" />
+                  ) : null}
+                  <Image
                     src={cartItem.product?.imageCover || "/placeholder.jpg"}
                     alt={cartItem.product?.title || "Product"}
-                    className="w-24 h-24 object-cover rounded-lg"
+                    width={96}
+                    height={96}
+                    onLoadingComplete={() =>
+                      setLoadedImages((prev) => ({
+                        ...prev,
+                        [cartItem.product._id]: true,
+                      }))
+                    }
+                    className={`w-24 h-24 object-cover rounded-lg transition-opacity duration-200 ${
+                      loadedImages[cartItem.product._id]
+                        ? "opacity-100"
+                        : "opacity-0"
+                    }`}
                   />
                 </div>
 
@@ -212,6 +234,10 @@ export default function CartPage() {
                     <button
                       onClick={() => {
                         if (cartItem.count > 1) {
+                          setQuantityLoading({
+                            id: cartItem.product._id,
+                            direction: "decrease",
+                          });
                           updateQuantity({
                             productId: cartItem.product._id,
                             body: { count: cartItem.count - 1 },
@@ -222,19 +248,31 @@ export default function CartPage() {
                             })
                             .catch(() => {
                               toast.error("Failed to update quantity");
+                            })
+                            .finally(() => {
+                              setQuantityLoading(null);
                             });
                         }
                       }}
                       disabled={isUpdatingQuantity || cartItem.count <= 1}
                       className="h-8 w-8 border border-gray-300 rounded flex items-center justify-center hover:bg-gray-100 disabled:opacity-50"
                     >
-                      −
+                      {quantityLoading?.id === cartItem.product._id &&
+                      quantityLoading.direction === "decrease" ? (
+                        <Spinner size="sm" className="text-gray-600" />
+                      ) : (
+                        "−"
+                      )}
                     </button>
                     <span className="w-8 text-center font-semibold">
                       {cartItem.count}
                     </span>
                     <button
                       onClick={() => {
+                        setQuantityLoading({
+                          id: cartItem.product._id,
+                          direction: "increase",
+                        });
                         updateQuantity({
                           productId: cartItem.product._id,
                           body: { count: cartItem.count + 1 },
@@ -245,12 +283,20 @@ export default function CartPage() {
                           })
                           .catch(() => {
                             toast.error("Failed to update quantity");
+                          })
+                          .finally(() => {
+                            setQuantityLoading(null);
                           });
                       }}
                       disabled={isUpdatingQuantity}
                       className="h-8 w-8 border border-gray-300 rounded flex items-center justify-center hover:bg-gray-100 disabled:opacity-50"
                     >
-                      +
+                      {quantityLoading?.id === cartItem.product._id &&
+                      quantityLoading.direction === "increase" ? (
+                        <Spinner size="sm" className="text-gray-600" />
+                      ) : (
+                        "+"
+                      )}
                     </button>
                   </div>
                 </div>
@@ -275,6 +321,7 @@ export default function CartPage() {
                     </button>
                     <button
                       onClick={() => {
+                        setRemoveLoadingId(cartItem.product._id);
                         removeItem(cartItem.product._id)
                           .unwrap()
                           .then(() => {
@@ -282,12 +329,22 @@ export default function CartPage() {
                           })
                           .catch(() => {
                             toast.error("Failed to remove item");
+                          })
+                          .finally(() => {
+                            setRemoveLoadingId(null);
                           });
                       }}
-                      disabled={isRemovingItem}
+                      disabled={
+                        isRemovingItem ||
+                        removeLoadingId === cartItem.product._id
+                      }
                       className="p-2 text-gray-400 hover:text-red-600 transition disabled:opacity-50"
                     >
-                      <Trash2 size={18} />
+                      {removeLoadingId === cartItem.product._id ? (
+                        <Spinner size="sm" className="text-gray-500" />
+                      ) : (
+                        <Trash2 size={18} />
+                      )}
                     </button>
                   </div>
                 </div>
@@ -375,7 +432,14 @@ export default function CartPage() {
                 disabled={isClearingCart}
                 className="w-full py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 font-medium transition disabled:opacity-50"
               >
-                {isClearingCart ? "Clearing..." : "Clear Cart"}
+                {isClearingCart ? (
+                  <span className="inline-flex items-center gap-2">
+                    <Spinner size="sm" className="text-gray-600" />
+                    Clearing...
+                  </span>
+                ) : (
+                  "Clear Cart"
+                )}
               </button>
 
               {/* Payment Info */}

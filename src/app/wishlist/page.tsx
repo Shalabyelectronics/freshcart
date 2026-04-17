@@ -2,11 +2,14 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Heart, Loader2, ShoppingCart, Trash2 } from "lucide-react";
+import { Heart, ShoppingCart, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Spinner } from "@/components/ui/spinner";
 import {
   useAddToCartMutation,
   useGetWishlistQuery,
@@ -17,7 +20,7 @@ function PageLoader() {
   return (
     <div className="flex min-h-[60vh] items-center justify-center px-4">
       <div className="flex flex-col items-center gap-4 text-center text-slate-600">
-        <Loader2 className="size-7 animate-spin text-green-600" />
+        <Spinner size="lg" className="text-green-600" />
         <p className="text-sm font-medium">Loading wishlist...</p>
       </div>
     </div>
@@ -30,6 +33,7 @@ export default function WishlistPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [cartLoadingId, setCartLoadingId] = useState<string | null>(null);
   const [removeLoadingId, setRemoveLoadingId] = useState<string | null>(null);
+  const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -151,24 +155,39 @@ export default function WishlistPage() {
                     className="grid grid-cols-[minmax(0,2.6fr)_0.8fr_0.8fr_0.9fr] items-center border-b border-slate-100 px-6 py-4 last:border-b-0"
                   >
                     <div className="flex min-w-0 items-center gap-3">
-                      <div className="flex size-16 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white shadow-sm">
-                        <img
+                      <div className="relative flex size-16 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white shadow-sm">
+                        {!loadedImages[product._id] ? (
+                          <Skeleton className="absolute inset-2 rounded-lg" />
+                        ) : null}
+                        <Image
                           src={product.imageCover}
                           alt={product.title}
-                          className="h-12 w-12 object-contain"
+                          width={48}
+                          height={48}
+                          onLoadingComplete={() =>
+                            setLoadedImages((prev) => ({
+                              ...prev,
+                              [product._id]: true,
+                            }))
+                          }
+                          className={`h-12 w-12 object-contain transition-opacity duration-200 ${
+                            loadedImages[product._id]
+                              ? "opacity-100"
+                              : "opacity-0"
+                          }`}
                         />
                       </div>
                       <div className="min-w-0">
-                        <p className="truncate text-2xl font-medium text-slate-900">
+                        <p className="truncate text-xl font-medium text-slate-900">
                           {product.title}
                         </p>
-                        <p className="text-xl text-slate-400">
+                        <p className="text-md text-slate-400">
                           {product.category?.name || "General"}
                         </p>
                       </div>
                     </div>
 
-                    <p className="text-2xl font-semibold text-slate-900">
+                    <p className="text-xl font-semibold text-slate-900">
                       {product.price.toLocaleString()} EGP
                     </p>
 
@@ -189,7 +208,7 @@ export default function WishlistPage() {
                       >
                         {isAdding ? (
                           <>
-                            <Loader2 className="size-4 animate-spin" />
+                            <Spinner size="sm" className="text-white" />
                             Adding...
                           </>
                         ) : (
@@ -207,7 +226,7 @@ export default function WishlistPage() {
                         className="h-10 w-10 rounded-lg border-slate-200 text-slate-400 hover:text-slate-600"
                       >
                         {isRemoving ? (
-                          <Loader2 className="size-4 animate-spin" />
+                          <Spinner size="sm" className="text-slate-500" />
                         ) : (
                           <Trash2 className="size-4" />
                         )}
@@ -229,11 +248,26 @@ export default function WishlistPage() {
                     className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm"
                   >
                     <div className="mb-3 flex items-start gap-3">
-                      <div className="flex size-16 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white shadow-sm">
-                        <img
+                      <div className="relative flex size-16 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white shadow-sm">
+                        {!loadedImages[product._id] ? (
+                          <Skeleton className="absolute inset-2 rounded-lg" />
+                        ) : null}
+                        <Image
                           src={product.imageCover}
                           alt={product.title}
-                          className="h-12 w-12 object-contain"
+                          width={48}
+                          height={48}
+                          onLoadingComplete={() =>
+                            setLoadedImages((prev) => ({
+                              ...prev,
+                              [product._id]: true,
+                            }))
+                          }
+                          className={`h-12 w-12 object-contain transition-opacity duration-200 ${
+                            loadedImages[product._id]
+                              ? "opacity-100"
+                              : "opacity-0"
+                          }`}
                         />
                       </div>
                       <div className="min-w-0">
@@ -272,7 +306,7 @@ export default function WishlistPage() {
                       >
                         {isAdding ? (
                           <>
-                            <Loader2 className="size-4 animate-spin" />
+                            <Spinner size="sm" className="text-white" />
                             Adding...
                           </>
                         ) : (
@@ -290,7 +324,7 @@ export default function WishlistPage() {
                         className="h-10 w-10 rounded-lg border-slate-200 text-slate-400 hover:text-slate-600"
                       >
                         {isRemoving ? (
-                          <Loader2 className="size-4 animate-spin" />
+                          <Spinner size="sm" className="text-slate-500" />
                         ) : (
                           <Trash2 className="size-4" />
                         )}

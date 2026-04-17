@@ -30,6 +30,7 @@ import {
   useUpdateReviewMutation,
 } from "@/store/apiSlice";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import ImageGallery from "@/components/custom/ImageGallery";
@@ -101,10 +102,11 @@ export default function ProductDetailsPage() {
 
   const [quantity, setQuantity] = useState(1);
   const [addToCart, { isLoading: isAddingToCart }] = useAddToCartMutation();
-  const [isWishlistPending, setIsWishlistPending] = useState(false);
   const { data: wishlistData } = useGetWishlistQuery();
-  const [addToWishlist] = useAddToWishlistMutation();
-  const [removeFromWishlist] = useRemoveFromWishlistMutation();
+  const [addToWishlist, { isLoading: isAddToWishlistLoading }] =
+    useAddToWishlistMutation();
+  const [removeFromWishlist, { isLoading: isRemoveFromWishlistLoading }] =
+    useRemoveFromWishlistMutation();
   const { isLoggedIn, profile } = useAuthState();
   const {
     data: productReviewsResult,
@@ -310,13 +312,15 @@ export default function ProductDetailsPage() {
   };
 
   const handleWishlistToggle = async () => {
-    if (!currentProductId || isWishlistPending) {
+    if (
+      !currentProductId ||
+      isAddToWishlistLoading ||
+      isRemoveFromWishlistLoading
+    ) {
       return;
     }
 
     try {
-      setIsWishlistPending(true);
-
       if (isInWishlist) {
         await removeFromWishlist(currentProductId).unwrap();
         toast.success("Removed from wishlist");
@@ -327,10 +331,11 @@ export default function ProductDetailsPage() {
       toast.success("Added to wishlist");
     } catch {
       toast.error("Wishlist action failed. Please try again.");
-    } finally {
-      setIsWishlistPending(false);
     }
   };
+
+  const isWishlistPending =
+    isAddToWishlistLoading || isRemoveFromWishlistLoading;
 
   if (isLoading || !product?.data) return <LoadingSpinner />;
 
@@ -515,7 +520,14 @@ export default function ProductDetailsPage() {
                 }}
                 disabled={isAddingToCart}
               >
-                {isAddingToCart ? "Adding..." : "🛒 Add to Cart"}
+                {isAddingToCart ? (
+                  <span className="inline-flex items-center gap-2">
+                    <Spinner size="sm" className="text-white" />
+                    Adding...
+                  </span>
+                ) : (
+                  "🛒 Add to Cart"
+                )}
               </Button>
               <Button className="w-full bg-gray-900 hover:bg-gray-800 text-white py-6 text-lg font-semibold">
                 ⚡ Buy Now
@@ -531,7 +543,7 @@ export default function ProductDetailsPage() {
                 disabled={isWishlistPending}
               >
                 {isWishlistPending ? (
-                  <Loader2 size={18} className="mr-2 animate-spin" />
+                  <Spinner size="sm" className="mr-2 text-slate-500" />
                 ) : (
                   <Heart
                     size={18}

@@ -3,10 +3,12 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Eye, RefreshCw, Star, Heart, Loader2 } from "lucide-react";
+import { Eye, RefreshCw, Star, Heart } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Spinner } from "@/components/ui/spinner";
 import {
   useAddToCartMutation,
   useAddToWishlistMutation,
@@ -22,11 +24,16 @@ interface ProductCardProps {
 export default function ProductCard({ product }: ProductCardProps) {
   const rating = product.ratingsAverage ?? 0;
   const ratingCount = product.ratingsQuantity ?? 0;
-  const [addToCart, { isLoading }] = useAddToCartMutation();
-  const [isWishlistPending, setIsWishlistPending] = useState(false);
+  const [addToCart, { isLoading: isAddToCartLoading }] = useAddToCartMutation();
+  const [isImageLoading, setIsImageLoading] = useState(true);
   const { data: wishlistData } = useGetWishlistQuery();
-  const [addToWishlist] = useAddToWishlistMutation();
-  const [removeFromWishlist] = useRemoveFromWishlistMutation();
+  const [addToWishlist, { isLoading: isAddToWishlistLoading }] =
+    useAddToWishlistMutation();
+  const [removeFromWishlist, { isLoading: isRemoveFromWishlistLoading }] =
+    useRemoveFromWishlistMutation();
+
+  const isWishlistPending =
+    isAddToWishlistLoading || isRemoveFromWishlistLoading;
 
   const isInWishlist = useMemo(() => {
     return Boolean(
@@ -40,8 +47,6 @@ export default function ProductCard({ product }: ProductCardProps) {
     }
 
     try {
-      setIsWishlistPending(true);
-
       if (isInWishlist) {
         await removeFromWishlist(product._id).unwrap();
         toast.success("Removed from wishlist");
@@ -52,8 +57,6 @@ export default function ProductCard({ product }: ProductCardProps) {
       toast.success("Added to wishlist");
     } catch {
       toast.error("Wishlist action failed. Please try again.");
-    } finally {
-      setIsWishlistPending(false);
     }
   };
 
@@ -61,13 +64,19 @@ export default function ProductCard({ product }: ProductCardProps) {
     <Link href={`/products/${product._id}`}>
       <article className="group rounded-xl border border-[#E5E7EB] bg-white p-3 shadow-[0_3px_10px_rgba(15,23,42,0.03)] transition hover:shadow-[0_8px_20px_rgba(15,23,42,0.08)] cursor-pointer h-full">
         <div className="relative overflow-hidden rounded-lg bg-[#F8FAFC]">
+          {isImageLoading ? (
+            <Skeleton className="absolute inset-0 rounded-lg" />
+          ) : null}
           <Image
             src={product.imageCover}
             alt={product.title}
             width={400}
             height={176}
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-            className="h-44 w-full object-cover transition duration-300 group-hover:scale-105"
+            onLoad={() => setIsImageLoading(false)}
+            className={`h-44 w-full object-cover transition duration-300 group-hover:scale-105 ${
+              isImageLoading ? "opacity-0" : "opacity-100"
+            }`}
           />
           <div className="absolute right-2 top-2 flex flex-col gap-1">
             <button
@@ -81,7 +90,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               className="rounded-full bg-white/90 p-1.5 text-slate-500 hover:text-[#16A34A] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isWishlistPending ? (
-                <Loader2 className="size-3.5 animate-spin" />
+                <Spinner size="sm" className="text-slate-500" />
               ) : (
                 <Heart
                   className={`size-3.5 ${
@@ -148,11 +157,15 @@ export default function ProductCard({ product }: ProductCardProps) {
                   toast.error("Failed to add to cart. Please try again.");
                 });
             }}
-            disabled={isLoading}
+            disabled={isAddToCartLoading}
             className="h-8 w-8 rounded-full p-0 text-lg font-semibold text-white disabled:opacity-50"
             style={{ backgroundColor: "#16A34A" }}
           >
-            {isLoading ? "..." : "+"}
+            {isAddToCartLoading ? (
+              <Spinner size="sm" className="text-white" />
+            ) : (
+              "+"
+            )}
           </Button>
         </div>
       </article>

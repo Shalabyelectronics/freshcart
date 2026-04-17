@@ -12,7 +12,6 @@ import {
   Truck,
   WalletCards,
   CheckCircle2,
-  CreditCard,
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -32,8 +31,10 @@ import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  useAddAddressMutation,
   useCreateCashOrderMutation,
   useCreateOnlineOrderMutation,
+  useGetAddressesQuery,
   useGetLoggedUserCartQuery,
 } from "@/store/apiSlice";
 
@@ -61,6 +62,11 @@ export default function CheckoutPage() {
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
+    null,
+  );
+  const [showNewAddressForm, setShowNewAddressForm] = useState(false);
+  const [newAddressName, setNewAddressName] = useState("");
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -87,7 +93,15 @@ export default function CheckoutPage() {
   } = useGetLoggedUserCartQuery(undefined, {
     skip: !isMounted || !isLoggedIn,
   });
+  const {
+    data: addressesResponse,
+    isLoading: isAddressesLoading,
+    isError: isAddressesError,
+  } = useGetAddressesQuery(undefined, {
+    skip: !isMounted || !isLoggedIn,
+  });
 
+  const [addAddress, { isLoading: isAddingAddress }] = useAddAddressMutation();
   const [createCashOrder, { isLoading: isCreatingCashOrder }] =
     useCreateCashOrderMutation();
   const [createOnlineOrder, { isLoading: isCreatingOnlineOrder }] =
@@ -106,11 +120,84 @@ export default function CheckoutPage() {
   const isSubmitting = isCreatingCashOrder || isCreatingOnlineOrder;
   const paymentMethod = form.watch("paymentMethod");
   const isFormValid = form.formState.isValid;
+  const addresses = addressesResponse?.data ?? [];
 
   const cartItems = cart?.data?.products ?? [];
   const subtotal = cart?.data?.totalCartPrice ?? 0;
   const total = subtotal;
   const cartId = cart?.data?._id;
+
+  useEffect(() => {
+    if (!addresses.length || selectedAddressId) {
+      return;
+    }
+
+    const firstAddress = addresses[0];
+    setSelectedAddressId(firstAddress._id);
+    form.setValue("city", firstAddress.city, { shouldValidate: true });
+    form.setValue("details", firstAddress.details, { shouldValidate: true });
+    form.setValue("phone", firstAddress.phone, { shouldValidate: true });
+  }, [addresses, selectedAddressId, form]);
+
+  const handleSelectAddress = (addressId: string) => {
+    const address = addresses.find((item) => item._id === addressId);
+    if (!address) {
+      return;
+    }
+
+    setSelectedAddressId(addressId);
+    setShowNewAddressForm(false);
+    form.setValue("city", address.city, { shouldValidate: true });
+    form.setValue("details", address.details, { shouldValidate: true });
+    form.setValue("phone", address.phone, { shouldValidate: true });
+  };
+
+  const handleUseManualAddress = () => {
+    setSelectedAddressId(null);
+    setShowNewAddressForm(true);
+  };
+
+  const handleSaveAddress = async () => {
+    const values = form.getValues();
+    const name = newAddressName.trim();
+
+    if (
+      !name ||
+      !values.city.trim() ||
+      !values.details.trim() ||
+      !values.phone.trim()
+    ) {
+      toast.error("Please complete all address fields before saving");
+      return;
+    }
+
+    try {
+      const response = await addAddress({
+        name,
+        city: values.city,
+        details: values.details,
+        phone: values.phone,
+      }).unwrap();
+
+      const savedAddress = response.data.find(
+        (item) =>
+          item.name === name &&
+          item.city === values.city &&
+          item.details === values.details &&
+          item.phone === values.phone,
+      );
+
+      if (savedAddress) {
+        setSelectedAddressId(savedAddress._id);
+      }
+
+      setShowNewAddressForm(false);
+      setNewAddressName("");
+      toast.success("Address saved successfully");
+    } catch {
+      toast.error("Failed to save address");
+    }
+  };
 
   async function onSubmit(values: CheckoutFormValues) {
     if (!cartId) {
@@ -118,10 +205,14 @@ export default function CheckoutPage() {
       return;
     }
 
+    const selectedAddress = selectedAddressId
+      ? addresses.find((item) => item._id === selectedAddressId)
+      : null;
+
     const shippingAddress = {
-      details: values.details,
-      phone: values.phone,
-      city: values.city,
+      details: selectedAddress?.details ?? values.details,
+      phone: selectedAddress?.phone ?? values.phone,
+      city: selectedAddress?.city ?? values.city,
     };
 
     try {
@@ -219,8 +310,8 @@ export default function CheckoutPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#f7f8f3] px-4 py-6 sm:py-8">
-      <div className="mx-auto max-w-6xl">
+    <main className="min-h-screen w-full overflow-x-hidden bg-[#f7f8f3] px-4 py-6 sm:py-8">
+      <div className="mx-auto w-full max-w-6xl overflow-hidden">
         <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">
@@ -239,8 +330,8 @@ export default function CheckoutPage() {
           </Link>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.9fr)]">
-          <div className="space-y-6">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          <div className="min-w-0 space-y-6 lg:col-span-2">
             <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
               <div className="bg-green-700 px-5 py-4 text-white">
                 <div className="flex items-center gap-2 text-sm font-semibold">
@@ -262,31 +353,84 @@ export default function CheckoutPage() {
                     Select a saved address or enter a new one below
                   </p>
 
-                  <div className="mt-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                    <div className="flex items-start gap-3">
-                      <div className="flex size-10 items-center justify-center rounded-lg bg-slate-100 text-slate-500">
-                        <svg
-                          viewBox="0 0 24 24"
-                          className="size-4 fill-current"
-                        >
-                          <path d="M12 2C8.14 2 5 5.14 5 9c0 4.25 5.2 11.1 6.15 12.34.44.57 1.29.57 1.73 0C13.8 20.1 19 13.25 19 9c0-3.86-3.14-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z" />
-                        </svg>
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-semibold text-slate-900">
-                          Sadat City
-                        </p>
-                        <p className="text-xs text-slate-500">Sadat City</p>
-                        <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-slate-500">
-                          <span>0109759462</span>
-                          <span>Sadat City</span>
-                        </div>
-                      </div>
+                  {isAddressesLoading ? (
+                    <div className="mt-4 flex items-center gap-2 rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-600">
+                      <Loader2 className="size-4 animate-spin text-green-600" />
+                      Loading saved addresses...
                     </div>
-                  </div>
+                  ) : null}
+
+                  {!isAddressesLoading && isAddressesError ? (
+                    <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                      Could not load saved addresses right now.
+                    </div>
+                  ) : null}
+
+                  {!isAddressesLoading &&
+                  !isAddressesError &&
+                  addresses.length > 0 ? (
+                    <div className="mt-4 space-y-3">
+                      {addresses.map((address) => {
+                        const isSelected = selectedAddressId === address._id;
+
+                        return (
+                          <button
+                            key={address._id}
+                            type="button"
+                            onClick={() => handleSelectAddress(address._id)}
+                            className={`w-full rounded-xl border p-4 text-left shadow-sm transition ${
+                              isSelected
+                                ? "border-green-600 bg-green-50"
+                                : "border-slate-200 bg-white hover:border-slate-300"
+                            }`}
+                          >
+                            <div className="flex items-start gap-3">
+                              <div className="flex size-10 items-center justify-center rounded-lg bg-slate-100 text-slate-500">
+                                <svg
+                                  viewBox="0 0 24 24"
+                                  className="size-4 fill-current"
+                                >
+                                  <path d="M12 2C8.14 2 5 5.14 5 9c0 4.25 5.2 11.1 6.15 12.34.44.57 1.29.57 1.73 0C13.8 20.1 19 13.25 19 9c0-3.86-3.14-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z" />
+                                </svg>
+                              </div>
+                              <div className="min-w-0">
+                                <p className="text-sm font-semibold text-slate-900">
+                                  {address.name}
+                                </p>
+                                <p className="text-xs text-slate-500">
+                                  {address.details}
+                                </p>
+                                <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-slate-500">
+                                  <span>{address.phone}</span>
+                                  <span>{address.city}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : null}
+
+                  {!isAddressesLoading &&
+                  !isAddressesError &&
+                  addresses.length === 0 ? (
+                    <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+                      No saved addresses yet. You can add one now or manage your
+                      addresses from{" "}
+                      <Link
+                        href="/account/addresses"
+                        className="font-semibold underline"
+                      >
+                        your account
+                      </Link>
+                      .
+                    </div>
+                  ) : null}
 
                   <button
                     type="button"
+                    onClick={handleUseManualAddress}
                     className="mt-3 flex w-full items-center gap-3 rounded-xl border border-dashed border-green-400 bg-green-50 px-4 py-4 text-left text-sm font-semibold text-green-700 transition hover:bg-green-100"
                   >
                     <span className="flex size-9 items-center justify-center rounded-lg bg-green-600 text-white">
@@ -316,6 +460,39 @@ export default function CheckoutPage() {
                     onSubmit={form.handleSubmit(onSubmit)}
                     className="space-y-5"
                   >
+                    {showNewAddressForm || addresses.length === 0 ? (
+                      <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                        <FormLabel className="text-sm font-medium text-slate-700">
+                          Address Name
+                        </FormLabel>
+                        <Input
+                          value={newAddressName}
+                          onChange={(event) =>
+                            setNewAddressName(event.target.value)
+                          }
+                          placeholder="e.g. Home, Office"
+                          className="mt-2 h-11 rounded-xl bg-white px-4 text-sm"
+                        />
+                        <div className="mt-3 flex justify-end">
+                          <Button
+                            type="button"
+                            onClick={handleSaveAddress}
+                            disabled={isAddingAddress}
+                            className="bg-slate-900 text-white hover:bg-slate-800"
+                          >
+                            {isAddingAddress ? (
+                              <span className="inline-flex items-center gap-2">
+                                <Loader2 className="size-4 animate-spin" />
+                                Saving...
+                              </span>
+                            ) : (
+                              "Save Address"
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    ) : null}
+
                     <FormField
                       control={form.control}
                       name="city"
@@ -539,7 +716,7 @@ export default function CheckoutPage() {
             </section>
           </div>
 
-          <aside className="h-fit lg:sticky lg:top-6">
+          <aside className="h-fit lg:sticky lg:top-6 lg:col-span-1">
             <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
               <div className="bg-green-700 px-5 py-4 text-white">
                 <div className="flex items-center gap-2 text-sm font-semibold">

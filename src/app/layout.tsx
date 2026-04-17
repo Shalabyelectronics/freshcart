@@ -19,12 +19,28 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://freshcart.vercel.app"),
   title: {
     default: "FreshCart | Best Online Grocery Store",
     template: "%s | FreshCart",
   },
   description:
     "Shop for fresh groceries, electronics, and fashion at FreshCart. Enjoy the best prices and fast delivery in Egypt.",
+  openGraph: {
+    title: "FreshCart | Best Online Grocery Store",
+    description:
+      "Shop for fresh groceries, electronics, and fashion at FreshCart. Enjoy the best prices and fast delivery in Egypt.",
+    url: "https://freshcart.vercel.app",
+    siteName: "FreshCart",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "FreshCart | Best Online Grocery Store",
+    description:
+      "Shop for fresh groceries, electronics, and fashion at FreshCart. Enjoy the best prices and fast delivery in Egypt.",
+  },
 };
 
 export default function RootLayout({

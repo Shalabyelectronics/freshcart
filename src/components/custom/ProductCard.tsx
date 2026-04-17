@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Eye, RefreshCw, Star, Heart, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -60,11 +61,13 @@ export default function ProductCard({ product }: ProductCardProps) {
     <Link href={`/products/${product._id}`}>
       <article className="group rounded-xl border border-[#E5E7EB] bg-white p-3 shadow-[0_3px_10px_rgba(15,23,42,0.03)] transition hover:shadow-[0_8px_20px_rgba(15,23,42,0.08)] cursor-pointer h-full">
         <div className="relative overflow-hidden rounded-lg bg-[#F8FAFC]">
-          <img
+          <Image
             src={product.imageCover}
             alt={product.title}
+            width={400}
+            height={176}
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             className="h-44 w-full object-cover transition duration-300 group-hover:scale-105"
-            loading="lazy"
           />
           <div className="absolute right-2 top-2 flex flex-col gap-1">
             <button

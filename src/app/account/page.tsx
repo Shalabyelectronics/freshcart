@@ -126,8 +126,18 @@ function AddressCardSkeleton() {
 export default function AccountPage() {
   const router = useRouter();
   const pathname = usePathname();
-  const [authReady, setAuthReady] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [authReady] = useState(true);
+  const [isLoggedIn] = useState(() => {
+    if (typeof window === "undefined") {
+      return false;
+    }
+
+    const token =
+      window.localStorage.getItem("userToken") ||
+      window.localStorage.getItem("token");
+
+    return Boolean(token);
+  });
 
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
   const [editingAddressId, setEditingAddressId] = useState<string | null>(null);
@@ -159,23 +169,10 @@ export default function AccountPage() {
     : "addresses";
 
   useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    const token =
-      window.localStorage.getItem("userToken") ||
-      window.localStorage.getItem("token");
-
-    if (!token) {
+    if (!isLoggedIn) {
       router.replace("/login");
-      setAuthReady(true);
-      return;
     }
-
-    setIsLoggedIn(true);
-    setAuthReady(true);
-  }, [router]);
+  }, [isLoggedIn, router]);
 
   const {
     data: addressesResponse,
@@ -198,24 +195,6 @@ export default function AccountPage() {
   const [changePassword, { isLoading: isChangingPassword }] =
     useChangePasswordMutation();
 
-  useEffect(() => {
-    const decoded = verifyTokenResponse?.decoded;
-    if (!decoded?.name) {
-      return;
-    }
-
-    setProfileForm((prev) => {
-      if (prev.name && prev.name.trim().length > 0) {
-        return prev;
-      }
-
-      return {
-        ...prev,
-        name: decoded.name,
-      };
-    });
-  }, [verifyTokenResponse?.decoded]);
-
   const addresses = addressesResponse?.data ?? [];
 
   const isAddressBusy =
@@ -235,6 +214,10 @@ export default function AccountPage() {
 
     return roleValue.charAt(0).toUpperCase() + roleValue.slice(1).toLowerCase();
   }, [verifyTokenResponse?.decoded?.role]);
+  const resolvedProfileName =
+    profileForm.name?.trim().length > 0
+      ? profileForm.name
+      : (verifyTokenResponse?.decoded?.name ?? "");
 
   const openAddModal = () => {
     setEditingAddressId(null);
@@ -316,7 +299,10 @@ export default function AccountPage() {
     event.preventDefault();
 
     try {
-      const response = await updateMe(profileForm).unwrap();
+      const response = await updateMe({
+        ...profileForm,
+        name: resolvedProfileName,
+      }).unwrap();
       setProfileForm({
         name: response.user.name ?? "",
         email: response.user.email ?? "",
@@ -564,7 +550,7 @@ export default function AccountPage() {
                           </label>
                           <Input
                             id="fullName"
-                            value={profileForm.name ?? ""}
+                            value={resolvedProfileName}
                             onChange={(event) =>
                               setProfileForm((prev) => ({
                                 ...prev,

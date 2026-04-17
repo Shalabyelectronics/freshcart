@@ -926,7 +926,7 @@ export default function ProductDetailsPage() {
                               </div>
 
                               <p className="text-type-md mt-3 leading-relaxed text-slate-600 italic">
-                                "{reviewText}"
+                                &ldquo;{reviewText}&rdquo;
                               </p>
                             </div>
                           </div>

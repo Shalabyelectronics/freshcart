@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Filter,
@@ -313,12 +313,6 @@ function ProductsPageContent() {
   const brandName = selectedBrandData?.data?.name;
   const subCategoryName = selectedSubCategoryData?.data?.name;
 
-  const [keywordInput, setKeywordInput] = useState(keyword ?? "");
-
-  useEffect(() => {
-    setKeywordInput(keyword ?? "");
-  }, [keyword]);
-
   const updateSearchParams = (updates: Record<string, string | undefined>) => {
     const nextParams = new URLSearchParams(searchParams.toString());
 
@@ -337,7 +331,9 @@ function ProductsPageContent() {
 
   const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    updateSearchParams({ keyword: keywordInput.trim() || undefined });
+    const formData = new FormData(event.currentTarget);
+    const keywordInput = String(formData.get("keyword") ?? "").trim();
+    updateSearchParams({ keyword: keywordInput || undefined });
   };
 
   const clearAllFilters = () => {
@@ -482,8 +478,9 @@ function ProductsPageContent() {
                 <form onSubmit={handleSearchSubmit} className="relative">
                   <Search className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-slate-400" />
                   <input
-                    value={keywordInput}
-                    onChange={(event) => setKeywordInput(event.target.value)}
+                    key={keyword ?? ""}
+                    name="keyword"
+                    defaultValue={keyword ?? ""}
                     placeholder="Search products..."
                     className="h-13 w-full rounded-2xl border border-slate-200 bg-white pl-12 pr-4 text-lg text-slate-900 outline-none focus:border-[#16A34A]"
                   />

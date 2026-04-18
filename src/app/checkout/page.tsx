@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import {
   ChevronLeft,
   Loader2,
-  LockKeyhole,
   Package2,
   ShieldCheck,
   Truck,
@@ -30,6 +29,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
+import AddressSelectionCard from "@/app/_components/Checkout/AddressSelectionCard";
+import OrderSummarySidebar from "@/app/_components/Checkout/OrderSummarySidebar";
 import {
   useAddAddressMutation,
   useCreateCashOrderMutation,
@@ -363,106 +364,14 @@ export default function CheckoutPage() {
               </div>
 
               <div className="space-y-5 px-5 py-5">
-                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                  <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
-                    <LockKeyhole className="size-4 text-green-700" />
-                    Saved Addresses
-                  </div>
-                  <p className="mt-1 text-xs text-slate-500">
-                    Select a saved address or enter a new one below
-                  </p>
-
-                  {isAddressesLoading ? (
-                    <div className="mt-4 flex items-center gap-2 rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-600">
-                      <Loader2 className="size-4 animate-spin text-green-600" />
-                      Loading saved addresses...
-                    </div>
-                  ) : null}
-
-                  {!isAddressesLoading && isAddressesError ? (
-                    <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-                      Could not load saved addresses right now.
-                    </div>
-                  ) : null}
-
-                  {!isAddressesLoading &&
-                  !isAddressesError &&
-                  addresses.length > 0 ? (
-                    <div className="mt-4 space-y-3">
-                      {addresses.map((address) => {
-                        const isSelected = selectedAddressId === address._id;
-
-                        return (
-                          <button
-                            key={address._id}
-                            type="button"
-                            onClick={() => handleSelectAddress(address._id)}
-                            className={`w-full rounded-xl border p-4 text-left shadow-sm transition ${
-                              isSelected
-                                ? "border-green-600 bg-green-50"
-                                : "border-slate-200 bg-white hover:border-slate-300"
-                            }`}
-                          >
-                            <div className="flex items-start gap-3">
-                              <div className="flex size-10 items-center justify-center rounded-lg bg-slate-100 text-slate-500">
-                                <svg
-                                  viewBox="0 0 24 24"
-                                  className="size-4 fill-current"
-                                >
-                                  <path d="M12 2C8.14 2 5 5.14 5 9c0 4.25 5.2 11.1 6.15 12.34.44.57 1.29.57 1.73 0C13.8 20.1 19 13.25 19 9c0-3.86-3.14-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z" />
-                                </svg>
-                              </div>
-                              <div className="min-w-0">
-                                <p className="text-sm font-semibold text-slate-900">
-                                  {address.name}
-                                </p>
-                                <p className="text-xs text-slate-500">
-                                  {address.details}
-                                </p>
-                                <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-slate-500">
-                                  <span>{address.phone}</span>
-                                  <span>{address.city}</span>
-                                </div>
-                              </div>
-                            </div>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  ) : null}
-
-                  {!isAddressesLoading &&
-                  !isAddressesError &&
-                  addresses.length === 0 ? (
-                    <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
-                      No saved addresses yet. You can add one now or manage your
-                      addresses from{" "}
-                      <Link
-                        href="/account/addresses"
-                        className="font-semibold underline"
-                      >
-                        your account
-                      </Link>
-                      .
-                    </div>
-                  ) : null}
-
-                  <button
-                    type="button"
-                    onClick={handleUseManualAddress}
-                    className="mt-3 flex w-full items-center gap-3 rounded-xl border border-dashed border-green-400 bg-green-50 px-4 py-4 text-left text-sm font-semibold text-green-700 transition hover:bg-green-100"
-                  >
-                    <span className="flex size-9 items-center justify-center rounded-lg bg-green-600 text-white">
-                      +
-                    </span>
-                    <span>
-                      <span className="block">Use a different address</span>
-                      <span className="block text-xs font-normal text-green-700/80">
-                        Enter a new shipping address manually
-                      </span>
-                    </span>
-                  </button>
-                </div>
+                <AddressSelectionCard
+                  isAddressesLoading={isAddressesLoading}
+                  isAddressesError={isAddressesError}
+                  addresses={addresses}
+                  selectedAddressId={selectedAddressId}
+                  onSelectAddress={handleSelectAddress}
+                  onUseManualAddress={handleUseManualAddress}
+                />
 
                 <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3">
                   <div className="flex items-center gap-2 text-sm font-semibold text-emerald-700">
@@ -735,88 +644,11 @@ export default function CheckoutPage() {
             </section>
           </div>
 
-          <aside className="h-fit lg:sticky lg:top-6 lg:col-span-1">
-            <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-              <div className="bg-green-700 px-5 py-4 text-white">
-                <div className="flex items-center gap-2 text-sm font-semibold">
-                  <Package2 className="size-4" />
-                  Order Summary
-                </div>
-                <p className="mt-1 text-xs text-green-100">
-                  {cartItems.length} items
-                </p>
-              </div>
-
-              <div className="space-y-4 px-4 py-4 sm:px-5">
-                <div className="space-y-3">
-                  {cartItems.map((item) => (
-                    <div
-                      key={item._id}
-                      className="flex items-center gap-3 rounded-xl bg-slate-50 px-3 py-3"
-                    >
-                      <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-white">
-                        <img
-                          src={
-                            item.product?.imageCover ||
-                            "/assets/images/slidebar_1.jpg"
-                          }
-                          alt={item.product?.title || "Product"}
-                          className="h-full w-full object-cover"
-                        />
-                      </div>
-
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium text-slate-900">
-                          {item.product?.title}
-                        </p>
-                        <p className="text-xs text-slate-500">
-                          {item.count} x {item.price} EGP
-                        </p>
-                      </div>
-
-                      <p className="text-sm font-semibold text-slate-900">
-                        {(item.count * item.price).toLocaleString()}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="space-y-3 border-t border-slate-200 pt-4 text-sm">
-                  <div className="flex items-center justify-between text-slate-600">
-                    <span>Subtotal</span>
-                    <span>{subtotal.toLocaleString()} EGP</span>
-                  </div>
-                  <div className="flex items-center justify-between text-slate-600">
-                    <span>Shipping</span>
-                    <span className="font-semibold text-emerald-600">FREE</span>
-                  </div>
-                  <div className="flex items-center justify-between border-t border-slate-200 pt-3 text-base font-semibold text-slate-950">
-                    <span>Total</span>
-                    <span className="text-green-700">
-                      {total.toLocaleString()} EGP
-                    </span>
-                  </div>
-                </div>
-
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                  <div className="flex items-center gap-4 text-xs text-slate-500">
-                    <span className="inline-flex items-center gap-1">
-                      <ShieldCheck className="size-3.5 text-emerald-600" />
-                      Secure
-                    </span>
-                    <span className="inline-flex items-center gap-1">
-                      <Truck className="size-3.5 text-blue-500" />
-                      Fast Delivery
-                    </span>
-                    <span className="inline-flex items-center gap-1">
-                      <Package2 className="size-3.5 text-orange-500" />
-                      Easy Returns
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </section>
-          </aside>
+          <OrderSummarySidebar
+            cartItems={cartItems}
+            subtotal={subtotal}
+            total={total}
+          />
         </div>
       </div>
     </main>

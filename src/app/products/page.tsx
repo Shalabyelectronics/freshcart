@@ -13,8 +13,8 @@ import {
   X,
 } from "lucide-react";
 
-import ProductCard from "@/components/custom/ProductCard";
-import Reveal from "@/components/custom/Reveal";
+import FiltersSidebar from "@/app/_components/Products/FiltersSidebar";
+import ProductGridSection from "@/app/_components/Products/ProductGridSection";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -32,13 +32,6 @@ import {
 } from "@/store/apiSlice";
 
 type ViewMode = "grid" | "list";
-
-const QUICK_MAX_PRICE_OPTIONS = [
-  { label: "Under 500", value: 500 },
-  { label: "Under 1K", value: 1000 },
-  { label: "Under 5K", value: 5000 },
-  { label: "Under 10K", value: 10000 },
-];
 
 const SORT_OPTIONS = [
   { label: "Relevance", value: "" },
@@ -123,142 +116,6 @@ export default function ProductsPage() {
     <Suspense fallback={<ProductsPageLoadingFallback />}>
       <ProductsPageContent />
     </Suspense>
-  );
-}
-
-function FiltersPanel({
-  categories,
-  brands,
-  selectedCategoryId,
-  selectedBrandId,
-  minPriceParam,
-  maxPriceParam,
-  setCategory,
-  setBrand,
-  setMinPrice,
-  setMaxPrice,
-  clearAllFilters,
-}: {
-  categories: Array<{ _id: string; name: string }>;
-  brands: Array<{ _id: string; name: string }>;
-  selectedCategoryId?: string;
-  selectedBrandId?: string;
-  minPriceParam?: string;
-  maxPriceParam?: string;
-  setCategory: (value?: string) => void;
-  setBrand: (value?: string) => void;
-  setMinPrice: (value?: string) => void;
-  setMaxPrice: (value?: string) => void;
-  clearAllFilters: () => void;
-}) {
-  return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_6px_24px_rgba(15,23,42,0.04)]">
-      <div>
-        <h3 className="text-2xl font-semibold text-slate-900">Categories</h3>
-        <div className="mt-4 max-h-55 space-y-2 overflow-y-auto pr-1 [scrollbar-width:thin] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-300 [&::-webkit-scrollbar]:w-1">
-          {categories.map((category) => (
-            <label
-              key={category._id}
-              className="flex cursor-pointer items-center gap-3 text-lg text-slate-600"
-            >
-              <input
-                type="checkbox"
-                checked={selectedCategoryId === category._id}
-                onChange={() =>
-                  setCategory(
-                    selectedCategoryId === category._id
-                      ? undefined
-                      : category._id,
-                  )
-                }
-                className="size-5 rounded border-slate-300 text-[#16A34A] focus:ring-[#16A34A]"
-              />
-              <span>{category.name}</span>
-            </label>
-          ))}
-        </div>
-      </div>
-
-      <div className="my-5 border-t border-slate-200" />
-
-      <div>
-        <h3 className="text-2xl font-semibold text-slate-900">Price Range</h3>
-        <div className="mt-3 grid grid-cols-2 gap-3">
-          <div>
-            <label className="text-sm text-slate-500">Min (EGP)</label>
-            <input
-              value={minPriceParam ?? ""}
-              onChange={(event) => {
-                const value = event.target.value.replace(/[^\d]/g, "");
-                setMinPrice(value || undefined);
-              }}
-              placeholder="0"
-              className="mt-1 h-11 w-full rounded-xl border border-slate-200 px-3 text-base outline-none focus:border-[#16A34A]"
-            />
-          </div>
-          <div>
-            <label className="text-sm text-slate-500">Max (EGP)</label>
-            <input
-              value={maxPriceParam ?? ""}
-              onChange={(event) => {
-                const value = event.target.value.replace(/[^\d]/g, "");
-                setMaxPrice(value || undefined);
-              }}
-              placeholder="No limit"
-              className="mt-1 h-11 w-full rounded-xl border border-slate-200 px-3 text-base outline-none focus:border-[#16A34A]"
-            />
-          </div>
-        </div>
-
-        <div className="mt-3 grid grid-cols-2 gap-2">
-          {QUICK_MAX_PRICE_OPTIONS.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() => setMaxPrice(String(option.value))}
-              className="rounded-full bg-slate-100 px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-slate-200"
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="my-5 border-t border-slate-200" />
-
-      <div>
-        <h3 className="text-2xl font-semibold text-slate-900">Brands</h3>
-        <div className="mt-4 max-h-55 space-y-2 overflow-y-auto pr-1 [scrollbar-width:thin] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-300 [&::-webkit-scrollbar]:w-1">
-          {brands.map((brand) => (
-            <label
-              key={brand._id}
-              className="flex cursor-pointer items-center gap-3 text-lg text-slate-600"
-            >
-              <input
-                type="checkbox"
-                checked={selectedBrandId === brand._id}
-                onChange={() =>
-                  setBrand(
-                    selectedBrandId === brand._id ? undefined : brand._id,
-                  )
-                }
-                className="size-5 rounded border-slate-300 text-[#16A34A] focus:ring-[#16A34A]"
-              />
-              <span>{brand.name}</span>
-            </label>
-          ))}
-        </div>
-      </div>
-
-      <Button
-        type="button"
-        variant="outline"
-        onClick={clearAllFilters}
-        className="mt-6 h-11 w-full rounded-xl border-slate-200 text-base font-semibold text-slate-700"
-      >
-        Clear All
-      </Button>
-    </div>
   );
 }
 
@@ -499,7 +356,7 @@ function ProductsPageContent() {
       <section className="mx-auto w-full max-w-7xl px-4 py-6 md:px-6 md:py-8">
         <div className="grid gap-6 lg:grid-cols-[25%_1fr] lg:items-start">
           <aside className="hidden lg:sticky lg:top-30 lg:block">
-            <FiltersPanel
+            <FiltersSidebar
               categories={categoriesData?.data ?? []}
               brands={brandsData?.data ?? []}
               selectedCategoryId={selectedCategoryId}
@@ -531,7 +388,7 @@ function ProductsPageContent() {
                   <SheetHeader className="mb-4">
                     <SheetTitle className="text-xl">Filters</SheetTitle>
                   </SheetHeader>
-                  <FiltersPanel
+                  <FiltersSidebar
                     categories={categoriesData?.data ?? []}
                     brands={brandsData?.data ?? []}
                     selectedCategoryId={selectedCategoryId}
@@ -679,62 +536,16 @@ function ProductsPageContent() {
               </div>
             ) : null}
 
-            {isLoading || isFetching ? (
-              <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
-                {Array.from({ length: 8 }).map((_, index) => (
-                  <ProductCardSkeleton key={index} />
-                ))}
-              </div>
-            ) : isError ? (
-              <div className="rounded-2xl border border-red-200 bg-white p-8 text-center shadow-sm">
-                <h2 className="text-2xl font-semibold text-slate-900">
-                  Unable to load products
-                </h2>
-                <p className="mt-2 text-base text-slate-600">
-                  Please refresh the page and try again.
-                </p>
-              </div>
-            ) : products.length === 0 ? (
-              <div className="flex min-h-[52vh] items-center justify-center rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-                <div className="text-center">
-                  <div className="mx-auto mb-5 flex size-24 items-center justify-center rounded-full bg-[#ECFDF5] text-[#16A34A]">
-                    <FolderOpen className="size-11" />
-                  </div>
-                  <h2 className="text-4xl font-bold text-slate-900">
-                    No Products Found
-                  </h2>
-                  <p className="mt-3 text-xl text-slate-500">
-                    {selectedSubCategoryId
-                      ? `No products are available in ${subCategoryName ?? "this subcategory"} right now.`
-                      : "Try adjusting your search or filters to find what you're looking for."}
-                  </p>
-                  <Button
-                    type="button"
-                    onClick={() => router.push("/products")}
-                    className="mt-6 h-12 rounded-xl bg-[#16A34A] px-8 text-base font-semibold text-white hover:bg-[#15803D]"
-                  >
-                    View All Products
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <div
-                className={`grid gap-4 ${
-                  viewMode === "grid"
-                    ? "grid-cols-2 md:grid-cols-3 xl:grid-cols-4"
-                    : "grid-cols-1 md:grid-cols-2"
-                }`}
-              >
-                {products.map((product, index) => (
-                  <Reveal
-                    key={product._id}
-                    delay={viewMode === "grid" ? index * 0.02 : 0}
-                  >
-                    <ProductCard product={product} />
-                  </Reveal>
-                ))}
-              </div>
-            )}
+            <ProductGridSection
+              isLoading={isLoading}
+              isFetching={isFetching}
+              isError={isError}
+              products={products}
+              viewMode={viewMode}
+              selectedSubCategoryId={selectedSubCategoryId}
+              subCategoryName={subCategoryName}
+              onViewAllProducts={() => router.push("/products")}
+            />
           </div>
         </div>
       </section>

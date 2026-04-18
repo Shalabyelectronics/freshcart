@@ -91,7 +91,7 @@ function SidebarTabButton({
         >
           {icon}
         </span>
-        <span className="text-3xl font-medium leading-none sm:text-2xl">
+        <span className="text-base font-semibold leading-none sm:text-lg">
           {label}
         </span>
       </span>
@@ -367,10 +367,10 @@ export default function AccountPage() {
                 <User className="size-9 text-white" />
               </div>
               <div>
-                <h1 className="text-5xl font-bold tracking-tight text-white">
+                <h1 className="text-[30px] font-bold tracking-tight text-white">
                   My Account
                 </h1>
-                <p className="mt-1 text-3xl text-green-100">
+                <p className="mt-1 text-sm text-green-100 md:text-base">
                   Manage your addresses and account settings
                 </p>
               </div>
@@ -382,7 +382,7 @@ export default function AccountPage() {
           <div className="grid gap-6 lg:grid-cols-[290px_1fr] lg:items-start">
             <aside className="rounded-3xl border border-slate-200 bg-white shadow-[0_6px_24px_rgba(15,23,42,0.05)]">
               <div className="border-b border-slate-200 px-5 py-5">
-                <h2 className="text-4xl font-semibold text-slate-900">
+                <h2 className="text-2xl font-semibold text-slate-900">
                   My Account
                 </h2>
               </div>
@@ -407,10 +407,10 @@ export default function AccountPage() {
                 <section>
                   <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
                     <div>
-                      <h2 className="text-5xl font-bold text-slate-900">
+                      <h2 className="text-2xl font-bold text-slate-900 md:text-[26px]">
                         My Addresses
                       </h2>
-                      <p className="mt-1 text-xl text-slate-500">
+                      <p className="mt-1 text-sm text-slate-500">
                         Manage your saved delivery addresses
                       </p>
                     </div>
@@ -436,10 +436,10 @@ export default function AccountPage() {
                       <div className="mx-auto mb-6 flex size-22 items-center justify-center rounded-full bg-slate-100 text-slate-400">
                         <MapPin className="size-9" />
                       </div>
-                      <h3 className="text-4xl font-bold text-slate-900">
+                      <h3 className="text-2xl font-bold text-slate-900">
                         No Addresses Yet
                       </h3>
-                      <p className="mx-auto mt-3 max-w-xl text-xl text-slate-500">
+                      <p className="mx-auto mt-3 max-w-xl text-sm text-slate-500">
                         Add your first delivery address to make checkout faster
                         and easier.
                       </p>
@@ -466,13 +466,13 @@ export default function AccountPage() {
                               </div>
 
                               <div>
-                                <h3 className="text-4xl font-semibold text-slate-900">
+                                <h3 className="text-xl font-semibold text-slate-900">
                                   {address.name}
                                 </h3>
-                                <p className="mt-1 text-xl text-slate-600">
+                                <p className="mt-1 text-sm text-slate-600">
                                   {address.details}
                                 </p>
-                                <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-base text-slate-500">
+                                <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-slate-500">
                                   <span className="inline-flex items-center gap-1.5">
                                     <User className="size-4" />
                                     {address.phone}
@@ -513,10 +513,10 @@ export default function AccountPage() {
               ) : (
                 <section className="space-y-6">
                   <div>
-                    <h2 className="text-5xl font-bold text-slate-900">
+                    <h2 className="text-2xl font-bold text-slate-900 md:text-[26px]">
                       Account Settings
                     </h2>
-                    <p className="mt-1 text-xl text-slate-500">
+                    <p className="mt-1 text-sm text-slate-500">
                       Update your profile information and change your password
                     </p>
                   </div>
@@ -528,10 +528,10 @@ export default function AccountPage() {
                           <User className="size-7" />
                         </div>
                         <div>
-                          <h3 className="text-4xl font-semibold text-slate-900">
+                          <h3 className="text-2xl font-semibold text-slate-900">
                             Profile Information
                           </h3>
-                          <p className="text-xl text-slate-500">
+                          <p className="text-sm text-slate-500">
                             Update your personal details
                           </p>
                         </div>
@@ -544,7 +544,7 @@ export default function AccountPage() {
                         <div className="space-y-2">
                           <label
                             htmlFor="fullName"
-                            className="text-xl font-medium text-slate-800"
+                            className="text-sm font-medium text-slate-800"
                           >
                             Full Name
                           </label>
@@ -557,14 +557,14 @@ export default function AccountPage() {
                                 name: event.target.value,
                               }))
                             }
-                            className="h-12 rounded-xl border-slate-200 px-4 text-xl"
+                            className="h-12 rounded-xl border-slate-200 px-4 text-base"
                           />
                         </div>
 
                         <div className="space-y-2">
                           <label
                             htmlFor="email"
-                            className="text-xl font-medium text-slate-800"
+                            className="text-sm font-medium text-slate-800"
                           >
                             Email Address
                           </label>
@@ -579,14 +579,14 @@ export default function AccountPage() {
                               }))
                             }
                             placeholder="Enter your email"
-                            className="h-12 rounded-xl border-slate-200 px-4 text-xl"
+                            className="h-12 rounded-xl border-slate-200 px-4 text-base"
                           />
                         </div>
 
                         <div className="space-y-2">
                           <label
                             htmlFor="phone"
-                            className="text-xl font-medium text-slate-800"
+                            className="text-sm font-medium text-slate-800"
                           >
                             Phone Number
                           </label>
@@ -600,7 +600,7 @@ export default function AccountPage() {
                               }))
                             }
                             placeholder="01xxxxxxxxx"
-                            className="h-12 rounded-xl border-slate-200 px-4 text-xl"
+                            className="h-12 rounded-xl border-slate-200 px-4 text-base"
                           />
                         </div>
 
@@ -615,7 +615,7 @@ export default function AccountPage() {
                     </div>
 
                     <div className="border-t border-slate-200 bg-slate-50 px-5 py-6 sm:px-8">
-                      <h4 className="text-3xl font-semibold text-slate-900">
+                      <h4 className="text-2xl font-semibold text-slate-900">
                         Account Information
                       </h4>
                       <div className="mt-4 grid gap-3 text-base text-slate-600 md:grid-cols-[140px_1fr]">
@@ -642,10 +642,10 @@ export default function AccountPage() {
                         <Lock className="size-7" />
                       </div>
                       <div>
-                        <h3 className="text-4xl font-semibold text-slate-900">
+                        <h3 className="text-2xl font-semibold text-slate-900">
                           Change Password
                         </h3>
-                        <p className="text-xl text-slate-500">
+                        <p className="text-sm text-slate-500">
                           Update your account password
                         </p>
                       </div>
@@ -658,7 +658,7 @@ export default function AccountPage() {
                       <div className="space-y-2">
                         <label
                           htmlFor="currentPassword"
-                          className="text-xl font-medium text-slate-800"
+                          className="text-sm font-medium text-slate-800"
                         >
                           Current Password
                         </label>
@@ -674,7 +674,7 @@ export default function AccountPage() {
                               }))
                             }
                             placeholder="Enter your current password"
-                            className="h-12 rounded-xl border-slate-200 px-4 pr-12 text-xl"
+                            className="h-12 rounded-xl border-slate-200 px-4 pr-12 text-base"
                           />
                           <button
                             type="button"
@@ -696,7 +696,7 @@ export default function AccountPage() {
                       <div className="space-y-2">
                         <label
                           htmlFor="newPassword"
-                          className="text-xl font-medium text-slate-800"
+                          className="text-sm font-medium text-slate-800"
                         >
                           New Password
                         </label>
@@ -712,7 +712,7 @@ export default function AccountPage() {
                               }))
                             }
                             placeholder="Enter your new password"
-                            className="h-12 rounded-xl border-slate-200 px-4 pr-12 text-xl"
+                            className="h-12 rounded-xl border-slate-200 px-4 pr-12 text-base"
                           />
                           <button
                             type="button"
@@ -727,7 +727,7 @@ export default function AccountPage() {
                             )}
                           </button>
                         </div>
-                        <p className="text-base text-slate-500">
+                        <p className="text-sm text-slate-500">
                           Must be at least 6 characters
                         </p>
                       </div>
@@ -735,7 +735,7 @@ export default function AccountPage() {
                       <div className="space-y-2">
                         <label
                           htmlFor="confirmPassword"
-                          className="text-xl font-medium text-slate-800"
+                          className="text-sm font-medium text-slate-800"
                         >
                           Confirm New Password
                         </label>
@@ -751,7 +751,7 @@ export default function AccountPage() {
                               }))
                             }
                             placeholder="Confirm your new password"
-                            className="h-12 rounded-xl border-slate-200 px-4 pr-12 text-xl"
+                            className="h-12 rounded-xl border-slate-200 px-4 pr-12 text-base"
                           />
                           <button
                             type="button"
@@ -790,7 +790,7 @@ export default function AccountPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/45 p-4 backdrop-blur-[2px]">
           <div className="w-full max-w-117.5 rounded-3xl bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.25)] sm:p-7">
             <div className="mb-5 flex items-start justify-between gap-4">
-              <h3 className="text-4xl font-bold text-slate-900">
+              <h3 className="text-2xl font-bold text-slate-900">
                 {modalTitle}
               </h3>
               <button

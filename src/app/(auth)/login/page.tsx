@@ -95,7 +95,7 @@ export default function LoginPage() {
   return (
     <main className="mx-auto flex min-h-[calc(100vh-5rem)] w-full max-w-7xl items-center px-4 py-6 md:px-6 md:py-8">
       <section className="grid w-full grid-cols-1 gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-        <aside className="rounded-2xl border border-[#E2E8F0] bg-white p-4 shadow-sm md:p-5">
+        <aside className="order-2 rounded-2xl border border-[#E2E8F0] bg-white p-4 shadow-sm md:p-5 lg:order-1">
           <div className="relative overflow-hidden rounded-2xl bg-linear-to-br from-[#F8FAFC] via-white to-[#ECFDF5] p-5 md:p-7">
             <div className="absolute right-6 top-6 h-28 w-28 rounded-full bg-[#DCFCE7] blur-2xl" />
             <div className="absolute bottom-6 left-8 h-20 w-20 rounded-full bg-[#BBF7D0] blur-2xl" />
@@ -153,7 +153,7 @@ export default function LoginPage() {
           </div>
         </aside>
 
-        <section className="rounded-2xl border border-[#E2E8F0] bg-white px-5 py-6 shadow-sm md:px-8 md:py-8">
+        <section className="order-1 rounded-2xl border border-[#E2E8F0] bg-white px-5 py-6 shadow-sm md:px-8 md:py-8 lg:order-2">
           <div className="text-center">
             <h2 className="text-type-lg font-bold text-[#16A34A]">FreshCart</h2>
             <h3 className="text-type-lg mt-2 font-bold text-slate-800">

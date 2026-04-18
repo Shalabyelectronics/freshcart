@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 
 import ProductCard from "@/components/custom/ProductCard";
+import Reveal from "@/components/custom/Reveal";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -276,7 +277,6 @@ function ProductsPageContent() {
 
   const parsedMinPrice = minPriceParam ? Number(minPriceParam) : undefined;
   const parsedMaxPrice = maxPriceParam ? Number(maxPriceParam) : undefined;
-
   const minPrice =
     typeof parsedMinPrice === "number" && !Number.isNaN(parsedMinPrice)
       ? parsedMinPrice
@@ -725,8 +725,13 @@ function ProductsPageContent() {
                     : "grid-cols-1 md:grid-cols-2"
                 }`}
               >
-                {products.map((product) => (
-                  <ProductCard key={product._id} product={product} />
+                {products.map((product, index) => (
+                  <Reveal
+                    key={product._id}
+                    delay={viewMode === "grid" ? index * 0.02 : 0}
+                  >
+                    <ProductCard product={product} />
+                  </Reveal>
                 ))}
               </div>
             )}

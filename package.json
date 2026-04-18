@@ -6,7 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "lint:app": "eslint src/app",
+    "lint:components": "eslint src/components",
+    "lint:store": "eslint src/store",
+    "lint:hooks": "eslint src/hooks",
+    "lint:lib": "eslint src/lib",
+    "lint:types": "eslint src/types"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -14,6 +20,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "embla-carousel-react": "^8.6.0",
+    "framer-motion": "^12.38.0",
     "lucide-react": "^1.7.0",
     "next": "16.2.2",
     "next-themes": "^0.4.6",

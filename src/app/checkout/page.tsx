@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -13,7 +13,7 @@ import {
   WalletCards,
   CheckCircle2,
 } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-hot-toast";
 import { z } from "zod";
@@ -82,8 +82,14 @@ export default function CheckoutPage() {
       return;
     }
 
-    setIsLoggedIn(true);
-    setIsMounted(true);
+    const timeoutId = window.setTimeout(() => {
+      setIsLoggedIn(true);
+      setIsMounted(true);
+    }, 0);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
   }, [router]);
 
   const {
@@ -118,9 +124,15 @@ export default function CheckoutPage() {
   });
 
   const isSubmitting = isCreatingCashOrder || isCreatingOnlineOrder;
-  const paymentMethod = form.watch("paymentMethod");
+  const paymentMethod = useWatch({
+    control: form.control,
+    name: "paymentMethod",
+  });
   const isFormValid = form.formState.isValid;
-  const addresses = addressesResponse?.data ?? [];
+  const addresses = useMemo(
+    () => addressesResponse?.data ?? [],
+    [addressesResponse?.data],
+  );
 
   const cartItems = cart?.data?.products ?? [];
   const subtotal = cart?.data?.totalCartPrice ?? 0;
@@ -133,10 +145,17 @@ export default function CheckoutPage() {
     }
 
     const firstAddress = addresses[0];
-    setSelectedAddressId(firstAddress._id);
-    form.setValue("city", firstAddress.city, { shouldValidate: true });
-    form.setValue("details", firstAddress.details, { shouldValidate: true });
-    form.setValue("phone", firstAddress.phone, { shouldValidate: true });
+
+    const timeoutId = window.setTimeout(() => {
+      setSelectedAddressId(firstAddress._id);
+      form.setValue("city", firstAddress.city, { shouldValidate: true });
+      form.setValue("details", firstAddress.details, { shouldValidate: true });
+      form.setValue("phone", firstAddress.phone, { shouldValidate: true });
+    }, 0);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
   }, [addresses, selectedAddressId, form]);
 
   const handleSelectAddress = (addressId: string) => {
@@ -231,7 +250,7 @@ export default function CheckoutPage() {
       toast.success("Redirecting to payment gateway");
       form.reset();
       if (result?.session?.url) {
-        window.location.href = result.session.url;
+        window.location.assign(result.session.url);
       }
     } catch {
       toast.error("Failed to place order");

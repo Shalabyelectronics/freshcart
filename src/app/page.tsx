@@ -17,6 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useGetCategoriesQuery, useGetProductsQuery } from "@/store/apiSlice";
 import TrustBadgesHeader from "@/components/custom/TrustBadgesHeader";
+import Reveal from "@/components/custom/Reveal";
 
 const sliderItems = [
   {
@@ -154,64 +155,69 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-6">
-            {filteredCategories.map((category) => (
-              <Link
-                key={category._id}
-                href={`/products?category=${encodeURIComponent(category._id)}`}
-                className="block rounded-xl border border-[#E5E7EB] bg-white p-3 text-center shadow-[0_2px_8px_rgba(15,23,42,0.03)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#BBF7D0] hover:shadow-[0_6px_16px_rgba(22,163,74,0.10)]"
-              >
-                <div className="mx-auto h-20 w-20 overflow-hidden rounded-full bg-[#ECFDF5]">
-                  <img
-                    src={category.image}
-                    alt={category.name}
-                    className="h-full w-full object-cover"
-                    loading="lazy"
-                  />
-                </div>
-                <h3 className="text-type-md mt-3 font-medium text-slate-800">
-                  {category.name}
-                </h3>
-              </Link>
+            {filteredCategories.map((category, index) => (
+              <Reveal key={category._id} delay={index * 0.04}>
+                <Link
+                  href={`/products?category=${encodeURIComponent(category._id)}`}
+                  className="block rounded-xl border border-[#E5E7EB] bg-white p-3 text-center shadow-[0_2px_8px_rgba(15,23,42,0.03)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#BBF7D0] hover:shadow-[0_6px_16px_rgba(22,163,74,0.10)]"
+                >
+                  <div className="mx-auto h-20 w-20 overflow-hidden rounded-full bg-[#ECFDF5]">
+                    <img
+                      src={category.image}
+                      alt={category.name}
+                      className="h-full w-full object-cover"
+                      loading="lazy"
+                    />
+                  </div>
+                  <h3 className="text-type-md mt-3 font-medium text-slate-800">
+                    {category.name}
+                  </h3>
+                </Link>
+              </Reveal>
             ))}
           </div>
         </section>
 
         <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <article className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#059669] to-[#16A34A] p-6 text-white md:p-8">
-            <span className="text-type-sm inline-flex rounded-full bg-white/20 px-3 py-1">
-              Deal of the Day
-            </span>
-            <h3 className="text-type-lg mt-3 font-bold">
-              Fresh Organic Fruits
-            </h3>
-            <p className="text-type-md mt-2 text-white/90">
-              Get up to 40% off on selected organic fruits
-            </p>
-            <p className="text-type-max mt-4 font-black">40% OFF</p>
-            <p className="text-type-sm mt-1">Use code: ORGANIC40</p>
-            <Button className="mt-5 rounded-full bg-white px-5 font-semibold text-[#16A34A] hover:bg-white/90">
-              Shop Now
-              <ArrowRight className="size-4" />
-            </Button>
-            <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-white/10" />
-          </article>
+          <Reveal>
+            <article className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#059669] to-[#16A34A] p-6 text-white md:p-8">
+              <span className="text-type-sm inline-flex rounded-full bg-white/20 px-3 py-1">
+                Deal of the Day
+              </span>
+              <h3 className="text-type-lg mt-3 font-bold">
+                Fresh Organic Fruits
+              </h3>
+              <p className="text-type-md mt-2 text-white/90">
+                Get up to 40% off on selected organic fruits
+              </p>
+              <p className="text-type-max mt-4 font-black">40% OFF</p>
+              <p className="text-type-sm mt-1">Use code: ORGANIC40</p>
+              <Button className="mt-5 rounded-full bg-white px-5 font-semibold text-[#16A34A] hover:bg-white/90">
+                Shop Now
+                <ArrowRight className="size-4" />
+              </Button>
+              <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-white/10" />
+            </article>
+          </Reveal>
 
-          <article className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#F97316] via-[#FB7185] to-[#F43F5E] p-6 text-white md:p-8">
-            <span className="text-type-sm inline-flex rounded-full bg-white/20 px-3 py-1">
-              New Arrivals
-            </span>
-            <h3 className="text-type-lg mt-3 font-bold">Exotic Vegetables</h3>
-            <p className="text-type-md mt-2 text-white/90">
-              Discover our latest collection of premium vegetables
-            </p>
-            <p className="text-type-max mt-4 font-black">25% OFF</p>
-            <p className="text-type-sm mt-1">Use code: FRESH25</p>
-            <Button className="mt-5 rounded-full bg-white px-5 font-semibold text-[#F97316] hover:bg-white/90">
-              Explore Now
-              <ArrowRight className="size-4" />
-            </Button>
-            <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-white/10" />
-          </article>
+          <Reveal delay={0.08}>
+            <article className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#F97316] via-[#FB7185] to-[#F43F5E] p-6 text-white md:p-8">
+              <span className="text-type-sm inline-flex rounded-full bg-white/20 px-3 py-1">
+                New Arrivals
+              </span>
+              <h3 className="text-type-lg mt-3 font-bold">Exotic Vegetables</h3>
+              <p className="text-type-md mt-2 text-white/90">
+                Discover our latest collection of premium vegetables
+              </p>
+              <p className="text-type-max mt-4 font-black">25% OFF</p>
+              <p className="text-type-sm mt-1">Use code: FRESH25</p>
+              <Button className="mt-5 rounded-full bg-white px-5 font-semibold text-[#F97316] hover:bg-white/90">
+                Explore Now
+                <ArrowRight className="size-4" />
+              </Button>
+              <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-white/10" />
+            </article>
+          </Reveal>
         </section>
 
         <section className="space-y-5">
@@ -224,8 +230,10 @@ export default function Home() {
           </h2>
 
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
-            {featuredProducts.map((product) => (
-              <ProductCard key={product._id} product={product} />
+            {featuredProducts.map((product, index) => (
+              <Reveal key={product._id} delay={index * 0.03}>
+                <ProductCard product={product} />
+              </Reveal>
             ))}
           </div>
         </section>

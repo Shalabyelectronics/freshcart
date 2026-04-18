@@ -1,6 +1,7 @@
 "use client";
 
 import { Truck, RotateCcw, Shield, Headset } from "lucide-react";
+import Reveal from "@/components/custom/Reveal";
 
 export default function TrustBadgesHeader() {
   const badges = [
@@ -39,24 +40,23 @@ export default function TrustBadgesHeader() {
       {badges.map((badge, idx) => {
         const Icon = badge.icon;
         return (
-          <div
-            key={idx}
-            className="flex flex-row items-center text-left gap-4 bg-white p-4 rounded-2xl shadow-sm"
-          >
-            <div
-              className={`flex shrink-0 items-center justify-center w-12 h-12 rounded-full ${badge.bgColor}`}
-            >
-              <Icon className={badge.iconColor} size={24} />
+          <Reveal key={idx} delay={idx * 0.06} className="h-full">
+            <div className="flex flex-row items-center text-left gap-4 bg-white p-4 rounded-2xl shadow-sm">
+              <div
+                className={`flex shrink-0 items-center justify-center w-12 h-12 rounded-full ${badge.bgColor}`}
+              >
+                <Icon className={badge.iconColor} size={24} />
+              </div>
+              <div className="flex-1">
+                <h4 className="text-type-sm font-semibold text-slate-900">
+                  {badge.title}
+                </h4>
+                <p className="text-type-sm text-slate-500 mt-0.5">
+                  {badge.description}
+                </p>
+              </div>
             </div>
-            <div className="flex-1">
-              <h4 className="text-type-sm font-semibold text-slate-900">
-                {badge.title}
-              </h4>
-              <p className="text-type-sm text-slate-500 mt-0.5">
-                {badge.description}
-              </p>
-            </div>
-          </div>
+          </Reveal>
         );
       })}
     </div>

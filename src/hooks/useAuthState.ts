@@ -11,6 +11,7 @@ export interface AuthProfile {
 export interface AuthState {
   isLoggedIn: boolean;
   profile: AuthProfile | null;
+  isLoading: boolean;
 }
 
 const AUTH_CHANGED_EVENT = "freshcart-auth-changed";
@@ -100,17 +101,28 @@ export function useAuthState() {
   const [authState, setAuthState] = useState<AuthState>({
     isLoggedIn: false,
     profile: null,
+    isLoading: true,
   });
 
   useEffect(() => {
     let isMounted = true;
 
     const syncAuthState = async () => {
+      if (isMounted) {
+        setAuthState((previous) => ({
+          ...previous,
+          isLoading: true,
+        }));
+      }
+
       const baseState = readAuthState();
 
       if (!baseState.isLoggedIn) {
         if (isMounted) {
-          setAuthState(baseState);
+          setAuthState({
+            ...baseState,
+            isLoading: false,
+          });
         }
         return;
       }
@@ -121,7 +133,10 @@ export function useAuthState() {
 
       if (!token) {
         if (isMounted) {
-          setAuthState(baseState);
+          setAuthState({
+            ...baseState,
+            isLoading: false,
+          });
         }
         return;
       }
@@ -136,7 +151,10 @@ export function useAuthState() {
 
         if (!response.ok) {
           if (isMounted) {
-            setAuthState(baseState);
+            setAuthState({
+              ...baseState,
+              isLoading: false,
+            });
           }
           return;
         }
@@ -164,11 +182,15 @@ export function useAuthState() {
               name: baseState.profile?.name || verifiedName,
               email: baseState.profile?.email || "",
             },
+            isLoading: false,
           });
         }
       } catch {
         if (isMounted) {
-          setAuthState(baseState);
+          setAuthState({
+            ...baseState,
+            isLoading: false,
+          });
         }
       }
     };

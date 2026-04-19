@@ -27,6 +27,7 @@ import type {
   ChangePasswordRequestBody,
   UpdateMeRequestBody,
 } from "@/types/api";
+import { notifyAuthStateChanged } from "@/hooks/useAuthState";
 import {
   useAddAddressMutation,
   useChangePasswordMutation,
@@ -303,6 +304,25 @@ export default function AccountPage() {
         ...profileForm,
         name: resolvedProfileName,
       }).unwrap();
+
+      if (typeof window !== "undefined") {
+        const currentUserDataRaw = window.localStorage.getItem("userData");
+        const currentUserData = currentUserDataRaw
+          ? (JSON.parse(currentUserDataRaw) as Record<string, unknown>)
+          : {};
+        const nextUserData = {
+          ...currentUserData,
+          name: response.user.name ?? "",
+          email: response.user.email ?? "",
+          phone: response.user.phone ?? "",
+        };
+
+        window.localStorage.setItem("userName", response.user.name ?? "");
+        window.localStorage.setItem("userEmail", response.user.email ?? "");
+        window.localStorage.setItem("userData", JSON.stringify(nextUserData));
+        notifyAuthStateChanged();
+      }
+
       setProfileForm({
         name: response.user.name ?? "",
         email: response.user.email ?? "",

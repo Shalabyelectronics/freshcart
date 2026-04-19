@@ -84,7 +84,7 @@ export default function Navbar() {
   const [search, setSearch] = useState("");
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const [isMobileCategoriesOpen, setIsMobileCategoriesOpen] = useState(false);
-  const { isLoggedIn, profile } = useAuthState();
+  const { isLoggedIn, profile, isLoading: isAuthLoading } = useAuthState();
   const { data: cartData } = useGetLoggedUserCartQuery(undefined, {
     skip: !isLoggedIn,
   });
@@ -127,8 +127,9 @@ export default function Navbar() {
     setSearch("");
   }
 
-  const displayName = profile?.name?.trim() || "Mohamed Shalaby";
-  const displayEmail = profile?.email?.trim() || "shalabyegypto@gmail.com";
+  const displayName = profile?.name?.trim() ?? "";
+  const displayEmail = profile?.email?.trim() ?? "";
+  const isProfileLoading = isLoggedIn && isAuthLoading && !displayName;
   const guestAuthLinks = (
     <>
       <Link
@@ -176,10 +177,20 @@ export default function Navbar() {
 
             {isLoggedIn ? (
               <>
-                <span className="inline-flex items-center gap-2">
-                  <User className="size-4" />
-                  {displayName}
-                </span>
+                {isProfileLoading ? (
+                  <span
+                    className="inline-flex items-center gap-2"
+                    aria-live="polite"
+                  >
+                    <User className="size-4" />
+                    <span className="h-4 w-24 animate-pulse rounded-full bg-slate-300" />
+                  </span>
+                ) : displayName ? (
+                  <span className="inline-flex items-center gap-2">
+                    <User className="size-4" />
+                    {displayName}
+                  </span>
+                ) : null}
                 <button
                   type="button"
                   onClick={handleSignOut}
@@ -343,11 +354,15 @@ export default function Navbar() {
                       </span>
                       <div className="min-w-0">
                         <p className="text-type-md-lg truncate font-semibold text-slate-900">
-                          {displayName}
+                          {isProfileLoading
+                            ? "Loading..."
+                            : displayName || "My Account"}
                         </p>
-                        <p className="text-type-base truncate text-slate-500">
-                          {displayEmail}
-                        </p>
+                        {displayEmail ? (
+                          <p className="text-type-base truncate text-slate-500">
+                            {displayEmail}
+                          </p>
+                        ) : null}
                       </div>
                     </div>
                   </div>
@@ -575,7 +590,9 @@ export default function Navbar() {
                       <SheetClose asChild>
                         <Link href="/account" className={MOBILE_LINK_CLASS}>
                           <CircleUserRound size={18} />
-                          {displayName}
+                          {isProfileLoading
+                            ? "Loading..."
+                            : displayName || "My Account"}
                         </Link>
                       </SheetClose>
 

@@ -1,6 +1,14 @@
 "use client";
 
-import { ArrowRight, BadgeCheck, Mail, Tag, Truck } from "lucide-react";
+import {
+  Apple,
+  ArrowRight,
+  BadgeCheck,
+  Mail,
+  Play,
+  Tag,
+  Truck,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -75,10 +83,12 @@ export default function NewsletterAndAppSection() {
 
         <button
           type="button"
-          className="mt-6 flex w-full items-center gap-4 rounded-2xl border border-white/10 bg-white/10 p-4 text-left"
+          className="mt-6 flex w-full items-center gap-4 rounded-2xl border border-white/10 bg-white/10 p-4 text-left shadow-sm transition-all duration-200 hover:border-white/20 hover:bg-white/15 hover:shadow-md"
         >
-          <span className="text-2xl">Apple</span>
-          <span>
+          <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-xl bg-white/6 text-white">
+            <Apple size={28} strokeWidth={2.2} />
+          </span>
+          <span className="flex min-w-0 flex-col justify-center">
             <p className="text-type-min tracking-wide text-slate-300 uppercase">
               Download on
             </p>
@@ -87,10 +97,12 @@ export default function NewsletterAndAppSection() {
         </button>
         <button
           type="button"
-          className="mt-4 flex w-full items-center gap-4 rounded-2xl border border-white/10 bg-white/10 p-4 text-left"
+          className="mt-4 flex w-full items-center gap-4 rounded-2xl border border-white/10 bg-white/10 p-4 text-left shadow-sm transition-all duration-200 hover:border-white/20 hover:bg-white/15 hover:shadow-md"
         >
-          <span className="text-2xl">Play</span>
-          <span>
+          <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-xl bg-white/6 text-white">
+            <Play size={28} fill="currentColor" strokeWidth={1.8} />
+          </span>
+          <span className="flex min-w-0 flex-col justify-center">
             <p className="text-type-min tracking-wide text-slate-300 uppercase">
               Get it on
             </p>

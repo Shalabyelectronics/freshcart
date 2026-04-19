@@ -23,6 +23,7 @@ function readAuthState(): AuthState {
     return {
       isLoggedIn: false,
       profile: null,
+      isLoading: false,
     };
   }
 
@@ -71,6 +72,7 @@ function readAuthState(): AuthState {
   return {
     isLoggedIn: Boolean(token),
     profile,
+    isLoading: false,
   };
 }
 

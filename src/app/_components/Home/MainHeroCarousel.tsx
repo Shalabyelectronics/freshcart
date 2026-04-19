@@ -48,7 +48,7 @@ export default function MainHeroCarousel() {
                 <div className="absolute inset-0 bg-[#16A34A]/70" />
 
                 <div className="pointer-events-none absolute inset-0 z-10 flex items-center pb-12">
-                  <div className="w-full px-6 text-white md:px-10">
+                  <div className="w-full px-6 text-white md:px-10 lg:px-20 xl:px-24">
                     <div className="pointer-events-auto max-w-md">
                       <h1 className="text-type-max font-bold">{slide.title}</h1>
                       <p className="mt-3 text-type-md-lg text-white/95">
@@ -79,8 +79,8 @@ export default function MainHeroCarousel() {
           ))}
         </CarouselContent>
 
-        <CarouselPrevious className="left-3 hidden h-11 w-11 cursor-pointer border-0 md:flex" />
-        <CarouselNext className="right-3 hidden h-11 w-11 cursor-pointer border-0 md:flex" />
+        <CarouselPrevious className="left-3 hidden h-11 w-11 cursor-pointer border-0 md:flex lg:left-4 lg:h-10 lg:w-10 lg:bg-white/60 lg:opacity-80 lg:hover:bg-white/90 lg:hover:opacity-100 xl:left-6" />
+        <CarouselNext className="right-3 hidden h-11 w-11 cursor-pointer border-0 md:flex lg:right-4 lg:h-10 lg:w-10 lg:bg-white/60 lg:opacity-80 lg:hover:bg-white/90 lg:hover:opacity-100 xl:right-6" />
         <CarouselIndicators className="bottom-6 md:bottom-6" />
       </Carousel>
     </section>

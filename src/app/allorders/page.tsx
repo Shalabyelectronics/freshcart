@@ -85,6 +85,27 @@ function getItemImage(item?: OrderItem) {
   return "";
 }
 
+function decodeUserIdFromAccessToken(accessToken?: string): string {
+  if (!accessToken) {
+    return "";
+  }
+
+  const parts = accessToken.split(".");
+  if (parts.length < 2) {
+    return "";
+  }
+
+  try {
+    const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+    const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
+    const decoded = JSON.parse(atob(padded)) as { id?: string; sub?: string };
+
+    return decoded.id ?? decoded.sub ?? "";
+  } catch {
+    return "";
+  }
+}
+
 export default function AllOrdersPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -94,8 +115,13 @@ export default function AllOrdersPage() {
 
   const isAuthLoading = status === "loading";
   const isLoggedIn = status === "authenticated";
-  const userId = isLoggedIn ? (session?.user?.id ?? "") : "";
-  const shouldFetchOrders = isLoggedIn && Boolean(userId);
+  const userId = isLoggedIn
+    ? (session?.user?.id ??
+      decodeUserIdFromAccessToken(session?.accessToken) ??
+      "")
+    : "";
+  const isValidMongoId = /^[a-f\d]{24}$/i.test(userId);
+  const shouldFetchOrders = isLoggedIn && isValidMongoId;
 
   useEffect(() => {
     if (isAuthLoading || isLoggedIn) {
@@ -110,7 +136,7 @@ export default function AllOrdersPage() {
       return;
     }
 
-    console.log("Fetching orders for ID:", userId);
+    console.log("FINAL CHECK - Requesting orders for ID:", userId);
   }, [shouldFetchOrders, userId]);
 
   const {
@@ -125,7 +151,7 @@ export default function AllOrdersPage() {
     return <PageLoader />;
   }
 
-  if (isLoggedIn && !userId) {
+  if (isLoggedIn && !isValidMongoId) {
     return (
       <main className="min-h-screen bg-[#f7f8f3] px-4 py-8">
         <div className="mx-auto max-w-4xl">
@@ -134,7 +160,8 @@ export default function AllOrdersPage() {
               Unable to Resolve Account ID
             </h2>
             <p className="mt-2 text-sm text-slate-600">
-              Please sign out and sign in again to refresh your session.
+              Session user ID is missing or invalid. Please sign out and sign in
+              again.
             </p>
           </div>
         </div>

@@ -19,6 +19,32 @@ type SignInApiResponse = {
 
 const SIGN_IN_API_URL = "https://ecommerce.routemisr.com/api/v1/auth/signin";
 
+function decodeJwtUserId(accessToken?: string): string | undefined {
+  if (!accessToken) {
+    return undefined;
+  }
+
+  const parts = accessToken.split(".");
+  if (parts.length < 2) {
+    return undefined;
+  }
+
+  try {
+    const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+    const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
+    const decoded = JSON.parse(
+      Buffer.from(padded, "base64").toString("utf-8"),
+    ) as {
+      id?: string;
+      sub?: string;
+    };
+
+    return decoded.id ?? decoded.sub;
+  } catch {
+    return undefined;
+  }
+}
+
 export const authOptions: NextAuthOptions = {
   debug: process.env.NODE_ENV === "development",
   session: {
@@ -54,6 +80,8 @@ export const authOptions: NextAuthOptions = {
 
         const payload = (await response.json()) as SignInApiResponse;
         const user = payload.user;
+        const userId =
+          payload.decoded?.id || payload.user?._id || payload.user?.id;
 
         console.log("API Response User:", user);
 
@@ -62,7 +90,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         return {
-          id: payload.decoded?.id ?? user._id ?? user.id ?? user.email,
+          id: userId,
           _id: user._id,
           decoded: payload.decoded,
           name: user.name ?? payload.decoded?.name ?? "",
@@ -75,22 +103,23 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user }) {
-      // عند تسجيل الدخول لأول مرة، نضع الـ ID في التوكن
       if (user) {
-        // نحاول جلب الـ ID من كل المصادر الممكنة في رد الـ API
-        token.id = user.id || user._id || (user as any).decoded?.id;
-        token.accessToken = (user as any).accessToken;
-        token.role = (user as any).role;
+        token.accessToken = user.accessToken;
+        token.id =
+          user.id ||
+          user._id ||
+          token.sub ||
+          decodeJwtUserId(token.accessToken);
+        token.role = user.role;
       }
       return token;
     },
     async session({ session, token }) {
-      // ننقل الـ ID من التوكن إلى الجلسة (Session)
       if (session.user) {
-        (session.user as any).id = token.id;
-        (session.user as any).role = token.role;
+        session.user.id = token.id;
+        session.user.role = token.role;
       }
-      (session as any).accessToken = token.accessToken;
+      session.accessToken = token.accessToken;
       return session;
     },
   },

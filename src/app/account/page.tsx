@@ -27,7 +27,7 @@ import type {
   ChangePasswordRequestBody,
   UpdateMeRequestBody,
 } from "@/types/api";
-import { notifyAuthStateChanged } from "@/hooks/useAuthState";
+import { useAuthState } from "@/hooks/useAuthState";
 import {
   useAddAddressMutation,
   useChangePasswordMutation,
@@ -127,18 +127,7 @@ function AddressCardSkeleton() {
 export default function AccountPage() {
   const router = useRouter();
   const pathname = usePathname();
-  const [authReady] = useState(true);
-  const [isLoggedIn] = useState(() => {
-    if (typeof window === "undefined") {
-      return false;
-    }
-
-    const token =
-      window.localStorage.getItem("userToken") ||
-      window.localStorage.getItem("token");
-
-    return Boolean(token);
-  });
+  const { isLoggedIn, isLoading: isAuthLoading } = useAuthState();
 
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
   const [editingAddressId, setEditingAddressId] = useState<string | null>(null);
@@ -170,10 +159,10 @@ export default function AccountPage() {
     : "addresses";
 
   useEffect(() => {
-    if (!isLoggedIn) {
+    if (!isAuthLoading && !isLoggedIn) {
       router.replace("/login");
     }
-  }, [isLoggedIn, router]);
+  }, [isAuthLoading, isLoggedIn, router]);
 
   const {
     data: addressesResponse,
@@ -305,24 +294,6 @@ export default function AccountPage() {
         name: resolvedProfileName,
       }).unwrap();
 
-      if (typeof window !== "undefined") {
-        const currentUserDataRaw = window.localStorage.getItem("userData");
-        const currentUserData = currentUserDataRaw
-          ? (JSON.parse(currentUserDataRaw) as Record<string, unknown>)
-          : {};
-        const nextUserData = {
-          ...currentUserData,
-          name: response.user.name ?? "",
-          email: response.user.email ?? "",
-          phone: response.user.phone ?? "",
-        };
-
-        window.localStorage.setItem("userName", response.user.name ?? "");
-        window.localStorage.setItem("userEmail", response.user.email ?? "");
-        window.localStorage.setItem("userData", JSON.stringify(nextUserData));
-        notifyAuthStateChanged();
-      }
-
       setProfileForm({
         name: response.user.name ?? "",
         email: response.user.email ?? "",
@@ -365,7 +336,7 @@ export default function AccountPage() {
     }
   };
 
-  if (!authReady || !isLoggedIn) {
+  if (isAuthLoading || !isLoggedIn) {
     return <main className="min-h-screen bg-[#F8F9FB]" />;
   }
 

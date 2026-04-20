@@ -38,6 +38,7 @@ import {
   useGetAddressesQuery,
   useGetLoggedUserCartQuery,
 } from "@/store/apiSlice";
+import { useAuthState } from "@/hooks/useAuthState";
 
 const checkoutSchema = z.object({
   details: z.string().min(1, "Street Address is required"),
@@ -61,8 +62,7 @@ function PageLoader() {
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const [isMounted, setIsMounted] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { isLoggedIn, isLoading: isAuthLoading } = useAuthState();
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
     null,
   );
@@ -70,42 +70,26 @@ export default function CheckoutPage() {
   const [newAddressName, setNewAddressName] = useState("");
 
   useEffect(() => {
-    if (typeof window === "undefined") {
+    if (isAuthLoading || isLoggedIn) {
       return;
     }
 
-    const token =
-      window.localStorage.getItem("userToken") ||
-      window.localStorage.getItem("token");
-
-    if (!token) {
-      router.push("/login");
-      return;
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      setIsLoggedIn(true);
-      setIsMounted(true);
-    }, 0);
-
-    return () => {
-      window.clearTimeout(timeoutId);
-    };
-  }, [router]);
+    router.push("/login");
+  }, [isAuthLoading, isLoggedIn, router]);
 
   const {
     data: cart,
     isLoading: isCartLoading,
     isError: isCartError,
   } = useGetLoggedUserCartQuery(undefined, {
-    skip: !isMounted || !isLoggedIn,
+    skip: !isLoggedIn,
   });
   const {
     data: addressesResponse,
     isLoading: isAddressesLoading,
     isError: isAddressesError,
   } = useGetAddressesQuery(undefined, {
-    skip: !isMounted || !isLoggedIn,
+    skip: !isLoggedIn,
   });
 
   const [addAddress, { isLoading: isAddingAddress }] = useAddAddressMutation();
@@ -258,7 +242,7 @@ export default function CheckoutPage() {
     }
   }
 
-  if (!isMounted || !isLoggedIn || isCartLoading) {
+  if (isAuthLoading || !isLoggedIn || isCartLoading) {
     return <PageLoader />;
   }
 

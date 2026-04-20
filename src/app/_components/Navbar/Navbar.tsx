@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 import { toast } from "react-hot-toast";
 
 import { Input } from "@/components/ui/input";
@@ -39,7 +40,7 @@ import {
   useGetLoggedUserCartQuery,
   useGetWishlistQuery,
 } from "@/store/apiSlice";
-import { clearAuthStorage, useAuthState } from "@/hooks/useAuthState";
+import { useAuthState } from "@/hooks/useAuthState";
 import {
   Sheet,
   SheetClose,
@@ -109,8 +110,8 @@ export default function Navbar() {
     });
   }, [categoriesData?.data]);
 
-  function handleSignOut() {
-    clearAuthStorage();
+  async function handleSignOut() {
+    await signOut({ redirect: false });
     toast.success("Signed out successfully.");
     router.push("/login");
   }
@@ -261,7 +262,7 @@ export default function Navbar() {
               <div className="absolute left-0 top-full h-3 w-full bg-transparent" />
 
               {isCategoriesOpen ? (
-                <div className="absolute left-0 top-full z-50 w-[250px] pt-3">
+                <div className="absolute left-0 top-full z-50 w-62.5 pt-3">
                   <div className="rounded-2xl border border-slate-200 bg-white p-3 text-slate-700 shadow-[0_20px_50px_rgba(2,6,23,0.15)]">
                     <Link
                       href="/products"
@@ -461,7 +462,7 @@ export default function Navbar() {
 
             <SheetContent
               side="right"
-              className="w-[88vw] max-w-[360px] overflow-hidden p-0 [&>button]:right-4 [&>button]:top-4 [&>button]:inline-flex [&>button]:size-10 [&>button]:items-center [&>button]:justify-center [&>button]:rounded-full [&>button]:bg-slate-100 [&>button]:text-slate-500 [&>button]:hover:bg-slate-200"
+              className="w-[88vw] max-w-90 overflow-hidden p-0 [&>button]:right-4 [&>button]:top-4 [&>button]:inline-flex [&>button]:size-10 [&>button]:items-center [&>button]:justify-center [&>button]:rounded-full [&>button]:bg-slate-100 [&>button]:text-slate-500 [&>button]:hover:bg-slate-200"
             >
               <SheetHeader className="border-b border-[#E5E7EB] px-4 py-4 pr-16">
                 <SheetTitle className="text-type-max flex items-center gap-2 font-bold text-slate-800">

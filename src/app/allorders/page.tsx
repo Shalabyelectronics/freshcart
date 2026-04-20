@@ -87,46 +87,30 @@ function getItemImage(item?: OrderItem) {
 
 export default function AllOrdersPage() {
   const router = useRouter();
-  const { profile } = useAuthState();
+  const { profile, isLoggedIn, isLoading: isAuthLoading } = useAuthState();
   const [expandedOrders, setExpandedOrders] = useState<Record<string, boolean>>(
     {},
   );
 
-  const hasToken =
-    typeof window !== "undefined" &&
-    Boolean(
-      window.localStorage.getItem("userToken") ||
-      window.localStorage.getItem("token"),
-    );
-
-  const resolvedUserId =
-    profile?._id ??
-    (typeof window !== "undefined"
-      ? (window.localStorage.getItem("userId") ?? "")
-      : "");
+  const resolvedUserId = profile?._id ?? "";
 
   useEffect(() => {
-    if (typeof window === "undefined" || hasToken) {
+    if (isAuthLoading || isLoggedIn) {
       return;
     }
 
     router.push("/login");
-  }, [hasToken, router]);
+  }, [isAuthLoading, isLoggedIn, router]);
 
   const {
     data: ordersResponse,
     isLoading,
     isError,
   } = useGetUserOrdersQuery(resolvedUserId, {
-    skip: !hasToken || !resolvedUserId,
+    skip: !isLoggedIn || !resolvedUserId,
   });
 
-  if (
-    typeof window === "undefined" ||
-    !hasToken ||
-    !resolvedUserId ||
-    isLoading
-  ) {
+  if (isAuthLoading || !isLoggedIn || !resolvedUserId || isLoading) {
     return <PageLoader />;
   }
 

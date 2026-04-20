@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { signIn as signInWithNextAuth } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 
@@ -29,8 +30,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useSignInMutation } from "@/store/apiSlice";
-import { notifyAuthStateChanged } from "@/hooks/useAuthState";
 import { LoginSchema, type LoginFormValues } from "@/types/schemas";
 
 const BRAND_GREEN = "#16A34A";
@@ -55,7 +54,7 @@ function getApiErrorMessage(error: unknown) {
 
 export default function LoginPage() {
   const router = useRouter();
-  const [signin, { isLoading }] = useSignInMutation();
+  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<LoginFormValues>({
@@ -72,23 +71,25 @@ export default function LoginPage() {
   }
 
   async function onSubmit(values: LoginFormValues) {
+    setIsLoading(true);
+
     try {
-      const response = await signin(values).unwrap();
+      const nextAuthResult = await signInWithNextAuth("credentials", {
+        email: values.email,
+        password: values.password,
+        redirect: false,
+      });
 
-      if (typeof window !== "undefined") {
-        window.localStorage.setItem("userToken", response.token);
-        window.localStorage.setItem("token", response.token);
-        window.localStorage.setItem("userName", response.user.name);
-        window.localStorage.setItem("userEmail", response.user.email);
-        window.localStorage.setItem("userData", JSON.stringify(response.user));
+      if (nextAuthResult?.error) {
+        throw new Error(nextAuthResult.error);
       }
-
-      notifyAuthStateChanged();
 
       toast.success("Signed in successfully.");
       router.push("/");
     } catch (error) {
       toast.error(getApiErrorMessage(error));
+    } finally {
+      setIsLoading(false);
     }
   }
 

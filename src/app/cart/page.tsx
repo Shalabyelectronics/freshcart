@@ -19,6 +19,7 @@ import {
   useRemoveFromWishlistMutation,
   useUpdateCartProductQuantityMutation,
 } from "@/store/apiSlice";
+import { useAuthState } from "@/hooks/useAuthState";
 
 function LoadingSpinner() {
   return (
@@ -33,8 +34,7 @@ function LoadingSpinner() {
 
 export default function CartPage() {
   const router = useRouter();
-  const [isMounted, setIsMounted] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { isLoggedIn, isLoading: isAuthLoading } = useAuthState();
   const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
   const [quantityLoading, setQuantityLoading] = useState<{
     id: string;
@@ -45,28 +45,19 @@ export default function CartPage() {
     null,
   );
 
-  // Check auth on mount
   useEffect(() => {
-    let isLogged = false;
-    if (typeof window !== "undefined") {
-      const token =
-        window.localStorage.getItem("userToken") ||
-        window.localStorage.getItem("token");
-      if (!token) {
-        router.push("/login");
-        return;
-      }
-      isLogged = true;
+    if (isAuthLoading || isLoggedIn) {
+      return;
     }
-    setIsLoggedIn(isLogged);
-    setIsMounted(true);
-  }, [router]);
+
+    router.push("/login");
+  }, [isAuthLoading, isLoggedIn, router]);
 
   const { data: cart, isLoading } = useGetLoggedUserCartQuery(undefined, {
-    skip: !isMounted || !isLoggedIn,
+    skip: !isLoggedIn,
   });
   const { data: wishlist } = useGetWishlistQuery(undefined, {
-    skip: !isMounted || !isLoggedIn,
+    skip: !isLoggedIn,
   });
 
   const [updateQuantity, { isLoading: isUpdatingQuantity }] =
@@ -108,7 +99,7 @@ export default function CartPage() {
     }
   };
 
-  if (!isMounted || !isLoggedIn) {
+  if (isAuthLoading || !isLoggedIn) {
     return <LoadingSpinner />;
   }
 
@@ -238,7 +229,7 @@ export default function CartPage() {
                   className="flex gap-4 p-4 border border-gray-200 rounded-lg hover:shadow-md transition"
                 >
                   {/* Product Image */}
-                  <div className="relative flex-shrink-0">
+                  <div className="relative shrink-0">
                     {!loadedImages[cartItem.product._id] ? (
                       <Skeleton className="absolute inset-0 h-24 w-24 rounded-lg" />
                     ) : null}

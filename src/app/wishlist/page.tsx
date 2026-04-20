@@ -15,6 +15,7 @@ import {
   useGetWishlistQuery,
   useRemoveFromWishlistMutation,
 } from "@/store/apiSlice";
+import { useAuthState } from "@/hooks/useAuthState";
 
 function PageLoader() {
   return (
@@ -29,36 +30,25 @@ function PageLoader() {
 
 export default function WishlistPage() {
   const router = useRouter();
-  const [isMounted, setIsMounted] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { isLoggedIn, isLoading: isAuthLoading } = useAuthState();
   const [cartLoadingId, setCartLoadingId] = useState<string | null>(null);
   const [removeLoadingId, setRemoveLoadingId] = useState<string | null>(null);
   const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
-    if (typeof window === "undefined") {
+    if (isAuthLoading || isLoggedIn) {
       return;
     }
 
-    const token =
-      window.localStorage.getItem("userToken") ||
-      window.localStorage.getItem("token");
-
-    if (!token) {
-      router.push("/login");
-      return;
-    }
-
-    setIsLoggedIn(true);
-    setIsMounted(true);
-  }, [router]);
+    router.push("/login");
+  }, [isAuthLoading, isLoggedIn, router]);
 
   const {
     data: wishlist,
     isLoading: isWishlistLoading,
     isError: isWishlistError,
   } = useGetWishlistQuery(undefined, {
-    skip: !isMounted || !isLoggedIn,
+    skip: !isLoggedIn,
   });
 
   const [addToCart] = useAddToCartMutation();
@@ -91,7 +81,7 @@ export default function WishlistPage() {
     }
   };
 
-  if (!isMounted || !isLoggedIn || isWishlistLoading) {
+  if (isAuthLoading || !isLoggedIn || isWishlistLoading) {
     return <PageLoader />;
   }
 
@@ -204,7 +194,7 @@ export default function WishlistPage() {
                           handleAddToCart(product._id, product.title)
                         }
                         disabled={isAdding}
-                        className="h-10 min-w-[130px] rounded-lg bg-[#16A34A] px-4 text-sm font-medium text-white hover:bg-[#15803D]"
+                        className="h-10 min-w-32.5 rounded-lg bg-[#16A34A] px-4 text-sm font-medium text-white hover:bg-[#15803D]"
                       >
                         {isAdding ? (
                           <>

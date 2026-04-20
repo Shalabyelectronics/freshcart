@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { getSession } from "next-auth/react";
 
 import type {
   AddAddressRequestBody,
@@ -56,18 +57,9 @@ export const apiSlice = createApi({
   ],
   baseQuery: fetchBaseQuery({
     baseUrl: "https://ecommerce.routemisr.com/api/v1",
-    prepareHeaders: (headers, { getState }) => {
-      let token: string | undefined;
-
-      const state = getState() as { auth?: { token?: string } };
-      token = state.auth?.token;
-
-      if (!token && typeof window !== "undefined") {
-        token =
-          window.localStorage.getItem("token") ??
-          window.localStorage.getItem("userToken") ??
-          undefined;
-      }
+    prepareHeaders: async (headers) => {
+      const session = await getSession();
+      const token = session?.accessToken;
 
       if (token) {
         headers.set("token", token);

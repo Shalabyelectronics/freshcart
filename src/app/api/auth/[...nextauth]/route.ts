@@ -62,7 +62,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         return {
-          id: user._id ?? user.id ?? user.email ?? email,
+          id: payload.decoded?.id ?? user._id ?? user.id ?? user.email,
           _id: user._id,
           decoded: payload.decoded,
           name: user.name ?? payload.decoded?.name ?? "",
@@ -76,7 +76,7 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id || user.decoded?.id || user._id || token.sub;
+        token.id = user.id || user._id || token.sub;
         token.role = user.role;
         token.accessToken = user.accessToken;
       }

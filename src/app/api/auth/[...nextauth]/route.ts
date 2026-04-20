@@ -75,22 +75,22 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user }) {
+      // عند تسجيل الدخول لأول مرة، نضع الـ ID في التوكن
       if (user) {
-        token.id = user.id || user._id || token.sub;
-        token.role = user.role;
-        token.accessToken = user.accessToken;
+        // نحاول جلب الـ ID من كل المصادر الممكنة في رد الـ API
+        token.id = user.id || user._id || (user as any).decoded?.id;
+        token.accessToken = (user as any).accessToken;
+        token.role = (user as any).role;
       }
-
       return token;
     },
     async session({ session, token }) {
-      session.accessToken = token.accessToken;
-
+      // ننقل الـ ID من التوكن إلى الجلسة (Session)
       if (session.user) {
-        session.user.id = token.id ?? token.sub;
-        session.user.role = token.role;
+        (session.user as any).id = token.id;
+        (session.user as any).role = token.role;
       }
-
+      (session as any).accessToken = token.accessToken;
       return session;
     },
   },

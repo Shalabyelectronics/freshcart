@@ -14,6 +14,8 @@ type SignInApiResponse = {
 const SIGN_IN_API_URL = "https://ecommerce.routemisr.com/api/v1/auth/signin";
 
 export const authOptions: NextAuthOptions = {
+  trustHost: true,
+  debug: process.env.NODE_ENV === "development",
   session: {
     strategy: "jwt",
   },

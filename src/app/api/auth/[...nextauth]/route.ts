@@ -10,6 +10,11 @@ type SignInApiResponse = {
     email?: string;
     role?: string;
   };
+  decoded?: {
+    id?: string;
+    name?: string;
+    role?: string;
+  };
 };
 
 const SIGN_IN_API_URL = "https://ecommerce.routemisr.com/api/v1/auth/signin";
@@ -48,16 +53,21 @@ export const authOptions: NextAuthOptions = {
         }
 
         const payload = (await response.json()) as SignInApiResponse;
+        const user = payload.user;
 
-        if (!payload.token || !payload.user) {
+        console.log("API Response User:", user);
+
+        if (!payload.token || !user) {
           return null;
         }
 
         return {
-          id: payload.user._id ?? payload.user.id ?? "",
-          name: payload.user.name ?? "",
-          email: payload.user.email ?? email,
-          role: payload.user.role ?? "user",
+          id: user._id ?? user.id ?? user.email ?? email,
+          _id: user._id,
+          decoded: payload.decoded,
+          name: user.name ?? payload.decoded?.name ?? "",
+          email: user.email ?? email,
+          role: user.role ?? payload.decoded?.role ?? "user",
           accessToken: payload.token,
         };
       },
@@ -66,7 +76,7 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.userId = user.id ?? token.sub;
+        token.id = user.id || user.decoded?.id || user._id || token.sub;
         token.role = user.role;
         token.accessToken = user.accessToken;
       }
@@ -77,7 +87,7 @@ export const authOptions: NextAuthOptions = {
       session.accessToken = token.accessToken;
 
       if (session.user) {
-        session.user.id = token.userId ?? token.sub;
+        session.user.id = token.id ?? token.sub;
         session.user.role = token.role;
       }
 

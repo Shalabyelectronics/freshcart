@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import {
   ArrowLeft,
   Calendar,
@@ -17,7 +18,6 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { useAuthState } from "@/hooks/useAuthState";
 import { useGetUserOrdersQuery } from "@/store/apiSlice";
 import type { Order, OrderItem } from "@/types/api";
 
@@ -87,12 +87,14 @@ function getItemImage(item?: OrderItem) {
 
 export default function AllOrdersPage() {
   const router = useRouter();
-  const { profile, isLoggedIn, isLoading: isAuthLoading } = useAuthState();
+  const { data: session, status } = useSession();
   const [expandedOrders, setExpandedOrders] = useState<Record<string, boolean>>(
     {},
   );
 
-  const resolvedUserId = profile?._id ?? "";
+  const isAuthLoading = status === "loading";
+  const isLoggedIn = status === "authenticated";
+  const resolvedUserId = session?.user?.id ?? "";
 
   useEffect(() => {
     if (isAuthLoading || isLoggedIn) {

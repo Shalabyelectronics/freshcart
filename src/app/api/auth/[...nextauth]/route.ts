@@ -5,6 +5,7 @@ type SignInApiResponse = {
   token?: string;
   user?: {
     _id?: string;
+    id?: string;
     name?: string;
     email?: string;
     role?: string;
@@ -53,7 +54,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         return {
-          id: payload.user._id ?? payload.user.email ?? email,
+          id: payload.user._id ?? payload.user.id ?? "",
           name: payload.user.name ?? "",
           email: payload.user.email ?? email,
           role: payload.user.role ?? "user",
@@ -65,7 +66,7 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.userId = user.id;
+        token.userId = user.id ?? token.sub;
         token.role = user.role;
         token.accessToken = user.accessToken;
       }
@@ -76,7 +77,7 @@ export const authOptions: NextAuthOptions = {
       session.accessToken = token.accessToken;
 
       if (session.user) {
-        session.user.id = token.userId;
+        session.user.id = token.userId ?? token.sub;
         session.user.role = token.role;
       }
 

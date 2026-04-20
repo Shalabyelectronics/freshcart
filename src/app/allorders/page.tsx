@@ -94,7 +94,8 @@ export default function AllOrdersPage() {
 
   const isAuthLoading = status === "loading";
   const isLoggedIn = status === "authenticated";
-  const resolvedUserId = session?.user?.id ?? "";
+  const userId = isLoggedIn ? (session?.user?.id ?? "") : "";
+  const shouldFetchOrders = isLoggedIn && Boolean(userId);
 
   useEffect(() => {
     if (isAuthLoading || isLoggedIn) {
@@ -104,15 +105,44 @@ export default function AllOrdersPage() {
     router.push("/login");
   }, [isAuthLoading, isLoggedIn, router]);
 
+  useEffect(() => {
+    if (!shouldFetchOrders) {
+      return;
+    }
+
+    console.log("Fetching orders for ID:", userId);
+  }, [shouldFetchOrders, userId]);
+
   const {
     data: ordersResponse,
     isLoading,
     isError,
-  } = useGetUserOrdersQuery(resolvedUserId, {
-    skip: !isLoggedIn || !resolvedUserId,
+  } = useGetUserOrdersQuery(userId, {
+    skip: !shouldFetchOrders,
   });
 
-  if (isAuthLoading || !isLoggedIn || !resolvedUserId || isLoading) {
+  if (isAuthLoading || (shouldFetchOrders && isLoading)) {
+    return <PageLoader />;
+  }
+
+  if (isLoggedIn && !userId) {
+    return (
+      <main className="min-h-screen bg-[#f7f8f3] px-4 py-8">
+        <div className="mx-auto max-w-4xl">
+          <div className="rounded-2xl border border-amber-200 bg-white p-8 shadow-sm">
+            <h2 className="text-lg font-semibold text-slate-900">
+              Unable to Resolve Account ID
+            </h2>
+            <p className="mt-2 text-sm text-slate-600">
+              Please sign out and sign in again to refresh your session.
+            </p>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  if (!isLoggedIn) {
     return <PageLoader />;
   }
 

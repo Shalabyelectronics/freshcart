@@ -165,6 +165,13 @@
   * {
     @apply border-border outline-ring/50;
   }
+  button,
+  a,
+  [role="button"],
+  input[type="submit"],
+  input[type="button"] {
+    cursor: pointer !important;
+  }
   body {
     @apply bg-background text-foreground;
   }

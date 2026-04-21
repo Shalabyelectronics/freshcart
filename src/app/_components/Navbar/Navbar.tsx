@@ -41,6 +41,8 @@ import {
   useGetWishlistQuery,
 } from "@/store/apiSlice";
 import { useAuthState } from "@/hooks/useAuthState";
+import { useAppDispatch } from "@/hooks/redux";
+import { logout } from "@/store";
 import {
   Sheet,
   SheetClose,
@@ -81,16 +83,18 @@ function getMobileNavIcon(label: string) {
 }
 
 export default function Navbar() {
+  const dispatch = useAppDispatch();
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const [isMobileCategoriesOpen, setIsMobileCategoriesOpen] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
   const { isLoggedIn, profile, isLoading: isAuthLoading } = useAuthState();
   const { data: cartData } = useGetLoggedUserCartQuery(undefined, {
-    skip: !isLoggedIn,
+    skip: !isLoggedIn || isSigningOut,
   });
   const { data: wishlistData } = useGetWishlistQuery(undefined, {
-    skip: !isLoggedIn,
+    skip: !isLoggedIn || isSigningOut,
   });
   const { data: categoriesData } = useGetCategoriesQuery();
 
@@ -111,9 +115,17 @@ export default function Navbar() {
   }, [categoriesData?.data]);
 
   async function handleSignOut() {
-    await signOut({ redirect: false });
-    toast.success("Signed out successfully.");
-    router.push("/login");
+    setIsSigningOut(true);
+    dispatch(logout());
+
+    try {
+      await signOut({ redirect: false });
+      toast.success("Signed out successfully.");
+      router.push("/login");
+    } catch {
+      setIsSigningOut(false);
+      toast.error("Unable to sign out. Please try again.");
+    }
   }
 
   function handleSearchSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -313,7 +325,7 @@ export default function Navbar() {
               className="relative p-1 transition hover:text-[#16A34A]"
             >
               <Heart className="size-7" />
-              {wishlistData?.count ? (
+              {!isSigningOut && wishlistData?.count ? (
                 <span className="absolute top-0 right-0 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
                   {wishlistData.count}
                 </span>
@@ -324,7 +336,7 @@ export default function Navbar() {
               className="relative p-1 transition hover:text-[#16A34A]"
             >
               <ShoppingCart className="size-7" />
-              {cartData?.numOfCartItems ? (
+              {!isSigningOut && cartData?.numOfCartItems ? (
                 <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
                   {cartData.numOfCartItems}
                 </span>
@@ -430,7 +442,7 @@ export default function Navbar() {
             className="relative rounded-full p-2 text-slate-600"
           >
             <Heart className="size-5" />
-            {wishlistData?.count ? (
+            {!isSigningOut && wishlistData?.count ? (
               <span className="text-type-min absolute top-0 right-0 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 font-bold text-white">
                 {wishlistData.count}
               </span>
@@ -441,7 +453,7 @@ export default function Navbar() {
             className="relative rounded-full p-2 text-slate-600"
           >
             <ShoppingCart className="size-5" />
-            {cartData?.numOfCartItems ? (
+            {!isSigningOut && cartData?.numOfCartItems ? (
               <span className="text-type-min absolute top-0 right-0 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 font-bold text-white">
                 {cartData.numOfCartItems}
               </span>
@@ -559,7 +571,7 @@ export default function Navbar() {
                         <Heart size={18} />
                         Wishlist
                       </span>
-                      {wishlistData?.count ? (
+                      {!isSigningOut && wishlistData?.count ? (
                         <span className="ml-auto inline-flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[11px] font-bold text-white">
                           {wishlistData.count}
                         </span>
@@ -576,7 +588,7 @@ export default function Navbar() {
                         <ShoppingCart size={18} />
                         Cart
                       </span>
-                      {cartData?.numOfCartItems ? (
+                      {!isSigningOut && cartData?.numOfCartItems ? (
                         <span className="ml-auto inline-flex h-5 w-5 items-center justify-center rounded-full bg-green-600 text-[11px] font-bold text-white">
                           {cartData.numOfCartItems}
                         </span>

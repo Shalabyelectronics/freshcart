@@ -1,11 +1,31 @@
-import { configureStore } from "@reduxjs/toolkit";
+import {
+  AnyAction,
+  combineReducers,
+  configureStore,
+  createAction,
+} from "@reduxjs/toolkit";
 
 import { apiSlice } from "@/store/apiSlice";
 
+export const logout = createAction("auth/logout");
+
+const appReducer = combineReducers({
+  [apiSlice.reducerPath]: apiSlice.reducer,
+});
+
+const rootReducer = (
+  state: ReturnType<typeof appReducer> | undefined,
+  action: AnyAction,
+) => {
+  if (logout.match(action)) {
+    return appReducer(undefined, action);
+  }
+
+  return appReducer(state, action);
+};
+
 export const store = configureStore({
-  reducer: {
-    [apiSlice.reducerPath]: apiSlice.reducer,
-  },
+  reducer: rootReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(apiSlice.middleware),
 });

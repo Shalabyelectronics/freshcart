@@ -179,14 +179,20 @@ export default function Navbar() {
           </div>
 
           <div className="flex items-center gap-5">
-            <p className="inline-flex items-center gap-2">
+            <a
+              href="tel:+18001234567"
+              className="inline-flex cursor-pointer items-center gap-2 transition hover:text-green-600"
+            >
               <Phone className="size-4" />
               +1 (800) 123-4567
-            </p>
-            <p className="inline-flex items-center gap-2 border-x border-[#D7DCE2] px-5">
+            </a>
+            <a
+              href="mailto:support@freshcart.com"
+              className="inline-flex cursor-pointer items-center gap-2 border-x border-[#D7DCE2] px-5 transition hover:text-green-600"
+            >
               <Mail className="size-4" />
               support@freshcart.com
-            </p>
+            </a>
 
             {isLoggedIn ? (
               <>

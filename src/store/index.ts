@@ -6,11 +6,13 @@ import {
 } from "@reduxjs/toolkit";
 
 import { apiSlice } from "@/store/apiSlice";
+import maintenanceReducer from "@/store/maintenanceSlice";
 
 export const logout = createAction("auth/logout");
 
 const appReducer = combineReducers({
   [apiSlice.reducerPath]: apiSlice.reducer,
+  maintenance: maintenanceReducer,
 });
 
 const rootReducer = (

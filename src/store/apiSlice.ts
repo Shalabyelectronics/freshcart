@@ -1,5 +1,17 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import {
+  createApi,
+  fetchBaseQuery,
+  type BaseQueryFn,
+  type FetchArgs,
+  type FetchBaseQueryError,
+} from "@reduxjs/toolkit/query/react";
 import { getSession } from "next-auth/react";
+
+import {
+  MAINTENANCE_AUTO_DETECTION_ENABLED,
+  ROUTEMISR_API_BASE_URL,
+} from "@/config/maintenance";
+import { reportApiFailure, reportApiSuccess } from "@/store/maintenanceSlice";
 
 import type {
   AddAddressRequestBody,
@@ -45,6 +57,56 @@ import type {
   WishlistResponse,
 } from "@/types/api";
 
+const rawBaseQuery = fetchBaseQuery({
+  baseUrl: ROUTEMISR_API_BASE_URL,
+  prepareHeaders: async (headers) => {
+    const session = await getSession();
+    const token = session?.accessToken;
+
+    if (token) {
+      headers.set("token", token);
+      headers.set("Authorization", `Bearer ${token}`);
+    }
+
+    return headers;
+  },
+});
+
+const baseQueryWithMaintenanceTracking: BaseQueryFn<
+  string | FetchArgs,
+  unknown,
+  FetchBaseQueryError
+> = async (args, api, extraOptions) => {
+  const result = await rawBaseQuery(args, api, extraOptions);
+
+  if (!MAINTENANCE_AUTO_DETECTION_ENABLED) {
+    return result;
+  }
+
+  if ("error" in result && result.error) {
+    const status = result.error.status;
+    const isOutageError =
+      status === "TIMEOUT_ERROR" ||
+      status === "FETCH_ERROR" ||
+      (typeof status === "number" && status >= 500);
+
+    if (isOutageError) {
+      api.dispatch(
+        reportApiFailure(
+          typeof status === "string" ? status : `HTTP_${String(status)}`,
+        ),
+      );
+    } else {
+      api.dispatch(reportApiSuccess());
+    }
+
+    return result;
+  }
+
+  api.dispatch(reportApiSuccess());
+  return result;
+};
+
 export const apiSlice = createApi({
   reducerPath: "api",
   tagTypes: [
@@ -55,20 +117,7 @@ export const apiSlice = createApi({
     "SubCategories",
     "Reviews",
   ],
-  baseQuery: fetchBaseQuery({
-    baseUrl: "https://ecommerce.routemisr.com/api/v1",
-    prepareHeaders: async (headers) => {
-      const session = await getSession();
-      const token = session?.accessToken;
-
-      if (token) {
-        headers.set("token", token);
-        headers.set("Authorization", `Bearer ${token}`);
-      }
-
-      return headers;
-    },
-  }),
+  baseQuery: baseQueryWithMaintenanceTracking,
   endpoints: (builder) => ({
     signUp: builder.mutation<AuthSuccessResponse, SignUpRequestBody>({
       query: (body) => ({

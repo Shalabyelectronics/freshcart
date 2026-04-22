@@ -3,6 +3,7 @@
 import { Provider } from "react-redux";
 import { SessionProvider } from "next-auth/react";
 
+import MaintenanceGuard from "@/components/custom/MaintenanceGuard";
 import { store } from "@/store";
 
 interface StoreProviderProps {
@@ -12,7 +13,10 @@ interface StoreProviderProps {
 export default function StoreProvider({ children }: StoreProviderProps) {
   return (
     <SessionProvider>
-      <Provider store={store}>{children}</Provider>
+      <Provider store={store}>
+        <MaintenanceGuard />
+        {children}
+      </Provider>
     </SessionProvider>
   );
 }

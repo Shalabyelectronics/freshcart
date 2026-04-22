@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Exo, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Navbar from "./_components/Navbar/Navbar";
-import Footer from "./_components/Footer/Footer";
+import AppChrome from "./_components/AppChrome";
 import StoreProvider from "@/store/provider";
 import { Toaster } from "react-hot-toast";
 
@@ -55,9 +54,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <StoreProvider>
-          <Navbar />
-          {children}
-          <Footer />
+          <AppChrome>{children}</AppChrome>
           <Toaster position="top-center" />
         </StoreProvider>
       </body>

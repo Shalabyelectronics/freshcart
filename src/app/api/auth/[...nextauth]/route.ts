@@ -3,6 +3,11 @@ import CredentialsProvider from "next-auth/providers/credentials";
 
 type SignInApiResponse = {
   token?: string;
+  message?: string;
+  errors?: {
+    msg?: string;
+    message?: string;
+  }[];
   user?: {
     _id?: string;
     id?: string;
@@ -74,11 +79,17 @@ export const authOptions: NextAuthOptions = {
           cache: "no-store",
         });
 
+        const payload = (await response.json()) as SignInApiResponse;
+
         if (!response.ok) {
-          return null;
+          const apiMessage =
+            payload.message ||
+            payload.errors?.[0]?.msg ||
+            payload.errors?.[0]?.message ||
+            "Incorrect email or password";
+          throw new Error(apiMessage);
         }
 
-        const payload = (await response.json()) as SignInApiResponse;
         const user = payload.user;
         const userId =
           payload.decoded?.id || payload.user?._id || payload.user?.id;

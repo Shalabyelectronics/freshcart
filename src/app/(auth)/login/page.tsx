@@ -34,24 +34,6 @@ import { LoginSchema, type LoginFormValues } from "@/types/schemas";
 
 const BRAND_GREEN = "#16A34A";
 
-function getApiErrorMessage(error: unknown) {
-  if (!error || typeof error !== "object") {
-    return "Something went wrong. Please try again.";
-  }
-
-  const maybeData = (error as { data?: { message?: string } }).data;
-  if (maybeData?.message) {
-    return maybeData.message;
-  }
-
-  const maybeError = (error as { error?: string }).error;
-  if (maybeError) {
-    return maybeError;
-  }
-
-  return "Something went wrong. Please try again.";
-}
-
 export default function LoginPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -81,13 +63,19 @@ export default function LoginPage() {
       });
 
       if (nextAuthResult?.error) {
-        throw new Error(nextAuthResult.error);
+        toast.error(nextAuthResult.error || "Incorrect email or password");
+        return;
+      }
+
+      if (!nextAuthResult?.ok) {
+        toast.error("Incorrect email or password");
+        return;
       }
 
       toast.success("Signed in successfully.");
       router.push("/");
-    } catch (error) {
-      toast.error(getApiErrorMessage(error));
+    } catch {
+      toast.error("Incorrect email or password");
     } finally {
       setIsLoading(false);
     }

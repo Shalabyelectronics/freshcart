@@ -132,7 +132,7 @@ export default function RegisterPage() {
   return (
     <main className="mx-auto w-full max-w-7xl px-4 py-6 md:px-6 md:py-8">
       <section className="grid min-h-[calc(100vh-11rem)] grid-cols-1 gap-6 md:grid-cols-2">
-        <aside className="rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-6 md:p-7">
+        <aside className="order-2 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-6 md:order-1 md:p-7">
           <h1 className="text-type-max leading-tight font-bold text-slate-700">
             Welcome to <span style={{ color: BRAND_GREEN }}>FreshCart</span>
           </h1>
@@ -218,7 +218,7 @@ export default function RegisterPage() {
           </article>
         </aside>
 
-        <section className="rounded-xl border border-[#E2E8F0] bg-white p-6 md:p-7">
+        <section className="order-1 rounded-xl border border-[#E2E8F0] bg-white p-6 md:order-2 md:p-7">
           <h2 className="text-type-max text-center font-bold text-slate-700">
             Create Your Account
           </h2>
